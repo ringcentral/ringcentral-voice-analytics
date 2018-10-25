@@ -7,3 +7,4 @@ npm-debug.log*
 node_modules/
 # Optional npm cache directory
 .npm
+.env
