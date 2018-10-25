@@ -9,7 +9,7 @@ body {
   color: #0073ae;
   font-size: 1.2em;
   font-weight: bold;
-  margin-top: 20px !important;
+  margin-top: 20px;
 }
 
 audio
@@ -133,7 +133,7 @@ input, select {
 }
 .navbar-default .navbar-nav > li > a {
   font-size: 14px;
-  color: #0073ae !important;
+  color: #0073ae;
   border: 0px !important;
   padding: 0px !important;
 }

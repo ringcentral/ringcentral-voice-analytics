@@ -11,13 +11,14 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" type="text/css" href="./css/ui.css">
     <script type="text/javascript">
     </script>
 </head>
 <body  onload="initForRecordedCalls()">
   <nav class="navbar navbar-default no-border">
     <span class="left-middle-align">
-      <span><a href="/"><img alt="Brand" src="img/ringcentral.png" height="40"></a></span>&nbsp;&nbsp;
+      <span class="rclogo"><a href="/"><img alt="Brand" src="img/ringcentral.png" height="40"></a></span>&nbsp;&nbsp;
       <span class="title">Voice Communications Analytics</span>
     </span>
     <ul class="nav navbar-nav navbar-right middle-align">
@@ -202,8 +203,8 @@
         </form>
       </div>
     </div>
-    <div class="row">
-      <div class="col-xs-12">
+    <div class="row table-content">
+      <div class="col-xs-12 table-header">
         <table class="table">
           <thead>
             <tr class="header">
@@ -425,5 +426,6 @@
     </div>
   </div-->
   </section>
+  <%- include('_footer') %>
 </body>
 </html>
