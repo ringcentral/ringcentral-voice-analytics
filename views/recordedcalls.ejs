@@ -1,0 +1,429 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Voice Communications Analysis Demo</title>
+    <script src="js/main.js" type="text/javascript"></script>
+    <script src="js/jquery-3.1.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <script type="text/javascript">
+    </script>
+</head>
+<body  onload="initForRecordedCalls()">
+  <nav class="navbar navbar-default no-border">
+    <span class="left-middle-align">
+      <span><a href="/"><img alt="Brand" src="img/ringcentral.png" height="40"></a></span>&nbsp;&nbsp;
+      <span class="title">Voice Communications Analytics</span>
+    </span>
+    <ul class="nav navbar-nav navbar-right middle-align">
+      <li><span><b>&nbsp;&nbsp;<%- userName %>&nbsp;&nbsp;</b></span></li>
+      <li><a href="/about">&nbsp;&nbsp;About</a></li>
+      <li><a href="/#">&nbsp;|&nbsp;</a</li>
+      <% if (user == 'real') { %>
+      <li><a href="#" onclick="logout()">Logout</a></li>
+      <% } %>
+    </ul>
+  </nav>
+  <!--nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <div style="display:inline">
+          <ul class="nav navbar-nav">
+            <li><a href="#"><img alt="Brand" src="img/ringcentral.png" height="30"></a></li>
+            <li><a href="#"><span class="title">Voice Communications Analytics</span></a></li>
+          </ul>
+        </div>
+        <span class="header-right">
+          <span><a href="/about"><%- userName %></a></span>
+          <span><a href="/about">About</a></span>
+          <span><a href="/#">|</a</span>
+          <% if (user == 'real') { %>
+          <span><a href="#" onclick="logout()">Logout</a></span>
+          <% } %>
+        </span>
+      </div>
+
+      <ul class="nav navbar-nav navbar-right" style="margin:2px;">
+        <li><a href="/#"><%- userName %></a</li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/#">|</a</li>
+        <% if (user == 'real') { %>
+        <li><a href="#" onclick="logout()">Logout</a></li>
+        <% } %>
+      </ul>
+    </div>
+  </nav-->
+  <script>
+    window.calls = <%- JSON.stringify(calls) %>;
+    window.userName = '<%- userName %>';
+  </script>
+  <section id='content'>
+    <div class="row">
+      <div class="col-xs-12 search-block">
+        <form action="/search" method="POST" class="form-inline">
+          <div class="form-group">
+            <select name='fields' class="form-control" onchange="setSearchFields(this)">
+              <% if (fieldArg == 'all') { %>
+                <option selected value='all'>All</option>
+              <% } else { %>
+                <option value='all'>All</option>
+              <% } %>
+              <% if (fieldArg == 'transcript') { %>
+                <option selected value='transcript'>Transcript</option>
+              <% } else { %>
+                <option value='transcript'>Transcript</option>
+              <% } %>
+              <% if (fieldArg == 'keywords') { %>
+                <option selected value='keywords'>Keywords</option>
+              <% } else { %>
+                <option value='keywords'>Keywords</option>
+              <% } %>
+            <!--
+              <% if (fieldArg == 'concepts') { %>
+                <option selected value='concepts'>Concepts</option>
+              <% } else { %>
+                <option value='concepts'>Concepts</option>
+              <% } %>
+            -->
+              <% if (fieldArg == 'from') { %>
+                <option selected value='from'>From</option>
+              <% } else { %>
+                <option value='from'>From</option>
+              <% } %>
+              <% if (fieldArg == 'to') { %>
+                <option selected value='to'>To</option>
+              <% } else { %>
+                <option value='to'>To</option>
+              <% } %>
+              <% if (fieldArg == 'extension') { %>
+                <option selected value='extension'>Extension</option>
+              <% } else { %>
+                <option value='extension'>Extension</option>
+              <% } %>
+              <!--
+              <% if (fieldArg == 'categories') { %>
+                <option selected value='categories'>Categories</option>
+              <% } else { %>
+                <option value='categories'>Categories</option>
+              <% } %>
+              -->
+            </select>
+            <input type="text" class="form-control" name="search" style="display: inline" placeholder="Search calls" value="<%= searchArg %>" id="search" required onfocus="selectSelectText()">
+            &nbsp;
+            <button type="submit" class="btn-rc" id="search">Search</button>
+
+            <label for="types">Filter by</label>
+            <select name='types' class="form-control">
+              <% if (typeArg == '') { %>
+                <option value="" disabled selected>Call type</option>
+              <% } %>
+              <% if (typeArg == 'all') { %>
+                <option value='all'>All</option>
+              <% } else { %>
+                <option value='all'>All</option>
+              <% } %>
+              <% if (typeArg == 'CR') { %>
+                <option selected value='CR'>Call recording</option>
+              <% } else { %>
+                <option value='CR'>Call recording</option>
+              <% } %>
+              <% if (typeArg == 'VM') { %>
+                <option selected value='VM'>Voicemail</option>
+              <% } else { %>
+                <option value='VM'>Voicemail</option>
+              <% } %>
+              <% if (typeArg == 'VR') { %>
+                <option selected value='VR'>Video Demo</option>
+              <% } else { %>
+                <option value='VR'>Video Demo</option>
+              <% } %>
+              <% if (typeArg == 'PR') { %>
+                <option selected value='PR'>Call Demo</option>
+              <% } else { %>
+                <option value='PR'>Call Demo</option>
+              <% } %>
+            </select>
+            <select id="sentiment-option" name='sentiment' class="form-control" onchange="enableSlider()">
+              <% if (sentimentArg == '') { %>
+                <option value="" disabled selected>Sentiment</option>
+              <% } %>
+              <% if (sentimentArg == 'all') { %>
+                <option value='all'>All</option>
+              <% } else { %>
+                <option value='all'>All</option>
+              <% } %>
+              <% if (sentimentArg == 'positive') { %>
+                <option selected value='positive'>Positive</option>
+              <% } else { %>
+                <option value='positive'>Positive</option>
+              <% } %>
+              <% if (sentimentArg == 'negative') { %>
+                <option selected value='negative'>Negative</option>
+              <% } else { %>
+                <option value='negative'>Negative</option>
+              <% } %>
+              <% if (sentimentArg == 'neutral') { %>
+                <option selected value='neutral'>Neutral</option>
+              <% } else { %>
+                <option value='neutral'>Neutral</option>
+              <% } %>
+            </select>
+          </div>
+          <!--
+          <span class="dropdown">
+            <button id="sentiment-dropdown" class="btn btn-nobackbround dropdown-toggle" style="width: 160px;margin-bottom:5px" data-toggle="dropdown"><span id="selected_sentiment">Positive</span> <span class="caret"></span></button>
+            <ul id="dropdown-list" class="dropdown-menu">
+              <li><span data-value="option1" tabIndex="-1">Positive&nbsp;<input type="range" min="0" max="1000" name="positiveRange" id="positiveRange" value=0></input></span></li>
+              <li><span data-value="option2" tabIndex="-1">Negative&nbsp;<input type="range" min="0" max="1000" name="negativeRange" id="negativeRange" value=0></input></span></li>
+              <li class="divider"></li>
+              <li><a href="#" data-value="option3" tabIndex="-1">Neutral</a></li>
+              <li><a href="#" data-value="option4" tabIndex="-1">All</a></li>
+            </ul>
+          </span>
+          -->
+          <select name="categories" class="form-control" id="categoryField" style="display: inline">
+          <% var categoryArr = JSON.parse(categories) %>
+          <% if (catIndex == '') { %>
+            <option value="" disabled selected>Category</option>
+          <% } %>
+          <% for (var i = 0; i < categoryArr.length; i++) { %>
+            <% if (catIndex == categoryArr[i]) { %>
+            <option value="<%= categoryArr[i] %>"><%= categoryArr[i] %></option>
+            <% } else { %>
+            <option value="<%= categoryArr[i] %>"><%= categoryArr[i] %></option>
+            <% } %>
+          <% } %>
+          </select>
+        </form>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <table class="table">
+          <thead>
+            <tr class="header">
+              <th width="2%">
+                <input type=checkbox width=10 height=10 onchange="selectionHandler(this)"/>
+              </th>
+              <!--th width="2%">Dur</th-->
+              <th width="3%">Type</th>
+              <th width="10%">Employee</th>
+              <th width="8%">Customer</th>
+              <th width="12%">Date/Time</th>
+              <th width="5%">Sentiment</th>
+              <th width="12%">Subject</th>
+              <th width="48%">Keywords</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+      <div id="call_list" class="col-xs-12 scrollable_calllist">
+        <table id="call_items" class="table">
+          <tbody>
+            <% for (var i = 0; i < calls.length; i++) { %>
+            <tr>
+              <td width="2%" class="td-active">
+                <input type="checkbox" id="sel_<%= calls[i]['uid'] %>" onchange="selectForDelete(this, '<%= calls[i]['uid'] %>', '<%= calls[i]['call_type'] %>', '<%= calls[i]['rec_id'] %>')" />
+              </td>
+              <!--td width="2%" class="td-inactive">
+                <% var duration = parseInt(calls[i].duration) %>
+                <% var min = "00" %>
+                <% if (duration > 60) { %>
+                  <% var min = parseInt(duration / 60) %>
+                  <% min = (min < 10) ? '0' + min.toString() : min.toString() %>
+                  <% var sec = duration % 60 %>
+                  <% sec = (sec < 10) ? '0' + sec.toString() : sec.toString() %>
+                  <span><%= min + ":" + sec %></span>
+                <% } else { %>
+                <% duration = (duration < 10) ? '0' + duration.toString() : duration.toString() %>
+                <span><%= "00:" + duration %></span>
+                <% } %>
+              </td-->
+              <td width="3%" class="td-active">
+                <% var icon = 'img/' + calls[i]['call_type'] + '.png' %>
+                  <img src='<%= icon %>' ></img>
+              </td>
+              <td width="10%" class="td-active">
+                <!--div><%= calls[i]['full_name'] %></div-->
+                <% if (calls[i].direction == "Out") { %>
+                  <% if (calls[i]['from_name'] != "Unknown") { %>
+                    <% if (calls[i]['from_number'] != "Unknown #") { %>
+                      <div><a href="rcmobile://call?number=<%= calls[i]['from_number'] %>"><%= calls[i]['from_name'] %></a></div>
+                    <% } else { %>
+                      <div><%= calls[i]['from_name'] %></div>
+                    <% } %>
+                  <% } else { %>
+                    <% if (calls[i]['from_number'] != "Unknown #") { %>
+                      <div><a href="rcmobile://call?number=<%= calls[i]['from_number'] %>"><%= calls[i]['from_number'] %></a></div>
+                    <% } else { %>
+                      <div><%= calls[i]['from_name'] %></div>
+                    <% } %>
+                  <% } %>
+                <% } else { %>
+                  <% if (calls[i]['to_name'] != "Unknown") { %>
+                    <% if (calls[i]['to_number'] != "Unknown #") { %>
+                      <div><a href="rcmobile://call?number=<%= calls[i]['to_number'] %>"><%= calls[i]['to_name'] %></a></div>
+                    <% } else { %>
+                      <div><%= calls[i]['to_name'] %></div>
+                    <% } %>
+                  <% } else { %>
+                    <% if (calls[i]['to_number'] != "Unknown #") { %>
+                      <div><a href="rcmobile://call?number=<%= calls[i]['to_number'] %>"><%= calls[i]['to_number'] %></a></div>
+                    <% } else { %>
+                      <div><%= calls[i]['to_name'] %></div>
+                    <% } %>
+                  <% } %>
+                <% } %>
+              </td>
+              <td width="8%" class="td-active">
+              <% if (calls[i].direction == "In") { %>
+                <% if (calls[i]['from_name'] != "Unknown") { %>
+                  <% if (calls[i]['from_number'] != "Unknown #") { %>
+                    <div><a href="rcmobile://call?number=<%= calls[i]['from_number'] %>"><%= calls[i]['from_name'] %></a></div>
+                  <% } else { %>
+                    <div><%= calls[i]['from_name'] %></div>
+                  <% } %>
+                <% } else { %>
+                  <% if (calls[i]['from_number'] != "Unknown #") { %>
+                    <div><a href="rcmobile://call?number=<%= calls[i]['from_number'] %>"><%= calls[i]['from_number'] %></a></div>
+                  <% } else { %>
+                    <div><%= calls[i]['from_name'] %></div>
+                  <% } %>
+                <% } %>
+              <% } else { %>
+                <% if (calls[i]['to_name'] != "Unknown") { %>
+                  <% if (calls[i]['to_number'] != "Unknown #") { %>
+                    <div><a href="rcmobile://call?number=<%= calls[i]['to_number'] %>"><%= calls[i]['to_name'] %></a></div>
+                  <% } else { %>
+                    <div><%= calls[i]['to_name'] %></div>
+                  <% } %>
+                <% } else { %>
+                  <% if (calls[i]['to_number'] != "Unknown #") { %>
+                    <div><a href="rcmobile://call?number=<%= calls[i]['to_number'] %>"><%= calls[i]['to_number'] %></a></div>
+                  <% } else { %>
+                    <div><%= calls[i]['to_name'] %></div>
+                  <% } %>
+                <% } %>
+              <% } %>
+              </td>
+              <td width="12%" class="td-active">
+              <% let options = {  month: 'short',day: 'numeric',year: 'numeric',hour: '2-digit',minute: '2-digit'}; %>
+              <% var d = new Date(parseInt(calls[i]['call_date'])).toLocaleDateString("en-US", options) %>
+              <div><%= d %></div>
+              </td>
+
+              <td width="5%" class="td-active">
+                <% if (calls[i]['processed'] == false) { %>
+                  <div id="st_<%= calls[i]['uid'] %>" >--</div>
+                <% } else { %>
+                  <% var icon = 'img/' %>
+                  <% icon += calls[i]['sentiment_label'] %>
+                  <% icon += '.png' %>
+                  <img id="st_<%= calls[i]['uid'] %>" src='<%= icon %>' class="sentiment_icon"></img>
+                  <!--
+                  <% if (calls[i]['sentiment_score_hi'] > 0.7) { %>
+                    <img id="hi_<%= calls[i]['uid'] %>" src='img/good.png' class="sentiment_icon"></img>
+                  <% } %>
+                  <% if (calls[i]['sentiment_score_low'] < -0.7) { %>
+                    <img id="lo_<%= calls[i]['uid'] %>" src='img/bad.png' class="sentiment_icon"></img>
+                  <% } %>
+                  <% if (calls[i]['has_profanity'] == 1) { %>
+                    <img id="pr_<%= calls[i]['uid'] %>" src='img/warning.png' class="sentiment_icon"></img>
+                  <% } %>
+                  -->
+                <% } %>
+              </td>
+              <td width="12%" class="td-active">
+              <% if (calls[i]['processed'] == false) { %>
+              <!--
+                <button class="btn-rc" id="te_<%= calls[i]['uid'] %>" onclick="transcribe('<%= calls[i]['uid'] %>', '<%= calls[i]['call_type'] %>', '<%= calls[i]['recording_url'] %>')">Transcribe</button>
+                <img style="display: none;" class="call_icon" id="pi_<%= calls[i]['uid'] %>" src="./img/processing.gif"></img>
+                <div class="transcript_brief" style="display: none" id="tt_<%= calls[i]['uid'] %>"></div>
+              -->
+                <div>--</div>
+              <% } else { %>
+                <% var itemArr = JSON.parse(calls[i].keywords) %>
+                <span><%= itemArr[0].text %></span>
+                <!--
+                <% var count = itemArr.length %>
+                <% for (var ii=0; ii < count; ii++) { %>
+                  <% var item = itemArr[ii] %>
+
+                  <span><%= item.text %>; </span>
+                  <% if (ii > 1) { %>
+                    <% break %>
+                  <% } %>
+                <% } %>
+                -->
+              <% } %>
+              </td>
+              <td width="48%" class="td-active">
+              <% if (calls[i]['processed'] == false) { %>
+                <div>--</div>
+              <% } else { %>
+                <span class="transcript_brief" id="tt_<%= calls[i]['uid'] %>">
+                  <% var itemArr = JSON.parse(calls[i].keywords) %>
+                  <% var count = itemArr.length %>
+                  <% for (var ii=1; ii < count; ii++) { %>
+                    <% var item =itemArr[ii] %>
+                    <span class="keyword"><%= item.text %> </span>
+                    <% if (ii > 4) { %>
+                      <% break %>
+                    <% } %>
+                  <% } %>
+                  <!--
+                  <% var itemArr = JSON.parse(calls[i].sentiments) %>
+                  <% for (var item of itemArr) { %>
+                    <% if (item.hasOwnProperty('positive')) { %>
+                      <% for (var pos of item.positive) { %>
+                        <% if (pos.topic != null) { %>
+                          <span class="positive-topic"><%- pos.topic %></span>
+                        <% } %>
+                      <% } %>
+                    <% } %>
+                    <% if (item.hasOwnProperty('negative')) { %>
+                      <% for (var neg of item.negative) { %>
+                        <% if (neg.topic != null) { %>
+                          <span class="negative-topic"><%- neg.topic %></span>
+                        <% } %>
+                      <% } %>
+                    <% } %>
+                  <% } %>
+                  -->
+                </span>
+              <% } %>
+              </td>
+            </tr>
+            <% } %>
+          </tbody>
+      </table>
+    </div>
+  </div>
+  <!--div class="row">
+    <div align="right" style="margin-top: -20px">
+      <span>Total: <%= itemCount %> items</span>
+      <button class="btn-default" id="rem_btn" disabled onclick="confirmRemoveSelectedItemsFromDB()">Remove</button>
+      <button class="btn-default" id="del_btn" disabled onclick="confirmDeleteSelectedItemsFromCallLogDb()">Delete</button>
+    </div>
+  </div-->
+  <!--div class="row">
+    <div class="col-xs-12">
+      <div width="70%" align="center">
+        <img id="playing_sentiment" src='/img/neutral.png' class="sentiment_icon"></img>&nbsp;&nbsp;
+        <span id="playing_name">No name</span>&nbsp;&nbsp;&nbsp;
+        <span id="playing_from">Unknown</span>
+        <audio id="audio_player" controls controlsList="nodownload volume">
+          <source id="audio_src" src='' type='audio/mpeg'>
+            Your browser does not support the audio element.
+        </audio>
+      </div>
+    </div>
+  </div-->
+  </section>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Voice communications analytics demo</title>
+    <script src="js/main.js" type="text/javascript"></script>
+    <script src="js/jquery-3.1.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <script>
+    </script>
+</head>
+<body onload="initForReadLog()">
+  <nav class="navbar navbar-default no-border">
+    <span class="left-middle-align">
+      <span><a href="/"><img alt="Brand" src="img/ringcentral.png" height="40"></a></span>&nbsp;&nbsp;
+      <span class="title">Voice Communications Analytics</span>
+    </span>
+    <ul class="nav navbar-nav navbar-right middle-align">
+      <li><span><b><%- userName %>&nbsp;&nbsp;</b></span></li>
+      <% if (user == 'real') { %>
+      <li><a href="/readlog">&nbsp;&nbsp;Read&nbsp;&nbsp;</a></li>
+      <% } %>
+      <li><a href="/recordedcalls">&nbsp;&nbsp;List&nbsp;&nbsp;</a></li>
+      <li><a href="/about">&nbsp;&nbsp;Help</a></li>
+      <li><span>&nbsp;|&nbsp;</span></li>
+      <% if (user == 'real') { %>
+      <li><a href="#" onclick="logout()">Logout</a></li>
+      <% } %>
+    </ul>
+  </nav>
+  <section id='content'>
+    <% if (user == 'real') { %>
+    <form class="form-inline">
+      <div class="form-group">
+        <label for="fromDate">From Date</label>
+          <input type="text" id="fromdatepicker"></input>&nbsp;&nbsp;
+        <label for="toDate">To Date</label>
+          <input type="text" id="todatepicker"></input>&nbsp;
+        <button id="readcalllogs" class="btn-rc" onclick="readCallLogs()" style="display:inline">Read Call Logs</button>
+
+        <button type="button" class="btn-rc" onclick="enableNotification()" id="notification_btn" style="display:inline">Enable Auto Processing</button>
+        <!--
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <input id="finput" type="file" style="display:inline" onchange="loadPrerecordedAudioFile(this)">
+        <button type="button" class="btn-rc" onclick="processSelectedAudioFile()" style="display:inline">Add to DB</button>
+        -->
+      </div>
+      <img src='./img/logging.gif' id="logginIcon" style='width:40px;height:40px;display: none'></img>
+    </form>
+    <% } %>
+    <!--
+    <hr>
+    <div class="row">
+      <div class="col-xs-12">
+          <table>
+            <tr id="records_list"></tr>
+          </table>
+      </div>
+    </div>
+    -->
+  </section>
+</body>
+</html>
