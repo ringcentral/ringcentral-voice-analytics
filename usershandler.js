@@ -1201,8 +1201,8 @@ User.prototype = {
       });
     },
     searchCallsFromDB: function(req, res){
-      var posVal = req.body.positiveRange/1000
-      var negVal = (req.body.negativeRange/1000) * -1
+      //var posVal = req.body.positiveRange/1000
+      //var negVal = (req.body.negativeRange/1000) * -1
 
       //var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, transcript, processed, from_number, from_name, to_number, to_name, sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, keywords FROM " + this.getUserTable() + " WHERE "
       var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, processed, from_number, from_name, to_number, to_name, sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, keywords, sentiments, direction, duration FROM " + this.getUserTable() + " WHERE "
@@ -1216,14 +1216,12 @@ User.prototype = {
       if (req.body.fields == "all"){
         if (searchArg == "*") {
           if (req.body.sentiment == "positive")
-            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
+            query += "sentiment_label='" + req.body.sentiment + "'";
           else if (req.body.sentiment == "negative")
-            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= " + negVal;
+            query += "sentiment_label='" + req.body.sentiment + "'";
           else if (req.body.sentiment == "neutral")
             query += "sentiment_label='" + req.body.sentiment + "'";
           else{
-            req.body.positiveRange = 1
-            req.body.negativeRange = 1
             query += "(sentiment_score_low <= 0 OR sentiment_score_hi >= 0)";
           }
         }else{
@@ -1256,13 +1254,13 @@ User.prototype = {
         query += "processed=true AND "
         if (searchArg == "*") {
           if (req.body.sentiment == "positive")
-            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
+            query += "sentiment_label='" + req.body.sentiment + "'";
           else if (req.body.sentiment == "negative")
-            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= " + negVal;
+            query += "sentiment_label='" + req.body.sentiment + "'";
           else if (req.body.sentiment == "neutral")
             query += "sentiment_label='" + req.body.sentiment + "'";
           else{
-            query += "(sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
+            query += "(sentiment_score_low <= 0 OR sentiment_score_hi >= 0)";
           }
         }else{
           /*
@@ -1277,133 +1275,132 @@ User.prototype = {
           */
           //var reg = " \b[" + searchArg + "\b]"
           if (req.body.sentiment == "positive")
-            query += "transcript ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
+            query += "transcript ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "'";
           else if (req.body.sentiment == "negative")
-            query += "transcript ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= " + negVal;
+            query += "transcript ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "'";
           else if (req.body.sentiment == "neutral")
             query += "transcript ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "'";
           else
-            query += "transcript ILIKE '%" + searchArg + "%' AND (sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
+            query += "transcript ILIKE '%" + searchArg + "%' AND (sentiment_score_low <= 0 OR sentiment_score_hi >= 0)";
         }
       }else if (req.body.fields == "keywords"){
         query += "processed=true AND "
         if (searchArg == "*") {
           if (req.body.sentiment == "positive")
-            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
+            query += "sentiment_label='" + req.body.sentiment + "'";
           else if (req.body.sentiment == "negative")
-            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= " + negVal;
+            query += "sentiment_label='" + req.body.sentiment + "'";
           else if (req.body.sentiment == "neutral")
             query += "sentiment_label='" + req.body.sentiment + "'";
           else{
-            query += "(sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
+            query += "(sentiment_score_low <= 0 OR sentiment_score_hi >= 0)";
           }
         }else{
           if (req.body.sentiment == "positive")
-            query += "keywords ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
+            query += "keywords ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "'";
           else if (req.body.sentiment == "negative")
-            query += "keywords ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= " + negVal;
+            query += "keywords ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "'";
           else if (req.body.sentiment == "neutral")
             query += "keywords ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "'";
           else
-            query += "keywords ILIKE '%" + searchArg + "%' " + " AND (sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
+            query += "keywords ILIKE '%" + searchArg + "%' " + " AND (sentiment_score_low <= 0 OR sentiment_score_hi >= 0)";
         }
       }else if (req.body.fields == "concepts"){
         query += " processed=true AND "
         if (searchArg == "*") {
           if (req.body.sentiment == "positive")
-            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
+            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= 0";
           else if (req.body.sentiment == "negative")
-            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= " + negVal;
+            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= 0";
           else if (req.body.sentiment == "neutral")
             query += "sentiment_label='" + req.body.sentiment + "'";
           else{
-            query += "(sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
+            query += "(sentiment_score_low <= 0 OR sentiment_score_hi >= 0)";
           }
         }else{
           if (req.body.sentiment == "positive")
-            query += "concepts ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
+            query += "concepts ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= 0";
           else if (req.body.sentiment == "negative")
-            query += "concepts ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= " + negVal;
+            query += "concepts ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= 0";
           else if (req.body.sentiment == "neutral")
             query += "concepts ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "'";
           else
-            query += "concepts ILIKE '%" + searchArg + "%' " + " AND (sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
+            query += "concepts ILIKE '%" + searchArg + "%'" + " AND (sentiment_score_low <= 0 OR sentiment_score_hi >= 0)";
         }
       }else if (req.body.fields == "from"){
         if (searchArg == "*") {
           if (req.body.sentiment == "positive")
-            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
+            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= 0";
           else if (req.body.sentiment == "negative")
-            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= " + negVal;
+            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= 0";
           else if (req.body.sentiment == "neutral")
             query += "sentiment_label='" + req.body.sentiment + "'";
           else
-            query += "(sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
+            query += "(sentiment_score_low <= 0 OR sentiment_score_hi >= 0)";
         }else{
           query += "from_number ILIKE '%" + searchArg + "%' OR from_name ILIKE '%" + searchArg + "%'"
           if (req.body.sentiment == "positive")
-            query += " AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi > " + posVal;
+            query += " AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= 0";
           else if (req.body.sentiment == "negative")
-            query += " AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low < " + negVal;
+            query += " AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= 0";
           else if (req.body.sentiment == "neutral")
             query += " AND sentiment_label='" + req.body.sentiment + "'";
           else
-            query += " AND (sentiment_score_low <= " + negVal + " OR sentiment_score_hi > " + posVal + ")";
+            query += " AND (sentiment_score_low <= 0 OR sentiment_score_hi > 0)";
         }
       }else if (req.body.fields == "to"){
         if (searchArg == "*") {
           if (req.body.sentiment == "positive")
-            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi > " + posVal;
+            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= 0";
           else if (req.body.sentiment == "negative")
-            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low < " + negVal;
+            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= 0";
           else if (req.body.sentiment == "neutral")
             query += "sentiment_label='" + req.body.sentiment + "'";
           else
-            //query += "1";
-            query += "(sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
+            query += "(sentiment_score_low <= 0 OR sentiment_score_hi >= 0)";
         }else{
           query += "to_number ILIKE '%" + searchArg + "%' OR to_name ILIKE '%" + searchArg + "%'"
           if (req.body.sentiment == "positive")
-            query += " AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
+            query += " AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= 0";
           else if (req.body.sentiment == "negative")
-            query += " AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= " + negVal;
+            query += " AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= 0";
           else if (req.body.sentiment == "neutral")
             query += " AND sentiment_label='" + req.body.sentiment + "'";
           else
-            query += " AND (sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
+            query += " AND (sentiment_score_low <= 0 OR sentiment_score_hi >= 0)";
         }
       }else if (req.body.fields == "extension"){
         if (searchArg == "*") {
           if (req.body.sentiment == "positive")
-            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
+            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= 0";
           else if (req.body.sentiment == "negative")
-            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= " + negVal;
+            query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= 0"
           else if (req.body.sentiment == "neutral")
             query += "sentiment_label='" + req.body.sentiment + "'";
           else
-            query += "(sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
+            query += "(sentiment_score_low <= 0 OR sentiment_score_hi >= 0)";
         }else{
           if (req.body.sentiment == "positive")
-            query += "extension_num='" + searchArg + "' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
+            query += "extension_num='" + searchArg + "' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= 0";
           else if (req.body.sentiment == "negative")
-            query += "extension_num='" + searchArg + "' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= " + negVal;
+            query += "extension_num='" + searchArg + "' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= 0";
           else if (req.body.sentiment == "neutral")
             query += "extension_num='" + searchArg + "' AND sentiment_label='" + req.body.sentiment + "'";
           else
-            query += "extension_num='" + searchArg + "' AND (sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
+            query += "extension_num='" + searchArg + "' AND (sentiment_score_low <= 0 OR sentiment_score_hi >= 0)";
         }
       }else if (req.body.fields == "categories"){
         //console.log("SEARCH ARG: " + escape(req.body.categories))
         query += "processed=true AND categories LIKE '%" + escape(req.body.categories) + "%'"
 
         if (req.body.sentiment == "positive")
-          query += " AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
+          query += " AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= 0";
         else if (req.body.sentiment == "negative")
-          query += " AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= " + negVal;
+          query += " AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= 0";
         else if (req.body.sentiment == "neutral")
           query += " AND sentiment_label='" + req.body.sentiment + "'";
         else
-          query += " AND (sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
+          query += " AND (sentiment_score_low <= 0 OR sentiment_score_hi >= 0)";
       }
       console.log(query)
       var retObj = {}
@@ -1412,8 +1409,8 @@ User.prototype = {
       retObj['sentimentArg'] = req.body.sentiment
       retObj['fieldArg'] = req.body.fields
       retObj['typeArg'] = req.body.types
-      retObj['posVal'] = req.body.positiveRange
-      retObj['negVal'] = req.body.negativeRange
+      //retObj['posVal'] = req.body.positiveRange
+      //retObj['negVal'] = req.body.negativeRange
       if (this.categoryList.length == 0){
         this.readCategories(query, retObj, res, searchArg)
       }else{
