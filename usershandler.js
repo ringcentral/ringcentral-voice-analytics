@@ -2,7 +2,7 @@ var RC = require('ringcentral')
 var fs = require('fs')
 var async = require("async");
 const pgdb = require('./db')
-var watson = require('./watson');
+const WatsonEngine = require('./watson.js');
 const RCPlatform = require('./platform.js')
 require('dotenv').load()
 
@@ -911,7 +911,9 @@ User.prototype = {
           //watson.transcribe(null, body, bufferStream)
           var table = thisUser.getUserTable()
           thisUser.setCategoryList([])
+          var watson = new WatsonEngine()
           watson.transcribe(table, null, body, bufferStream)
+          //watson.transcribe(table, null, body, bufferStream)
         })
         .catch(function(e){
           console.log(e)
@@ -919,17 +921,17 @@ User.prototype = {
         })
     },
     removeItemFromDB: function(req, res){
-      /*
+      var thisRes = res
       var query = "DELETE FROM " + this.getUserTable() + " WHERE uid=" + req.body.id;
       //console.log(query)
       pgdb.remove(query, function (err, result) {
         if (err){
-          res.send('{"status":"error"}')
+          thisRes.send('{"status":"error"}')
           return console.error(err.message);
         }
-        res.send('{"status":"ok"}')
+        thisRes.send('{"status":"ok"}')
       });
-      */
+      /*
       var thisRes = res
       var thisUser = this
       var json = JSON.parse(req.body.calls)
@@ -944,6 +946,7 @@ User.prototype = {
           console.log("remove done")
           thisRes.send('{"status":"ok"}')
         })
+      */
     },
     deleteItemFromCallLogDb: function(req, res){
       var thisRes = res
@@ -1035,10 +1038,11 @@ User.prototype = {
       item['from_name'] = "Ryan"
       item['to_number'] = "+16505130930"
       item['to_name'] = "Paco"
+      item['extension_id'] = "101"
       item['extension_num'] = "101"
       item['full_name'] = "Demo Account"
-      item['date'] = new Date().getTime() /// 1000
-      item['type'] = req.body.type
+      item['call_date'] = new Date().getTime() /// 1000
+      item['call_type'] = req.body.type
       item['processed'] = false
       item['duration'] = 1
       item['direction'] = "In"
@@ -1049,9 +1053,9 @@ User.prototype = {
         req.body.fname.replace('.mp4', '.mp3')
       var recordedFile = item.id + ".mp3"
       var query = "INSERT INTO " + this.getUserTable()
-      query += "(uid, rec_id, call_date, call_type, extension_num, full_name, from_number, from_name, to_number, to_name, recording_url, duration, direction, processed, wordsandoffsets, transcript, conversations, sentiments, sentiment_label, sentiment_score, sentiment_score_hi, sentiment_score_low, has_profanity, profanities, keywords, entities, concepts, categories, actions)"
-      query += " VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28,$29)"
-      var values = [item['uid'], item['rec_id'],item['date'],item['type'],item['extension_num'],item['full_name'],item['from_number'],item['from_name'],item['to_number'],item['to_name'],item['recording_url'],item['duration'],item['direction'],0,"","","","","",0,0,0,0,"","","","","",""]
+      query += "(uid, rec_id, call_date, call_type, extension_id, extension_num, full_name, from_number, from_name, to_number, to_name, recording_url, duration, direction, processed, wordsandoffsets, transcript, conversations, sentiments, sentiment_label, sentiment_score, sentiment_score_hi, sentiment_score_low, has_profanity, profanities, keywords, entities, concepts, categories, actions, subject)"
+      query += " VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27,$28,$29,$30,$31)"
+      var values = [item['uid'], item['rec_id'],item['call_date'],item['call_type'],item['extension_id'],item['extension_num'],item['full_name'],item['from_number'],item['from_name'],item['to_number'],item['to_name'],item['recording_url'],item['duration'],item['direction'],0,"","","","","",0,0,0,0,"","","","","","",""]
       pgdb.insert(query, values, (err, result) =>  {
         if (err){
           console.error(err.message);
@@ -1068,13 +1072,17 @@ User.prototype = {
         audioSrc = audioSrc.replace("http://www.qcalendar.com/audios", "./recordings")
         // reset category to force the app read new category form new content
         this.categoryList = []
+        //watson.transcribe(table, res, body, fs.createReadStream(audioSrc))
+        var watson = new WatsonEngine()
         watson.transcribe(table, res, body, fs.createReadStream(audioSrc))
       }else {
         var p = this.getPlatform()
         //var obj = req.body
         var thisRes = res
         var thisUser = this
-        p.get(req.body.recordingUrl)
+        var recordingUrl = p.createUrl(req.body.recordingUrl, {addToken: true});
+
+        p.get(recordingUrl)
           .then(function(res) {
             return res.response().buffer();
           })
@@ -1083,6 +1091,8 @@ User.prototype = {
             var bufferStream = new stream.PassThrough();
             bufferStream.end(buffer);
             thisUser.categoryList = []
+            //watson.transcribe(table, thisRes, req.body, bufferStream)
+            var watson = new WatsonEngine()
             watson.transcribe(table, thisRes, req.body, bufferStream)
           })
           .catch(function(e){
@@ -1205,7 +1215,7 @@ User.prototype = {
       //var negVal = (req.body.negativeRange/1000) * -1
 
       //var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, transcript, processed, from_number, from_name, to_number, to_name, sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, keywords FROM " + this.getUserTable() + " WHERE "
-      var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, processed, from_number, from_name, to_number, to_name, sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, keywords, sentiments, direction, duration FROM " + this.getUserTable() + " WHERE "
+      var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, processed, from_number, from_name, to_number, to_name, sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, keywords, sentiments, direction, duration, subject FROM " + this.getUserTable() + " WHERE "
       var typeQuery = ""
       if (req.body.types != "all"){
         var checkType = req.body.types
@@ -1650,6 +1660,7 @@ User.prototype = {
           var r = rows[i]
           rows[i].sentiments = unescape(r.sentiments)
           rows[i].keywords = unescape(r.keywords)
+          //console.log(rows[i].keywords)
           if (field != null && field == 'keywords'){
             var kwObj = JSON.parse(unescape(r.keywords))
             for (var kw of kwObj){
@@ -1684,12 +1695,15 @@ User.prototype = {
         var userLevel = 'demo'
         if (this.getUserId() != 100){
           userLevel = 'real'
+          /* dont need as recording cannot be listened from the calls list
+          // url need token when transcribes though
           var p = this.getPlatform()
           for (var i=0; i<rows.length; i++){
             if (rows[i].call_type == "CR" || rows[i].call_type == "VM"){
               rows[i].recording_url = p.createUrl(rows[i].recording_url, {addToken: true});
             }
           }
+          */
         }
         //console.log(rows)
         var userName = ""
@@ -1712,8 +1726,6 @@ User.prototype = {
             sentimentArg: retObj.sentimentArg,
             fieldArg: retObj.fieldArg,
             typeArg: retObj.typeArg,
-            //posVal:retObj.posVal,
-            //negVal:retObj.negVal,
             itemCount: rows.length,
             userName: userName,
             user:userLevel
@@ -1722,7 +1734,7 @@ User.prototype = {
     },
     loadCallsFromDB: function(req, res){
       //var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, transcript, processed, from_number, from_name, to_number, to_name,sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, sentiments FROM " + this.getUserTable();
-      var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, processed, from_number, from_name, to_number, to_name,sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, keywords, sentiments, direction, duration FROM " + this.getUserTable();
+      var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, processed, from_number, from_name, to_number, to_name,sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, keywords, sentiments, direction, duration, subject FROM " + this.getUserTable();
       var retObj = {}
       retObj['catIndex'] = ''
       retObj['searchArg'] = "*"
@@ -1760,7 +1772,7 @@ User.prototype = {
       var companyPhoneNumber = thisUser.getMainCompanyNumber()
 
       async.waterfall([
-          thisUser._function(p, res, endpoint, params, table, companyPhoneNumber, extensionList)
+          thisUser._function(p, res, endpoint, params, table, companyPhoneNumber, extensionList, ext.id)
         ], function (error, success) {
             if (error) {
               console.log('Something is wrong!');
@@ -1781,7 +1793,7 @@ User.prototype = {
             }
         });
     },
-    _function: function(p, res, endpoint, params, table, companyPhoneNumber, extensionList) {
+    _function: function(p, res, endpoint, params, table, companyPhoneNumber, extensionList, extensionId) {
       var thisRes = res
       return function (callback) {
         p.get(endpoint, params)
@@ -1846,6 +1858,7 @@ User.prototype = {
                 item['rec_id'] = record.id
                 item['duration'] = record.duration
                 item['direction'] = (record.direction == "Inbound") ? "In" : "out"
+                item['extension_id'] = extensionId
                 for (var ext of extensionList){
                   for (var leg of record.legs){
                     if (leg.hasOwnProperty('extension')){
@@ -1859,9 +1872,9 @@ User.prototype = {
                   }
                 }
                 var query = "INSERT INTO " + table
-                query += "(uid, rec_id, call_date, call_type, extension_num, full_name, from_number, from_name, to_number, to_name, recording_url, duration, direction, processed, wordsandoffsets, transcript, conversations, sentiments, sentiment_label, sentiment_score, sentiment_score_hi, sentiment_score_low, has_profanity, profanities, keywords, entities, concepts, categories, actions)"
-                query += " VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28,$29)"
-                var values = [item['uid'], item['rec_id'],item['call_date'],item['call_type'],item['extension_num'],item['full_name'],item['from_number'],item['from_name'],item['to_number'],item['to_name'],item['recording_url'],item['duration'],item['direction'],0,"","","","","",0,0,0,0,"","","","","",""]
+                query += "(uid, rec_id, call_date, call_type, extension_id, extension_num, full_name, from_number, from_name, to_number, to_name, recording_url, duration, direction, processed, wordsandoffsets, transcript, conversations, sentiments, sentiment_label, sentiment_score, sentiment_score_hi, sentiment_score_low, has_profanity, profanities, keywords, entities, concepts, categories, actions, subject)"
+                query += " VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27,$28,$29,$30,$31)"
+                var values = [item['uid'], item['rec_id'],item['call_date'],item['call_type'],item['extension_id'],item['extension_num'],item['full_name'],item['from_number'],item['from_name'],item['to_number'],item['to_name'],item['recording_url'],item['duration'],item['direction'],0,"","","","","",0,0,0,0,"","","","","","",""]
                 query += " ON CONFLICT DO NOTHING"
                 //setTimeout(function(){
                 pgdb.insert(query, values, (err, result) =>  {
@@ -1893,7 +1906,7 @@ User.prototype = {
 }
 
 // global function
-function dropTable(table){
+function dropTable(table, callback){
   console.log("DROP TABLE")
   var query = "DROP TABLE IF EXISTS " + table
   pgdb.delete_table(query, (err, res) => {
@@ -1902,28 +1915,83 @@ function dropTable(table){
       //copyTable(table)
     }else{
       console.log("DONE")
-      //copyTable(table)
+      callback(null, "done")
     }
   })
 }
 function createTable(table, callback) {
   console.log("CREATE TABLE: " + table)
-  //return dropTable(table)
-  pgdb.create_table(table, (err, res) => {
-    if (err) {
-      console.log(err, res)
-      callback(err, err.message)
-      //copyTable(table)
-    }else{
-      console.log("DONE")
-      callback(null, "Ok")
-      if (table.indexOf('user_') >= 0)
-        copyTable(table)
-    }
-  })
+  if (table.indexOf('user_') >= 0) {
+    var query = "SELECT subject FROM " + table;
+    pgdb.read(query, (err, result) => {
+      if(err != null){
+        // not exist => drop old table
+        console.log("err: drop old table")
+        dropTable(table, (err, res) => {
+          if (!err){
+            pgdb.create_table(table, (err, res) => {
+              if (err) {
+                console.log(err, res)
+                callback(err, err.message)
+                //copyTable(table)
+              }else{
+                console.log("DONE")
+                callback(null, "Ok")
+                if (table.indexOf('user_') >= 0)
+                  copyTable(table)
+              }
+            })
+          }
+        })
+      }else{
+        if (result.rows.length == 0){
+          console.log("empty: drop old table")
+          dropTable(table, (err, res) => {
+            if (!err){
+              pgdb.create_table(table, (err, res) => {
+                if (err) {
+                  console.log(err, res)
+                  callback(err, err.message)
+                  //copyTable(table)
+                }else{
+                  console.log("DONE")
+                  callback(null, "Ok")
+                  if (table.indexOf('user_') >= 0)
+                    copyTable(table)
+                }
+              })
+            }
+          })
+        }else
+          console.log("just try to create a new table")
+          pgdb.create_table(table, (err, res) => {
+            if (err) {
+              console.log(err, res)
+              callback(err, err.message)
+            }else{
+              console.log("DONE")
+              callback(null, "Ok")
+              if (table.indexOf('user_') >= 0)
+                copyTable(table)
+            }
+          })
+        }
 
-//copyTable('demos')
-
+    });
+  }else{
+    pgdb.create_table(table, (err, res) => {
+      if (err) {
+        console.log(err, res)
+        callback(err, err.message)
+        //copyTable(table)
+      }else{
+        console.log("DONE")
+        callback(null, "Ok")
+        if (table.indexOf('user_') >= 0)
+          copyTable(table)
+      }
+    })
+  }
 }
 
 const sqlite3 = require('sqlite3').verbose();
@@ -2004,6 +2072,8 @@ function copyTable(table){
               item[key] = row[key]
             }else if (key == 'keywords') {
               item[key] = row[key]
+              var json = JSON.parse(unescape(item[key]))
+              item['subject'] = json[0].text
             }else if (key == 'entities') {
               item[key] = row[key]
             }else if (key == 'concepts') {
@@ -2018,6 +2088,8 @@ function copyTable(table){
           item['from_name'] = 'Unknown'
           item['to_name'] = 'Unknown'
           item['direction'] = 'In'
+          item['extension_id'] = '100020303'
+          //item['subject'] = 'Test subject for demo'
 
           for (var i=0; i<words.length; i++){
             var temp = {}
@@ -2033,16 +2105,16 @@ function copyTable(table){
           //console.log(item)
 
           var query = "INSERT INTO " + table
-          query += "(uid, rec_id, call_date, call_type, extension_num, full_name, from_number, from_name, to_number, to_name, recording_url, duration, direction, processed, wordsandoffsets, transcript, conversations, sentiments, sentiment_label, sentiment_score, sentiment_score_hi, sentiment_score_low, has_profanity, profanities, keywords, entities, concepts, categories, actions)"
-
-          query += " VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29)"
-          var values = [item['uid'],item['rec_id'],item['call_date'],item['call_type'],item['extension_num'],
+          query += "(uid, rec_id, call_date, call_type, extension_id, extension_num, full_name, from_number, from_name, to_number, to_name, recording_url, duration, direction, processed, wordsandoffsets, transcript, conversations, sentiments, sentiment_label, sentiment_score, sentiment_score_hi, sentiment_score_low, has_profanity, profanities, keywords, entities, concepts, categories, actions, subject)"
+          query += " VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27,$28,$29,$30,$31)"
+          //var values = [item['uid'], item['rec_id'],item['call_date'],item['call_type'],item['extension_id'],item['extension_num'],item['full_name'],item['from_number'],item['from_name'],item['to_number'],item['to_name'],item['recording_url'],item['duration'],item['direction'],0,"","","","","",0,0,0,0,"","","","","","",""]
+          var values = [item['uid'],item['rec_id'],item['call_date'],item['call_type'],item['extension_id'],item['extension_num'],
           item['full_name'],item['from_number'],item['from_name'],item['to_number'],item['to_name'],
           item['recording_url'],item['duration'],item['direction'],item['processed'],item['wordsandoffsets'],
           item['transcript'],item['conversations'],item['sentiments'],item['sentiment_label'],
           item['sentiment_score'],item['sentiment_score_hi'],item['sentiment_score_low'],item['has_profanity'],
           item['profanities'],item['keywords'],item['entities'],item['concepts'],item['categories'],
-          item['actions']]
+          item['actions'],item['subject']]
           query += " ON CONFLICT DO NOTHING"
           //setTimeout(function(){
           pgdb.insert(query, values, (err, result) =>  {

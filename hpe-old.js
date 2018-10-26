@@ -2,24 +2,14 @@ var havenondemand = require('havenondemand')
 var hodClient = new havenondemand.HODClient(process.env.HOD_APIKEY, "v2")
 const pgdb = require('./db')
 
-var callActionDictionary = ['my number is', 'my cell phone is', 'my cell number is', 'my phone number is', 'call me back', 'give me a call', 'ring me mback', 'reach me at']
+var callActionDictionary = ['my number is', 'my cell phone is', 'my cell number is', 'my phone number is', 'call me back', 'give me a call', 'ring me mback', 'give me a call', 'reach me at']
 
-module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, transcript, id, callback){
+module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, transcript, id){
   var thisId = id
-  var thisCallback = callback
   var data = {}
   data['keywords'] = escape(JSON.stringify(input.keywords))
-  console.log(input.keywords)
-  if (input.keywords.length > 0)
-    data['subject'] = input.keywords[0].text
-  else
-    data['subject'] = "Not defined"
-  //data['entities'] = escape(JSON.stringify(input.entities))
   data['concepts'] = escape(JSON.stringify(input.concepts))
-
-  //"categories":[{"score":0.706865,"label":"/style and fashion/accessories/backpacks"},{"score":0.383294,"label":"/business and industrial/advertising and marketing/advertising"},{"score":0.347209,"label":"/shopping/retail"}]}
   var categories = []
-  //var classification = input.categories
   input.categories.forEach(category => {
     if (category.score > 0.2)
       categories.push(category.label)
@@ -31,11 +21,6 @@ module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, tran
   input['categories'] = categories
 
   data['categories'] = escape(JSON.stringify(categories))
-  /*
-  console.log("WATSON CONCEPTS: " + JSON.stringify(input.concepts))
-  console.log("WATSON ENTITIES: " + JSON.stringify(input.entities))
-  console.log("WATSON KEYWORDS: " + JSON.stringify(input.keywords))
-  */
   var textArr = text.split(".")
   for (var i=0; i<textArr.length; i++)
     textArr[i] = textArr[i].trim()
@@ -99,7 +84,6 @@ module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, tran
         }
 
         var average = score/num
-        //console.log("SCORE :" + average)
         if (average > 0.4)
           data['sentiment_label'] = "positive"
         else if (average < -0.4)
@@ -109,19 +93,16 @@ module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, tran
         data['sentiment_score'] = score
         data['sentiment_score_hi'] = hi
         data['sentiment_score_low'] = low
-        data['emotion'] =  "" //escape(JSON.stringify(response.emotion))
         data['sentiment'] = results
 
-        // read entitis extraction
-        //console.log("TRANS: " + transcript)
         var entityType = ['people_eng','places_eng','companies_eng','professions_eng','profanities','professions','number_phone_us', 'pii', 'pii_ext', 'address_us', 'address_ca', 'date_eng']
         var request = {'text' : transcript,
                         'entity_type' : entityType,
                         'show_alternatives': false
                       }
         hodClient.get('extractentities', request, false, function(err, resp, body) {
-        //console.log(JSON.stringify(resp.body))
-        if (!err) {
+          //console.log(JSON.stringify(resp.body))
+          if (!err) {
             var profanity = []
             var hasBadWord = false
             var actions = []
@@ -184,35 +165,19 @@ module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, tran
             query += ", entities='" + escape(JSON.stringify(resp.body.entities)) + "'"
             query += ", concepts='" + data.concepts + "'"
             query += ", categories='" + data.categories + "'"
-            query += ", subject='" + data.subject + "'"
             query += " WHERE uid=" + thisId;
             pgdb.update(query, (err, result) => {
               if (err){
-                var ret = {}
-                ret['sentiment'] = ""
-                ret['keywords'] = ""
-                ret['subject'] = ""
-                thisCallback(err, JSON.stringify(ret))
-                console.error(err.message);
+                return console.error(err.message);
               }else{
-                console.log("MUST CALLBACK to exit: " + result);
-                var ret = {}
-                ret['sentiment'] = data.sentiment_label
-                ret['keywords'] = unescape(data.keywords)
-                ret['subject'] = data.subject
-                console.log("KEYWORDS: " + unescape(data.keywords))
-                thisCallback(null, ret)
+                console.error(JSON.stringify(result));
               }
             });
           }
         })
         //
     }else{
-      console.log("ERROR: " + err)
-      var ret = {}
-      ret['sentiment'] = ""
-      ret['keywords'] = ""
-      thisCallback("ERROR", JSON.stringify(ret))
+      console.log("ERROR: " + JSON.stringify(err))
     }
   })
 }

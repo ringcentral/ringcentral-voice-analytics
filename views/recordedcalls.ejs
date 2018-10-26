@@ -320,7 +320,7 @@
 
               <td width="5%" class="td-active">
                 <% if (calls[i]['processed'] == false) { %>
-                  <div id="st_<%= calls[i]['uid'] %>" >--</div>
+                  <img id="st_<%= calls[i]['uid'] %>" src='img/neutral.png' class="sentiment_icon"></img>
                 <% } else { %>
                   <% var icon = 'img/' %>
                   <% icon += calls[i]['sentiment_label'] %>
@@ -341,41 +341,45 @@
               </td>
               <td width="12%" class="td-active">
               <% if (calls[i]['processed'] == false) { %>
-              <!--
-                <button class="btn-rc" id="te_<%= calls[i]['uid'] %>" onclick="transcribe('<%= calls[i]['uid'] %>', '<%= calls[i]['call_type'] %>', '<%= calls[i]['recording_url'] %>')">Transcribe</button>
                 <img style="display: none;" class="call_icon" id="pi_<%= calls[i]['uid'] %>" src="./img/processing.gif"></img>
-                <div class="transcript_brief" style="display: none" id="tt_<%= calls[i]['uid'] %>"></div>
-              -->
-                <div>--</div>
+                <div class="transcript_brief" id="ts_<%= calls[i]['uid'] %>">--</div>
               <% } else { %>
-                <% var itemArr = JSON.parse(calls[i].keywords) %>
-                <span><%= itemArr[0].text %></span>
+                <span><%= calls[i]['subject'] %></span>
                 <!--
-                <% var count = itemArr.length %>
-                <% for (var ii=0; ii < count; ii++) { %>
-                  <% var item = itemArr[ii] %>
-
-                  <span><%= item.text %>; </span>
-                  <% if (ii > 1) { %>
-                    <% break %>
+                <% var itemArr = JSON.parse(calls[i].keywords) %>
+                <% if (itemArr != null) { %>
+                  <% if (itemArr.length > 0) { %>
+                    <span><%= itemArr[0].text %></span>
+                  <% } else { %>
+                    <span>Unknown</span>
                   <% } %>
+                <% } else { %>
+                  <span>Unknown</span>
                 <% } %>
-                -->
+              -->
               <% } %>
               </td>
               <td width="48%" class="td-active">
               <% if (calls[i]['processed'] == false) { %>
-                <div>--</div>
+                <div id="tt_<%= calls[i]['uid'] %>">--</div>
               <% } else { %>
                 <span class="transcript_brief" id="tt_<%= calls[i]['uid'] %>">
                   <% var itemArr = JSON.parse(calls[i].keywords) %>
-                  <% var count = itemArr.length %>
-                  <% for (var ii=1; ii < count; ii++) { %>
-                    <% var item =itemArr[ii] %>
-                    <span class="keyword"><%= item.text %> </span>
-                    <% if (ii > 4) { %>
-                      <% break %>
+                  <% if (itemArr != null) { %>
+                    <% var count = itemArr.length %>
+                    <% if (count > 0) { %>
+                      <% for (var ii=1; ii < count; ii++) { %>
+                        <% var item =itemArr[ii] %>
+                        <span class="keyword"><%= item.text %> </span>
+                        <% if (ii > 4) { %>
+                          <% break %>
+                        <% } %>
+                      <% } %>
+                    <% } else { %>
+                      <span class="keyword">Unknown</span>
                     <% } %>
+                  <% } else { %>
+                    <span class="keyword">Unknown</span>
                   <% } %>
                   <!--
                   <% var itemArr = JSON.parse(calls[i].sentiments) %>
