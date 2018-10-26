@@ -15,7 +15,7 @@ function initForReadLog() {
   $( "#todatepicker" ).datepicker('setDate', new Date());
 }
 function initForRecordedCalls() {
-  var h = $(window).height() - 260;
+  var h = $(window).height() - 300;
   $("#call_items").height(h)
 /*
   var sliderPos = document.getElementById("positiveRange");

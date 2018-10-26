@@ -17,7 +17,7 @@ body {
 .left-middle-align {
   margin: 0;
   height: 50px;
-  width: 450px;
+  width: 500px;
   display: inline-block;
   position: relative;
 }
@@ -29,21 +29,22 @@ body {
 .left-middle-align .rclogo {
   position: absolute;
   top: 50%;
-  margin-top: -20px;
-  height: 40px;
+  margin-top: -12px;
+  height: 25px;
 }
 
 .left-middle-align .rclogo img {
-  height: 100%;
+  height: 25px;
   width: auto;
 }
 
 .left-middle-align .title {
   position: absolute;
   top: 50%;
-  left: 150px;
-  margin-top: -12px;
-  /* color: #fa9900; */
+  left: 180px;
+  margin-top: -15px;
+  font-size: 20px;
+  color: #0684bd;
 }
 
 .middle-align {
@@ -72,7 +73,11 @@ body {
 .btn-rc {
   border: none;
   border-radius: 3px;
-  padding: 4px 10px;
+  padding: 0 16px;
+  height: 32px;
+  line-height: 32px;
+  font-size: 12px;
+  letter-spacing: 0.3px;
 }
 
 .rc-login-footer {
@@ -94,9 +99,9 @@ body {
 
 #content .table-content {
   margin: 0;
-  box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
   font-size: 14px;
+  border: solid 1px #e2e2e2;
 }
 
 #content .table-content table {
@@ -105,6 +110,9 @@ body {
 
 #content .table-content table th {
   text-align: left;
+  border: none;
+  height: 50px;
+  padding: 15px 8px;
 }
 
 #content .table-content table tbody {
@@ -123,6 +131,12 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  height: 50px;
+  line-height: 50px;
+  padding: 0 8px;
+  border-bottom: solid 1px #e2e2e2;
+  font-size: 14px;
+  color: #000000;
 }
 
 #content .table-header {
@@ -130,5 +144,90 @@ body {
 }
 
 #content .table-content table tr.header {
-  background: #efefef;
+  background: #f9f9f9;
+  border-bottom: solid 1px #e2e2e2;
+  letter-spacing: 0.4px;
+  color: #666666;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#content .table-content table td a {
+  color: #000000;
+}
+
+#content .table-content table tbody tr:hover {
+  background: #f3f3f3;
+}
+
+.bootstrap-select .dropdown-menu li a:hover {
+  background-color: #f8f9fa;
+}
+
+.bootstrap-select .dropdown-menu li.active a {
+  color: #ffffff;
+  background: #007bff;
+}
+
+.bootstrap-select .dropdown-menu li.active a:hover {
+  color: #ffffff;
+  background: #337ab7;
+}
+
+.bootstrap-select .btn {
+  padding: 0 12px;
+  height: 32px;
+  line-height: 32px;
+}
+
+.bootstrap-select.filter-select {
+  width: 140px!important;
+}
+
+.bootstrap-select.filter-select .btn {
+  border: solid 1px #c8ccd1;
+  background-color: #ffffff;
+  border-radius: 0;
+  font-size: 13px;
+  color: #c7c7c7;
+}
+
+.input-group .search-input-filter {
+  width: 90px!important;
+}
+
+.input-group .search-input-filter .btn {
+  background: #f8f8f8;
+  color: #8c8c8c;
+}
+
+.input-group .search-input {
+  height: 32px!important;
+  border-left: none;
+  width: 238px;
+}
+
+.filter-label {
+  color: #555555;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.3px;
+  margin-left: 10px;
+}
+
+.transcript_brief {
+  height: 50px;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.transcript_brief .keyword {
+  padding: 0 10px;
+  line-height: 32px;
+  border-radius: 20px;
+  display: block;
+  float: left;
+  height: 32px;
+  margin-top: 10px;
 }
