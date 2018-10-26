@@ -204,7 +204,7 @@
       </div>
     </div>
     <div class="row table-content">
-      <div class="col-xs-12 table-header">
+      <div id="call_list" class="col-xs-12 table-header">
         <table class="table">
           <thead>
             <tr class="header">
@@ -212,20 +212,16 @@
                 <input type=checkbox width=10 height=10 onchange="selectionHandler(this)"/>
               </th>
               <!--th width="2%">Dur</th-->
-              <th width="3%">Type</th>
+              <th width="5%">Type</th>
               <th width="10%">Employee</th>
-              <th width="8%">Customer</th>
+              <th width="10%">Customer</th>
               <th width="12%">Date/Time</th>
-              <th width="5%">Sentiment</th>
+              <th width="8%">Sentiment</th>
               <th width="12%">Subject</th>
-              <th width="48%">Keywords</th>
+              <th width="41%">Keywords</th>
             </tr>
           </thead>
-        </table>
-      </div>
-      <div id="call_list" class="col-xs-12 scrollable_calllist">
-        <table id="call_items" class="table">
-          <tbody>
+          <tbody id="call_items" class="scrollable_calllist call_list">
             <% for (var i = 0; i < calls.length; i++) { %>
             <tr>
               <td width="2%" class="td-active">
@@ -245,7 +241,7 @@
                 <span><%= "00:" + duration %></span>
                 <% } %>
               </td-->
-              <td width="3%" class="td-active">
+              <td width="5%" class="td-active">
                 <% var icon = 'img/' + calls[i]['call_type'] + '.png' %>
                   <img src='<%= icon %>' ></img>
               </td>
@@ -281,7 +277,7 @@
                   <% } %>
                 <% } %>
               </td>
-              <td width="8%" class="td-active">
+              <td width="10%" class="td-active">
               <% if (calls[i].direction == "In") { %>
                 <% if (calls[i]['from_name'] != "Unknown") { %>
                   <% if (calls[i]['from_number'] != "Unknown #") { %>
@@ -318,7 +314,7 @@
               <div><%= d %></div>
               </td>
 
-              <td width="5%" class="td-active">
+              <td width="8%" class="td-active">
                 <% if (calls[i]['processed'] == false) { %>
                   <div id="st_<%= calls[i]['uid'] %>" >--</div>
                 <% } else { %>
@@ -363,7 +359,7 @@
                 -->
               <% } %>
               </td>
-              <td width="48%" class="td-active">
+              <td width="41%" class="td-active">
               <% if (calls[i]['processed'] == false) { %>
                 <div>--</div>
               <% } else { %>
@@ -402,8 +398,8 @@
             </tr>
             <% } %>
           </tbody>
-      </table>
-    </div>
+        </table>
+      </div>
   </div>
   <!--div class="row">
     <div align="right" style="margin-top: -20px">

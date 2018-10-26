@@ -11,7 +11,7 @@ body {
   position: relative;
   min-height: 100%;
   overflow: auto;
-  padding-bottom: 82px;
+  padding-bottom: 100px;
 }
 
 .left-middle-align {
@@ -77,9 +77,9 @@ body {
 
 .rc-login-footer {
   font-size: 10px;
-  padding: 20px 30px;
+  padding: 10px 30px;
   position: absolute;
-  bottom: 0;
+  bottom: 40px;
 }
 
 #content {
@@ -89,22 +89,46 @@ body {
 .scrollable_calllist {
   border: none;
   padding: 0;
+  margin: 0;
 }
 
 #content .table-content {
   margin: 0;
   box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
+  font-size: 14px;
+}
+
+#content .table-content table {
+  border: none;
 }
 
 #content .table-content table th {
-  text-align: center;
+  text-align: left;
+}
+
+#content .table-content table tbody {
+  display: block;
+  overflow-y: scroll;
+}
+
+#content .table-content table tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 
 #content .table-content table td {
-  text-align: center;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 #content .table-header {
   padding: 0;
+}
+
+#content .table-content table tr.header {
+  background: #efefef;
 }
