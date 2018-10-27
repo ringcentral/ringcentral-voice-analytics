@@ -392,16 +392,18 @@ function displayAnalytics(option){
             if (item.hasOwnProperty('positive')){
               for (var pos of item.positive){
                 if (pos.score > positiveThreshold){
-                  //text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ", true)'>Speaker "+ item.speakerId + ": </span>"
-                  sentence = "<div class='sentiment_line' onclick='jumpTo(" + item.timeStamp + ", true)'>"
-                  sentence += "<img src='img/positive.png' class='sentiment_icon'></img>"
-                  sentence += "<span class='positive_block' >" + pos.text + "</span>"
+                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(pos.text) + "')\">"
+                  //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
+                  sentence += "<img src=\"img/positive.png\" class=\"sentiment_icon\"></img>"
+                  sentence += "<span class=\"positive_block\">" + pos.text + "</span>"
                   //alert(sentence)
+                  /*
                   if (pos.topic != null)
                     sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
                   if (pos.sentiment != null)
-                    sentence = sentence.replace(pos.sentiment, "<span class='sentiment'>" + pos.sentiment + "</span>")
+                    sentence = sentence.replace(pos.sentiment, "<span class=\"sentiment\">" + pos.sentiment + "</span>")
                   //text += sentence + "</div>"
+                  */
                   sentence += "</div>"
                   //alert(sentence)
                   for (var i=0; i<speakersArr.length; i++) {
@@ -417,14 +419,17 @@ function displayAnalytics(option){
             if (item.hasOwnProperty('negative')){
               for (var neg of item.negative){
                 if (neg.score < negativeThreshold){
-                  sentence = "<div class='sentiment_line' onclick='jumpTo(" + item.timeStamp + ", true)'>"
-                  sentence += "<img src='img/negative.png' class='sentiment_icon'></img>"
-                  sentence += "<span class='negative_block'>" + neg.text + "</span>"
+                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(neg.text) + "')\">"
+                  //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
+                  sentence += "<img src=\"img/negative.png\" class=\"sentiment_icon\"></img>"
+                  sentence += "<span class=\"negative_block\">" + neg.text + "</span>"
+                  //alert(sentence)
+                  /*
                   if (neg.topic != null)
                     sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
                   if (neg.sentiment != null)
-                    sentence = sentence.replace(neg.sentiment, "<span class='sentiment''>" + neg.sentiment + "</span>")
-                  //text += sentence + "</div>"
+                    sentence = sentence.replace(neg.sentiment, "<span class=\"sentiment\">" + neg.sentiment + "</span>")
+                  */
                   sentence += "</div>"
                   for (var i=0; i<speakersArr.length; i++) {
                     var sp = speakersArr[i]
@@ -439,7 +444,7 @@ function displayAnalytics(option){
           }
           for (var i=0; i<speakersArr.length; i++) {
             var sp = speakersArr[i]
-            text += "<div class='sentiment_line'>Speaker "+ sp.name + ": </div>"
+            text += "<div class=\"sentiment_line\">Speaker "+ sp.name + ": </div>"
             for (var sent of sp.sentences){
               //alert(sent)
               text += sent
@@ -464,13 +469,16 @@ function displayAnalytics(option){
               if (item.hasOwnProperty('positive')){
                 for (var pos of item.positive){
                   if (pos.score > positiveThreshold){
-                    sentence = "<div class='sentiment_line' onclick='jumpTo(" + item.timeStamp + ", true)'>"
-                    sentence += "<img src='img/positive.png' class='sentiment_icon'></img>"
-                    sentence += "<span class='positive_block'>" + pos.text + "</span>"
+                    sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(pos.text) + "')\">"
+                    //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
+                    sentence += "<img src=\"img/positive.png\" class=\"sentiment_icon\"></img>"
+                    sentence += "<span class=\"positive_block\">" + pos.text + "</span>"
+                    /*
                     if (pos.topic != null)
                       sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
                     if (pos.sentiment != null)
-                      sentence = sentence.replace(pos.sentiment, "<span class='sentiment''>" + pos.sentiment + "</span>")
+                      sentence = sentence.replace(pos.sentiment, "<span class=\"sentiment\">" + pos.sentiment + "</span>")
+                    */
                     sentence += "</div>"
                     speaker.sentences.push(sentence)
                   }
@@ -479,13 +487,16 @@ function displayAnalytics(option){
               if (item.hasOwnProperty('negative')){
                 for (var neg of item.negative){
                   if (neg.score < negativeThreshold){
-                    sentence = "<div class='sentiment_line' onclick='jumpTo(" + item.timeStamp + ", true)'>"
-                    sentence += "<img src='img/negative.png' class='sentiment_icon'></img>"
-                    sentence += "<span class='negative_block'>" + neg.text + "</span>"
+                    sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(neg.text) + "')\">"
+                    //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
+                    sentence += "<img src=\"img/negative.png\" class=\"sentiment_icon\"></img>"
+                    sentence += "<span class=\"negative_block\">" + neg.text + "</span>"
+                    /*
                     if (neg.topic != null)
                       sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
                     if (neg.sentiment != null)
-                      sentence = sentence.replace(neg.sentiment, "<span class='sentiment''>" + neg.sentiment + "</span>")
+                      sentence = sentence.replace(neg.sentiment, "<span class=\"sentiment\">" + neg.sentiment + "</span>")
+                    */
                     sentence += "</div>"
                     speaker.sentences.push(sentence)
                   }
@@ -493,7 +504,7 @@ function displayAnalytics(option){
               }
             }
           }
-          text += "<div class='sentiment_line'>Speaker "+ speaker.name + ": </div>"
+          text += "<div class=\"sentiment_line\">Speaker "+ speaker.name + ": </div>"
           for (var sent of speaker.sentences){
             text += sent
           }
@@ -501,6 +512,7 @@ function displayAnalytics(option){
         }
       }
       text += "</div>"
+      //alert(text)
       $("#analyzed_content").html(text)
     }else if (option == 'entities'){
       $("#sentiment_adjust").hide()
@@ -672,6 +684,45 @@ $("#searchForm").submit(function(e){
     return false;
 });
 */
+function jumpToSentiment(timeStamp, sentence, words){
+  sentence = unescape(sentence)
+  words = unescape(words)
+  //alert(sentence)
+  var wordArr = words.split(" ")
+  var sentenceArr = sentence.split(" ")
+  //alert(sentenceArr)
+  for (var i=0; i<wwoArr.length; i++){
+    var item = wwoArr[i]
+    if (item.offset == timeStamp){
+      var n = 0
+      for (n=0; n<sentenceArr.length; n++){
+        var matchArr = []
+        for (var m=0; m<wordArr.length; m++){
+          matchArr.push(sentenceArr[n+m])
+        }
+        var match = matchArr.join(" ")
+        //alert(match)
+        if (match.indexOf(words) >= 0){
+          timeStamp = wwoArr[n+i].offset
+          //alert(wwoArr[startPos].word)
+          jumpTo(timeStamp, true)
+          return
+        }
+      }
+      /*
+      var startPos = sentence.indexOf(words)
+      alert(startPos)
+      if (startPos >= 0){
+        startPos += i
+        timeStamp = wwoArr[startPos].offset
+        alert(wwoArr[startPos].word)
+        jumpTo(timeStamp, true)
+        break
+      }
+      */
+    }
+  }
+}
 function jumptToKeyword(keyword){
   var wordArr = keyword.split(" ")
   var searchWord = $("#search").val(wordArr[0])
