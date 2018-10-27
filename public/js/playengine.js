@@ -393,7 +393,7 @@ function displayAnalytics(option){
               for (var pos of item.positive){
                 if (pos.score > positiveThreshold){
                   //text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ", true)'>Speaker "+ item.speakerId + ": </span>"
-                  sentence = "<div class='sentiment_line' onclick='jumpTo(" + item.timeStamp + ", true)>"
+                  sentence = "<div class='sentiment_line' onclick='jumpTo(" + item.timeStamp + ", true)'>"
                   sentence += "<img src='img/positive.png' class='sentiment_icon'></img>"
                   sentence += "<span class='positive_block' >" + pos.text + "</span>"
                   //alert(sentence)
@@ -417,8 +417,8 @@ function displayAnalytics(option){
             if (item.hasOwnProperty('negative')){
               for (var neg of item.negative){
                 if (neg.score < negativeThreshold){
-                  sentence = "<div class='sentiment_line' onclick='jumpTo(" + item.timeStamp + ", true)><img src='img/negative.png' class='sentiment_icon'></img>"
-                  sentence += "<span class='negative_block' onclick='jumpTo(" + item.timeStamp + ", true)>" + neg.text + "</span>"
+                  sentence = "<div class='sentiment_line' onclick='jumpTo(" + item.timeStamp + ", true)'><img src='/img/negative.png' class='sentiment_icon'></img>"
+                  sentence += "<span class='negative_block'>" + neg.text + "</span>"
                   if (neg.topic != null)
                     sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
                   if (neg.sentiment != null)
