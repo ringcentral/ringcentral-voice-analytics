@@ -272,7 +272,7 @@ td{
 }
 .scrollable_container{
   height: 400px;
-  margin-right: 20px;
+  padding-right: 6px;
   overflow: scroll;
 }
 .scrollable_calllist{

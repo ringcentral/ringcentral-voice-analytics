@@ -181,14 +181,7 @@
                 </select>
                 <% } %>
             </div>
-            <div id="analyzed_content" class="scrollable_container">
-            <% var itemArr = JSON.parse(results.keywords)%>
-            <% var count = itemArr.length %>
-            <% for (var i=0; i < count; i++) { %>
-              <% var item =itemArr[i] %>
-              <span class="keyword"><%- item.text %></span>
-            <% } %>
-            </div>
+            <div id="analyzed_content" class="scrollable_container"></div>
           </div>
         </div>
         <div class="column right with-border">
