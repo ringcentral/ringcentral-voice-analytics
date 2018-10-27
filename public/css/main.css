@@ -269,6 +269,7 @@ td{
   padding-right: 10px;
   border: 1px solid gray;
   border-radius: 10px;
+  cursor: pointer;
 }
 .scrollable_container{
   height: 400px;
@@ -308,6 +309,7 @@ td{
 .sentiment_line{
   margin-top: 12px;
   margin-bottom: 10px;
+  cursor: pointer;
 }
 .slider-container {
   width: 220px;

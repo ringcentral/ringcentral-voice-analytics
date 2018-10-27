@@ -417,7 +417,8 @@ function displayAnalytics(option){
             if (item.hasOwnProperty('negative')){
               for (var neg of item.negative){
                 if (neg.score < negativeThreshold){
-                  sentence = "<div class='sentiment_line' onclick='jumpTo(" + item.timeStamp + ", true)'><img src='/img/negative.png' class='sentiment_icon'></img>"
+                  sentence = "<div class='sentiment_line' onclick='jumpTo(" + item.timeStamp + ", true)'>"
+                  sentence += "<img src='img/negative.png' class='sentiment_icon'></img>"
                   sentence += "<span class='negative_block'>" + neg.text + "</span>"
                   if (neg.topic != null)
                     sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
@@ -449,37 +450,54 @@ function displayAnalytics(option){
           //if (sentence != '')
           //  text += sentence + "</div>"
         }else{ //if (speakerSentiment == 0){
+          var speaker = {}
+          for (var item of itemArr) {
+            if (item.speakerId == speakerSentiment){
+              speaker['name'] = item.speakerId.toString()
+              speaker['sentences'] = []
+              break
+            }
+          }
           for (var item of itemArr){
             if (item.speakerId == speakerSentiment){
               sentence = '' //item.sentence
               if (item.hasOwnProperty('positive')){
                 for (var pos of item.positive){
                   if (pos.score > positiveThreshold){
-                    text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ", true)'>Speaker "+ item.speakerId + ": </span>"
-                    sentence = "<span class='positive_block'>" + pos.text + "</span>"
+                    sentence = "<div class='sentiment_line' onclick='jumpTo(" + item.timeStamp + ", true)'>"
+                    sentence += "<img src='img/positive.png' class='sentiment_icon'></img>"
+                    sentence += "<span class='positive_block'>" + pos.text + "</span>"
                     if (pos.topic != null)
                       sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
                     if (pos.sentiment != null)
-                      sentence = sentence.replace(pos.sentiment, "<span class='sentiment'>" + pos.sentiment + "</span>")
-                    text += sentence + "</div>"
+                      sentence = sentence.replace(pos.sentiment, "<span class='sentiment''>" + pos.sentiment + "</span>")
+                    sentence += "</div>"
+                    speaker.sentences.push(sentence)
                   }
                 }
               }
               if (item.hasOwnProperty('negative')){
                 for (var neg of item.negative){
                   if (neg.score < negativeThreshold){
-                    text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ", true)'>Speaker "+ item.speakerId + ": </span>"
-                    sentence = "<span class='negative_block'>" + neg.text + "</span>"
+                    sentence = "<div class='sentiment_line' onclick='jumpTo(" + item.timeStamp + ", true)'>"
+                    sentence += "<img src='img/negative.png' class='sentiment_icon'></img>"
+                    sentence += "<span class='negative_block'>" + neg.text + "</span>"
                     if (neg.topic != null)
                       sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
                     if (neg.sentiment != null)
-                      sentence = sentence.replace(neg.sentiment, "<span class='sentiment'>" + neg.sentiment + "</span>")
-                    text += sentence + "</div>"
+                      sentence = sentence.replace(neg.sentiment, "<span class='sentiment''>" + neg.sentiment + "</span>")
+                    sentence += "</div>"
+                    speaker.sentences.push(sentence)
                   }
                 }
               }
             }
           }
+          text += "<div class='sentiment_line'>Speaker "+ speaker.name + ": </div>"
+          for (var sent of speaker.sentences){
+            text += sent
+          }
+          text += "</div>"
         }
       }
       text += "</div>"
@@ -575,7 +593,7 @@ function displayAnalytics(option){
         if (item.text != "class" && item.text != 'keywords'){
         //var regEx = new RegExp("\\b" + item.text + "\\b", "g");
         //text = text.replace(regEx, "<span class='keywords'>" + item.text + "</span>")
-        text += "<span class='keyword'>" + item.text + "</span>"
+        text += "<span class='keyword' onclick='jumptToKeyword(\"" + item.text + "\")'>" + item.text + "</span>"
         }
       }
       $("#analyzed_content").html(text)
@@ -654,6 +672,11 @@ $("#searchForm").submit(function(e){
     return false;
 });
 */
+function jumptToKeyword(keyword){
+  var wordArr = keyword.split(" ")
+  var searchWord = $("#search").val(wordArr[0])
+  searchForText()
+}
 function selectWord(){
   $("#search").select()
 }
