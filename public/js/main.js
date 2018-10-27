@@ -15,8 +15,14 @@ function initForReadLog() {
   $( "#todatepicker" ).datepicker('setDate', new Date());
 }
 function initForRecordedCalls() {
-  var h = $(window).height() - 300;
+  var height = $("#menu_header").height()
+  height += $("#search_bar").height()
+  height += $("#call_list_header").height()
+  height += $("#footer").height()
+
+  var h = $(window).height() - (height + 90);
   $("#call_items").height(h)
+
 /*
   var sliderPos = document.getElementById("positiveRange");
   sliderPos.oninput = function() {
@@ -43,6 +49,7 @@ function initForRecordedCalls() {
       }
     }
   });
+
   $("#search").focus()
   $("#search").select()
 }
@@ -248,7 +255,7 @@ function processSelectedAudioFile(){
 }
 
 function transcribe(audioId, type, recordingUrl){
-  $('#te_' + audioId).hide()
+  $('#ts_' + audioId).hide()
   $('#pi_' + audioId).show()
   var configs = {}
   configs['audioSrc'] = audioId
@@ -262,22 +269,36 @@ function transcribe(audioId, type, recordingUrl){
   var url = "transcribe"
   disableAllInput(true)
   var posting = $.post( url, configs );
-  posting.done(function( response ) {
-    //alert(response)
+  posting.done(function( res ) {
+    //alert(res)
     disableAllInput(false)
-    var res = JSON.parse(response)
-    if (res.status == "error") {
-      alert(res.calllog_error)
+    //var res = JSON.parse(response)
+    if (res.status == "failed") {
+      alert("Please try again!")
+    }else if (res.status == "empty") {
+      $('#tt_' + audioId).html("Cannot recognize any text from this call.")
     }else{
-      if (res.result.length > 200) {
-        res.result = res.result.substring(0, 200)
-        res.result += ' ...'
+      var itemArr = JSON.parse(res.result.keywords)
+      //alert(JSON.stringify(itemArr))
+      var count = itemArr.length
+      //alert(count)
+      var keywords = ""
+      for (var i=1; i < count; i++) {
+        var item = itemArr[i]
+        //alert(JSON.stringify(item))
+        keywords += '<span class="keyword">' + item.text + '</span>'
+        if (i > 4) {
+          break
+        }
       }
-      $('#tt_' + audioId).html(res.result)
-      $('#tt_' + audioId).show()
+      var icon = 'img/'
+      icon += res.result.sentiment + '.png'
+      //alert(icon)
       $('#pi_' + audioId).hide()
-      $('#open_' + audioId).show()
-      $('#del_' + audioId).show()
+      $('#st_' + audioId).attr("src", icon);
+      $('#tt_' + audioId).html(keywords)
+      $('#ts_' + audioId).html(res.result.subject)
+      $('#ts_' + audioId).show()
     }
   });
   posting.fail(function(response){

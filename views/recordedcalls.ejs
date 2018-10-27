@@ -18,10 +18,10 @@
     </script>
 </head>
 <body  onload="initForRecordedCalls()">
-  <nav class="navbar navbar-default no-border">
+  <nav id="menu_header" class="navbar navbar-default no-border">
     <span class="left-middle-align">
       <span class="rclogo"><a href="/"><img alt="Brand" src="img/ringcentral.png" height="40"></a></span>&nbsp;&nbsp;
-      <span class="title">Voice Communications Analytics</span>
+      <span class="title">Voice Analytics</span>
     </span>
     <ul class="nav navbar-nav navbar-right middle-align">
       <li><span><b>&nbsp;&nbsp;<%- userName %>&nbsp;&nbsp;</b></span></li>
@@ -32,41 +32,12 @@
       <% } %>
     </ul>
   </nav>
-  <!--nav class="navbar navbar-default">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <div style="display:inline">
-          <ul class="nav navbar-nav">
-            <li><a href="#"><img alt="Brand" src="img/ringcentral.png" height="30"></a></li>
-            <li><a href="#"><span class="title">Voice Communications Analytics</span></a></li>
-          </ul>
-        </div>
-        <span class="header-right">
-          <span><a href="/about"><%- userName %></a></span>
-          <span><a href="/about">About</a></span>
-          <span><a href="/#">|</a</span>
-          <% if (user == 'real') { %>
-          <span><a href="#" onclick="logout()">Logout</a></span>
-          <% } %>
-        </span>
-      </div>
-
-      <ul class="nav navbar-nav navbar-right" style="margin:2px;">
-        <li><a href="/#"><%- userName %></a</li>
-        <li><a href="/about">About</a></li>
-        <li><a href="/#">|</a</li>
-        <% if (user == 'real') { %>
-        <li><a href="#" onclick="logout()">Logout</a></li>
-        <% } %>
-      </ul>
-    </div>
-  </nav-->
   <script>
     window.calls = <%- JSON.stringify(calls) %>;
     window.userName = '<%- userName %>';
   </script>
   <section id='content'>
-    <div class="row">
+    <div id="search_bar" class="row">
       <div class="col-xs-12 search-block">
         <form action="/search" method="POST" class="form-inline">
           <div class="form-group">
@@ -109,13 +80,6 @@
                 <% } else { %>
                   <option value='extension'>Extension</option>
                 <% } %>
-                <!--
-                <% if (fieldArg == 'categories') { %>
-                  <option selected value='categories'>Categories</option>
-                <% } else { %>
-                  <option value='categories'>Categories</option>
-                <% } %>
-                -->
               </select>
               <input type="text" class="form-control search-input" name="search" placeholder="Search calls" value="<%= searchArg %>" id="search" required onfocus="selectSelectText()">
             </div>
@@ -196,6 +160,7 @@
           <% if (catIndex == '') { %>
             <option value="" disabled selected>Category</option>
           <% } %>
+            <option value="all">All</option>
           <% for (var i = 0; i < categoryArr.length; i++) { %>
             <% if (catIndex == categoryArr[i]) { %>
             <option value="<%= categoryArr[i] %>"><%= categoryArr[i] %></option>
@@ -210,7 +175,7 @@
     <div class="row table-content">
       <div id="call_list" class="col-xs-12 table-header">
         <table class="table">
-          <thead>
+          <thead id="call_list_header">
             <tr class="header">
               <th width="2%">
                 <input type=checkbox width=10 height=10 onchange="selectionHandler(this)"/>
@@ -341,31 +306,15 @@
               </td>
               <td width="12%" class="td-active">
               <% if (calls[i]['processed'] == false) { %>
-              <!--
-                <button class="btn-rc" id="te_<%= calls[i]['uid'] %>" onclick="transcribe('<%= calls[i]['uid'] %>', '<%= calls[i]['call_type'] %>', '<%= calls[i]['recording_url'] %>')">Transcribe</button>
                 <img style="display: none;" class="call_icon" id="pi_<%= calls[i]['uid'] %>" src="./img/processing.gif"></img>
-                <div class="transcript_brief" style="display: none" id="tt_<%= calls[i]['uid'] %>"></div>
-              -->
-                <div>--</div>
+                <div class="transcript_brief" id="ts_<%= calls[i]['uid'] %>">--</div>
               <% } else { %>
-                <% var itemArr = JSON.parse(calls[i].keywords) %>
-                <span><%= itemArr[0].text %></span>
-                <!--
-                <% var count = itemArr.length %>
-                <% for (var ii=0; ii < count; ii++) { %>
-                  <% var item = itemArr[ii] %>
-
-                  <span><%= item.text %>; </span>
-                  <% if (ii > 1) { %>
-                    <% break %>
-                  <% } %>
-                <% } %>
-                -->
+                <span><%= calls[i]['subject'] %></span>
               <% } %>
               </td>
               <td width="41%" class="td-active">
               <% if (calls[i]['processed'] == false) { %>
-                <div>--</div>
+                <div id="tt_<%= calls[i]['uid'] %>">--</div>
               <% } else { %>
                 <span class="transcript_brief" id="tt_<%= calls[i]['uid'] %>">
                   <% var itemArr = JSON.parse(calls[i].keywords) %>
@@ -408,26 +357,6 @@
         </table>
       </div>
   </div>
-  <!--div class="row">
-    <div align="right" style="margin-top: -20px">
-      <span>Total: <%= itemCount %> items</span>
-      <button class="btn-default" id="rem_btn" disabled onclick="confirmRemoveSelectedItemsFromDB()">Remove</button>
-      <button class="btn-default" id="del_btn" disabled onclick="confirmDeleteSelectedItemsFromCallLogDb()">Delete</button>
-    </div>
-  </div-->
-  <!--div class="row">
-    <div class="col-xs-12">
-      <div width="70%" align="center">
-        <img id="playing_sentiment" src='/img/neutral.png' class="sentiment_icon"></img>&nbsp;&nbsp;
-        <span id="playing_name">No name</span>&nbsp;&nbsp;&nbsp;
-        <span id="playing_from">Unknown</span>
-        <audio id="audio_player" controls controlsList="nodownload volume">
-          <source id="audio_src" src='' type='audio/mpeg'>
-            Your browser does not support the audio element.
-        </audio>
-      </div>
-    </div>
-  </div-->
   </section>
   <%- include('_footer') %>
 </body>

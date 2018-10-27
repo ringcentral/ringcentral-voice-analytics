@@ -2,12 +2,18 @@ var havenondemand = require('havenondemand')
 var hodClient = new havenondemand.HODClient(process.env.HOD_APIKEY, "v2")
 const pgdb = require('./db')
 
-var callActionDictionary = ['my number is', 'my cell phone is', 'my cell number is', 'my phone number is', 'call me back', 'give me a call', 'ring me mback', 'give me a call', 'reach me at']
+var callActionDictionary = ['my number is', 'my cell phone is', 'my cell number is', 'my phone number is', 'call me back', 'give me a call', 'ring me mback', 'reach me at']
 
-module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, transcript, id){
+module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, transcript, id, callback){
   var thisId = id
+  var thisCallback = callback
   var data = {}
   data['keywords'] = escape(JSON.stringify(input.keywords))
+  console.log(input.keywords)
+  if (input.keywords.length > 0)
+    data['subject'] = input.keywords[0].text
+  else
+    data['subject'] = "Not defined"
   //data['entities'] = escape(JSON.stringify(input.entities))
   data['concepts'] = escape(JSON.stringify(input.concepts))
 
@@ -34,11 +40,9 @@ module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, tran
   for (var i=0; i<textArr.length; i++)
     textArr[i] = textArr[i].trim()
   var request = {'text' : textArr}
-  //console.log("TEXT: " + text)
   hodClient.get('analyzesentiment', request, false, function(err, resp, body) {
     if (!err) {
       console.log("HOD SENTIMENT")
-        //console.log(resp.body)
         var results = []
         var count = 0
         var score = 0
@@ -55,36 +59,6 @@ module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, tran
             modSentence['sentence'] = textArr[count]
             var posArr = []
             var negArr = []
-            /*
-            if (sentences != undefined){
-              for (var gs of sentences){
-                var temp = modSentence['sentence'] + "."
-                if (temp == gs.sentence){
-                  if (gs.sentiment_label == sentence.aggregate.sentiment){
-                    if (gs.sentiment_label == "positive"){
-                      if (gs.sentiment_score > sentence.aggregate.score){
-                        sentence.aggregate.score = gs.sentiment_score
-                        break
-                      }
-                    }else if (gs.sentiment_label == "negative"){
-                      if (gs.sentiment_score < sentence.aggregate.score){
-                        sentence.aggregate.score = gs.sentiment_score
-                        break
-                      }
-                    }
-                  }else {
-                    if (gs.sentiment_label == "positive"){
-                      posArr.push(gs.positive[0])
-                      break
-                    }else if (gs.sentiment_label == "negative"){
-                      negArr.push(gs.negative[0])
-                      break
-                    }
-                  }
-                }
-              }
-            }
-            */
             modSentence['sentiment_label'] = sentence.aggregate.sentiment
             modSentence['sentiment_score'] = sentence.aggregate.score
             for (var pos of sentence.positive){
@@ -146,8 +120,8 @@ module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, tran
                         'show_alternatives': false
                       }
         hodClient.get('extractentities', request, false, function(err, resp, body) {
-          //console.log(JSON.stringify(resp.body))
-          if (!err) {
+        //console.log(JSON.stringify(resp.body))
+        if (!err) {
             var profanity = []
             var hasBadWord = false
             var actions = []
@@ -210,12 +184,24 @@ module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, tran
             query += ", entities='" + escape(JSON.stringify(resp.body.entities)) + "'"
             query += ", concepts='" + data.concepts + "'"
             query += ", categories='" + data.categories + "'"
+            query += ", subject='" + data.subject + "'"
             query += " WHERE uid=" + thisId;
             pgdb.update(query, (err, result) => {
               if (err){
-                return console.error(err.message);
+                var ret = {}
+                ret['sentiment'] = ""
+                ret['keywords'] = ""
+                ret['subject'] = ""
+                thisCallback(err, JSON.stringify(ret))
+                console.error(err.message);
               }else{
-                console.error(result);
+                console.log("MUST CALLBACK to exit: " + result);
+                var ret = {}
+                ret['sentiment'] = data.sentiment_label
+                ret['keywords'] = unescape(data.keywords)
+                ret['subject'] = data.subject
+                console.log("KEYWORDS: " + unescape(data.keywords))
+                thisCallback(null, ret)
               }
             });
           }
@@ -223,6 +209,10 @@ module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, tran
         //
     }else{
       console.log("ERROR: " + err)
+      var ret = {}
+      ret['sentiment'] = ""
+      ret['keywords'] = ""
+      thisCallback("ERROR", JSON.stringify(ret))
     }
   })
 }
