@@ -37,7 +37,7 @@
   <section id='content'>
     <div id="search_bar" class="row">
       <div class="col-xs-12 search-block">
-        <form class="form-inline" id="searchForm" onsubmit="searchForText(); event.preventDefault();">
+        <form class="form-inline" id="searchForm" onsubmit="searchForText();">
           <input type="text" class="form-control" id="search" onfocus="selectWord()" value="<%= searchWord %>" required>
           <button id="searchButton" class="btn-rc">Search</button>
         </form>

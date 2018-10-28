@@ -709,59 +709,122 @@ function jumpToSentiment(timeStamp, sentence, words){
           return
         }
       }
-      /*
-      var startPos = sentence.indexOf(words)
-      alert(startPos)
-      if (startPos >= 0){
-        startPos += i
-        timeStamp = wwoArr[startPos].offset
-        alert(wwoArr[startPos].word)
-        jumpTo(timeStamp, true)
-        break
-      }
-      */
     }
   }
 }
 function jumptToKeyword(keyword){
   var wordArr = keyword.split(" ")
-  var searchWord = $("#search").val(wordArr[0])
-  searchForText()
+  var searchWord = $("#search").val(keyword)
+  let regEx = new RegExp(`\\b${keyword}\\b`, 'i');
+  for (var i=mIndex; i<wwoArr.length; i++){
+    var matchArr = []
+    for (n=0; n<wordArr.length; n++){
+      var m = i+n
+      if (m < wwoArr.length - wordArr.length)
+        matchArr.push(wwoArr[m].word)
+      else
+        break
+    }
+    var match = matchArr.join(" ")
+    if (regEx.test(match)){
+      var timeStamp = wwoArr[i].offset
+      jumpTo(timeStamp, true)
+      return
+    }
+  }
+  //alert("not found")
+  if (i >= wwoArr.length){
+    //alert("in here")
+    for (var i=0; i<wwoArr.length; i++){
+      var matchArr = []
+      for (n=0; n<wordArr.length; n++){
+        var m = i+n
+        if (m < wwoArr.length - wordArr.length)
+          matchArr.push(wwoArr[m].word)
+        else
+          break
+      }
+      var match = matchArr.join(" ")
+      if (regEx.test(match)){
+        var timeStamp = wwoArr[i].offset
+        jumpTo(timeStamp, true)
+        break
+      }
+    }
+  }
+/*
+  for (var i=0; i<wwoArr.length; i++){
+    var matchArr = []
+    for (n=0; n<wordArr.length; n++){
+      //matchArr.push(wwoArr[i+n].word)
+      var m = i+n
+      if (m < wwoArr.length - wordArr.length)
+        matchArr.push(wwoArr[m].word)
+      else
+        break
+    }
+    var match = matchArr.join(" ")
+    if (regEx.test(match)){
+      timeStamp = wwoArr[i].offset
+      //alert(wwoArr[i+n].word)
+      jumpTo(timeStamp, true)
+      return
+    }
+  }
+*/
 }
+
 function selectWord(){
   $("#search").select()
 }
 function searchForText(){
   var searchWord = $("#search").val()
+
+  this.event.preventDefault();
   if (searchWord == "*")
     return
   $("#search").focus()
-  var regEx = new RegExp(searchWord, "i");
+  jumptToKeyword(searchWord)
+/*
+  var wordArr = searchWord.split(" ")
+  let regEx = new RegExp(`\\b${searchWord}\\b`, 'i');
   for (var i=mIndex; i<wwoArr.length; i++){
-    var word = wwoArr[i].word
-    //if (word == searchWord){
-    if (regEx.test(word)){
+    var matchArr = []
+    for (n=0; n<wordArr.length; n++){
+      var m = i+n
+      if (m < wwoArr.length - wordArr.length)
+        matchArr.push(wwoArr[m].word)
+      else
+        break
+    }
+    var match = matchArr.join(" ")
+    if (regEx.test(match)){
       var timeStamp = wwoArr[i].offset
       jumpTo(timeStamp, true)
-      // scroll to view
-      //var id = "#word" + i
-      //$(id)[0].scrollIntoView();
-      break
+      return
     }
   }
+  //alert("not found")
   if (i >= wwoArr.length){
+    //alert("in here")
     for (var i=0; i<wwoArr.length; i++){
-      var word = wwoArr[i].word
-      if (regEx.test(word)){
+      var matchArr = []
+      for (n=0; n<wordArr.length; n++){
+        var m = i+n
+        if (m < wwoArr.length - wordArr.length)
+          matchArr.push(wwoArr[m].word)
+        else
+          break
+      }
+      var match = matchArr.join(" ")
+      if (regEx.test(match)){
         var timeStamp = wwoArr[i].offset
         jumpTo(timeStamp, true)
-        // scroll to view
-        //var id = "#word" + i
-        //$(id)[0].scrollIntoView();
         break
       }
     }
   }
+*/
 }
 
 function jumpTo(timeStamp, scrollIntoView) {
