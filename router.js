@@ -47,7 +47,7 @@ var router = module.exports = {
       user.loadDemo()
       res.render('readlog', {
         userName: "Demo Guy",
-        user: 'demos'
+        userLevel: 'demo'
       })
       return
     }
@@ -75,7 +75,7 @@ var router = module.exports = {
       if (index >= 0)
         res.render('readlog', {
           userName: users[index].getUserName(),
-          user: users[index].getUserLevel()
+          userLevel: users[index].getUserLevel()
         })
       else{
         this.forceLogin(req, res)
@@ -129,7 +129,7 @@ var router = module.exports = {
     var index = getUserIndex(req.session.userId)
     if (index < 0)
       return //this.forceLogin(req, res)
-    users[index].subscribeForNotification()
+    users[index].subscribeForNotification(req)
   },
   removeSubscription: function(req) {
     var index = getUserIndex(req.session.userId)

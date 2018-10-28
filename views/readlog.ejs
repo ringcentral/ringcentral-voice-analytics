@@ -8,9 +8,18 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css" type="text/css"/>
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="stylesheet" type="text/css" href="css/ui.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
     <script>
+      $(function() {
+        $('#extensionids').multiselect({
+          includeSelectAllOption: true
+        });
+      });
     </script>
 </head>
 <body onload="initForReadLog()">
@@ -21,27 +30,34 @@
     </span>
     <ul class="nav navbar-nav navbar-right middle-align">
       <li><span><b><%- userName %>&nbsp;&nbsp;</b></span></li>
-      <% if (user == 'real') { %>
+      <% if (userLevel != 'demo') { %>
       <li><a href="/readlog">&nbsp;&nbsp;Read&nbsp;&nbsp;</a></li>
       <% } %>
       <li><a href="/recordedcalls">&nbsp;&nbsp;List&nbsp;&nbsp;</a></li>
       <li><a href="/about">&nbsp;&nbsp;Help</a></li>
       <li><span>&nbsp;|&nbsp;</span></li>
-      <% if (user == 'real') { %>
+      <% if (userLevel != 'demo') { %>
       <li><a href="#" onclick="logout()">Logout</a></li>
       <% } %>
     </ul>
   </nav>
   <section id='content'>
-    <% if (user == 'real') { %>
+    <% if (userLevel != 'demo') { %>
     <form class="form-inline">
       <div class="form-group">
         <label for="fromDate">From Date</label>
           <input type="text" id="fromdatepicker"></input>&nbsp;&nbsp;
         <label for="toDate">To Date</label>
           <input type="text" id="todatepicker"></input>&nbsp;
+        <% if (userLevel == 'admin') { %>
+          <select class="selectpicker filter-select" multiple="multiple" id="extensionids" style="display: inline">
+          <% var extensionsArr = JSON.parse(extensionList) %>
+          <% for (var i = 0; i < extensionsArr.length; i++) { %>
+            <option value="<%= extensionsArr[i].id %>"><%= extensionsArr[i].fullName %></option>
+          <% } %>
+          </select>
+        <% } %>
         <button id="readcalllogs" class="btn-rc" onclick="readCallLogs()" style="display:inline">Read Call Logs</button>
-
         <button type="button" class="btn-rc" onclick="enableNotification()" id="notification_btn" style="display:inline">Enable Auto Processing</button>
         <!--
         &nbsp;&nbsp;&nbsp;&nbsp;

@@ -11,7 +11,7 @@ var OAuthCode = function(authUri, redirectUri) {
             win.close();
             window.setTimeout(function() {
               window.location.href = "readlog"
-            }, 5000)
+            }, 3000)
           }
         } catch(e) {
           console.log(e)

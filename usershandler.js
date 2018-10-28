@@ -13,6 +13,7 @@ function User(id, mode) {
   this.extIndex = 0
   this.token_json = {};
   this.extensionList = []
+  this.selectedExtensionList = []
   this.categoryList = []
   this.mainCompanyPhoneNumber = ""
   if (mode != "demo"){
@@ -75,7 +76,7 @@ User.prototype = {
     return "user_" + this.extensionId
   },
   getSubscriptionIdTable: function(){
-    return "subscriptionIds"
+    return "subscriptionids"
   },
   getCategoryList: function(){
     return this.categoryList
@@ -95,9 +96,15 @@ User.prototype = {
     return "Demo Guy"
   },
   getUserLevel: function(){
-    var userLevel = 'demos'
-    if (this.getUserId() != 100)
-      userLevel = 'real'
+    var userLevel = ''
+    if (this.getUserId() == 100)
+      userLevel = 'demo'
+    else{
+      if (this.isAdmin())
+        userLevel = 'admin'
+      else
+      userLevel = 'standard'
+    }
     return userLevel
   },
   loadDemo: function(){
@@ -114,8 +121,9 @@ User.prototype = {
       }
     }
     res.render('readlog', {
-      user: 'real',
-      userName: userName
+      userLevel: this.getUserLevel(),
+      userName: userName,
+      extensionList: JSON.stringify(this.extensionList)
     })
   },
   login: function(req, res, callback){
@@ -145,19 +153,26 @@ User.prototype = {
               createTable(table, function(err, res){
                 if (!err){
                   thisRes.send('login success');
-
+/*
                   table = thisUser.getSubscriptionIdTable()
                   createTable(table, function(err, res){
                     if (!err)
                       console.log('subscription table created');
                   })
-
+*/
                 }
               })
+              table = thisUser.getSubscriptionIdTable()
+              createTable(table, function(err, res){
+                if (!err)
+                  console.log('subscription table created');
+              })
+/*
               createTable("notificationstate", function(err, res){
                 if (!err)
                   console.log('notificationstate table created');
               })
+*/
               if (jsonObj.permissions.admin.enabled){
                 thisUser.setAdmin(true)
                 thisUser.getAccountExtensions(jsonObj.id)
@@ -302,19 +317,43 @@ User.prototype = {
           this.readFullData(nextQuery, retObj, res, field, keyword)
       });
     },
-    subscribeForNotification: function (){
+    subscribeForNotification: function (req){
       // read subId form database
       var thisUser = this
+      var selectedExtensionList = []
+      if (req.body.extensionList != undefined){
+        var extList = JSON.parse(req.body.extensionList)
+        if (extList.length == 0){
+          for (var ext of this.extensionList){
+            if (this.extensionId == ext.id){
+              selectedExtensionList.push(ext)
+              break
+            }
+          }
+        }else{
+          for (var item of extList){
+            for (var ext of this.extensionList){
+              if (item == ext.id){
+                selectedExtensionList.push(ext)
+                break
+              }
+            }
+          }
+        }
+      }else{
+        selectedExtensionList = this.extensionList
+      }
       var query = "SELECT * FROM " + this.getSubscriptionIdTable() + " WHERE ext_id=" + this.getExtensionId();
       pgdb.read(query, (err, result) => {
-        console.log(result.rows)
+        console.log(result)
         if(err != null){
           console.log(err);
         }
         if (result.rows.length == 0){
           console.log("no subId found. create one after")
-          var extensionList = thisUser.getExtensionList()
-          thisUser.rc_platform.subscribeForNotification(extensionList, thisUser.isAdmin(), function(err, result){
+          //var extensionList = thisUser.getExtensionList()
+          //var extensionList = JSON.parse(req.body.extensionList)
+          thisUser.rc_platform.subscribeForNotification(selectedExtensionList, thisUser.isAdmin(), function(err, result){
             console.log("subscribed ID: " + result)
             if (!err){
               var query = "INSERT INTO " + thisUser.getSubscriptionIdTable()
@@ -337,7 +376,7 @@ User.prototype = {
           if (subId == ''){
             console.log("empty subID")
             var extensionList = thisUser.getExtensionList()
-            thisUser.rc_platform.subscribeForNotification(extensionList, thisUser.isAdmin(), function(err, result){
+            thisUser.rc_platform.subscribeForNotification(selectedExtensionList, thisUser.isAdmin(), function(err, result){
               if (!err){
                 var query = "UPDATE " + thisUser.getSubscriptionIdTable() + " SET sub_id='" + result + "'"
                 query += " WHERE ext_id=" + thisUser.getExtensionId();
@@ -358,7 +397,7 @@ User.prototype = {
               console.log("REMOVE OLD SUBSCRIPTION")
               if (!err){
                 var extensionList = thisUser.getExtensionList()
-                thisUser.rc_platform.subscribeForNotification(extensionList, thisUser.isAdmin(), function(err, result){
+                thisUser.rc_platform.subscribeForNotification(selectedExtensionList, thisUser.isAdmin(), function(err, result){
                   if (!err){
                     var query = "UPDATE " + thisUser.getSubscriptionIdTable() + " SET sub_id='" + result + "'"
                     query += " WHERE ext_id=" + thisUser.getExtensionId();
@@ -1152,7 +1191,33 @@ User.prototype = {
     // use async
     readCallRecordingsAsync: function(req, res){
       this.extIndex = 0
-      this.readExtensionCallLog(req.body, res)
+      var selectedExtensionList = []
+      if (req.body.extensionList != undefined){
+        var extList = JSON.parse(req.body.extensionList)
+        if (extList.length == 0){
+          for (var ext of this.extensionList){
+            if (this.extensionId == ext.id){
+              selectedExtensionList.push(ext)
+              //console.log("found: " + JSON.stringify(selectedExtensionList))
+              break
+            }
+          }
+        }else{
+          for (var item of extList){
+            console.log("setected id: " + item)
+            for (var ext of this.extensionList){
+              if (item == ext.id){
+                selectedExtensionList.push(ext)
+                //console.log("found: " + JSON.stringify(selectedExtensionList))
+                break
+              }
+            }
+          }
+        }
+      }else{
+        selectedExtensionList = this.extensionList
+      }
+      this.readExtensionCallLog(req.body, selectedExtensionList, res)
     },
     findSimilar: function(req, res){
       var query = "SELECT uid, keywords FROM " + this.getUserTable();
@@ -1545,8 +1610,8 @@ User.prototype = {
           rows[i].sentiments = unescape(r.sentiments)
           rows[i].keywords = unescape(r.keywords)
           rows[i].concepts = unescape(r.concepts)
-          console.log(rows[i].concepts)
-          console.log(rows[i].keywords)
+          //console.log(rows[i].concepts)
+          //console.log(rows[i].keywords)
           if (field != null && field == 'keywords'){
             var kwObj = JSON.parse(unescape(r.keywords))
             for (var kw of kwObj){
@@ -1604,7 +1669,7 @@ User.prototype = {
             typeArg: retObj.typeArg,
             itemCount: rows.length,
             userName: this.getUserName(),
-            user: this.getUserLevel()
+            userLevel: this.getUserLevel()
           })
       });
     },
@@ -1626,13 +1691,15 @@ User.prototype = {
         this.readFullData(query, retObj, res, null, "")
       }
     },
-    readExtensionCallLog: function(body, res){
-      var ext = this.extensionList[this.extIndex]
-      var extensionList = this.getExtensionList()
+    readExtensionCallLog: function(body, extList, res){
+      var ext = extList[this.extIndex]
+
       var endpoint = '/account/~/extension/'+ ext.id +'/call-log'
+      console.log("Ext Id: " + ext.id)
       var thisBody = body
       var thisRes = res
       var thisUser = this
+
       var params = {
         view: "Detailed",
         dateFrom: body.dateFrom,
@@ -1648,19 +1715,19 @@ User.prototype = {
       var companyPhoneNumber = thisUser.getMainCompanyNumber()
 
       async.waterfall([
-          thisUser._function(p, res, endpoint, params, table, companyPhoneNumber, extensionList, ext.id)
+          this._function(p, res, endpoint, params, table, companyPhoneNumber, extList, ext.id)
         ], function (error, success) {
             if (error) {
               console.log('Something is wrong!');
             }
             thisUser.extIndex++
-            console.log('read next extension.. ' + extensionList.length);
+            console.log('read next extension.. ' + extList.length);
             console.log("EXT IND: " + thisUser.extIndex)
 
-            if (thisUser.extIndex < extensionList.length){
+            if (thisUser.extIndex < extList.length){
               setTimeout(function(){
                 console.log("read from timer")
-                thisUser.readExtensionCallLog(thisBody, thisRes)
+                thisUser.readExtensionCallLog(body, extList, res)
               }, 1000)
             }else{
               console.log('Done read call log!');

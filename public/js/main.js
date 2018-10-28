@@ -129,6 +129,12 @@ function readCallLogs(){
   var configs = {}
   configs['dateFrom'] = $("#fromdatepicker").val() + "T00:00:00.001Z"
   configs['dateTo'] = $("#todatepicker").val() + "T23:59:59.999Z"
+  if ($('#extensionids') != undefined) {
+    configs['extensionList'] = JSON.stringify($('#extensionids').val());
+  }else{
+    configs['extensionList'] = [];
+  }
+  //alert(JSON.stringify(configs))
   var url = "readlogs"
   var posting = $.post( url, configs );
   posting.done(function( response ) {
@@ -160,8 +166,14 @@ function enableNotification(){
     });
   }else{
     var url = "enablenotification"
-    var getting = $.get( url );
-    getting.done(function( response ) {
+    var configs = {}
+    if ($('#extensionids') != undefined) {
+      configs['extensionList'] = JSON.stringify($('#extensionids').val());
+    }else{
+      configs['extensionList'] = [];
+    }
+    var posting = $.post(url, configs);
+    posting.done(function( response ) {
       var res = JSON.parse(response)
       if (res.result != "ok") {
         alert(res.calllog_error)
@@ -169,7 +181,7 @@ function enableNotification(){
         $('#notification_btn').text("Disable Auto Processing")
       }
     });
-    getting.fail(function(response){
+    posting.fail(function(response){
       alert(response.statusText);
     });
   }

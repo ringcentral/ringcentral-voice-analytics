@@ -113,7 +113,7 @@ app.post('/createrecord', function (req, res) {
   router.createRecord(req, res)
 })
 
-app.get('/enablenotification', function (req, res) {
+app.post('/enablenotification', function (req, res) {
   console.log("enable notification")
   router.subscribeForNotification(req)
   res.send('{"result":"ok"}')

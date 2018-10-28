@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Voice Communications Analysis Demo</title>
+    <title>RingCentral voice analytics</title>
     <script src="js/main.js" type="text/javascript"></script>
     <script src="js/jquery-3.1.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
@@ -27,7 +27,7 @@
       <li><span><b>&nbsp;&nbsp;<%- userName %>&nbsp;&nbsp;</b></span></li>
       <li><a href="/about">&nbsp;&nbsp;About</a></li>
       <li><a href="/#">&nbsp;|&nbsp;</a</li>
-      <% if (user == 'real') { %>
+      <% if (userLevel != 'demo') { %>
       <li><a href="#" onclick="logout()">Logout</a></li>
       <% } %>
     </ul>
@@ -143,18 +143,6 @@
               <% } %>
             </select>
           </div>
-          <!--
-          <span class="dropdown">
-            <button id="sentiment-dropdown" class="btn btn-nobackbround dropdown-toggle" style="width: 160px;margin-bottom:5px" data-toggle="dropdown"><span id="selected_sentiment">Positive</span> <span class="caret"></span></button>
-            <ul id="dropdown-list" class="dropdown-menu">
-              <li><span data-value="option1" tabIndex="-1">Positive&nbsp;<input type="range" min="0" max="1000" name="positiveRange" id="positiveRange" value=0></input></span></li>
-              <li><span data-value="option2" tabIndex="-1">Negative&nbsp;<input type="range" min="0" max="1000" name="negativeRange" id="negativeRange" value=0></input></span></li>
-              <li class="divider"></li>
-              <li><a href="#" data-value="option3" tabIndex="-1">Neutral</a></li>
-              <li><a href="#" data-value="option4" tabIndex="-1">All</a></li>
-            </ul>
-          </span>
-          -->
           <select name="categories" class="selectpicker filter-select" id="categoryField" style="display: inline">
           <% var categoryArr = JSON.parse(categories) %>
           <% if (catIndex == '') { %>
@@ -291,17 +279,6 @@
                   <% icon += calls[i]['sentiment_label'] %>
                   <% icon += '.png' %>
                   <img id="st_<%= calls[i]['uid'] %>" src='<%= icon %>' class="sentiment_icon"></img>
-                  <!--
-                  <% if (calls[i]['sentiment_score_hi'] > 0.7) { %>
-                    <img id="hi_<%= calls[i]['uid'] %>" src='img/good.png' class="sentiment_icon"></img>
-                  <% } %>
-                  <% if (calls[i]['sentiment_score_low'] < -0.7) { %>
-                    <img id="lo_<%= calls[i]['uid'] %>" src='img/bad.png' class="sentiment_icon"></img>
-                  <% } %>
-                  <% if (calls[i]['has_profanity'] == 1) { %>
-                    <img id="pr_<%= calls[i]['uid'] %>" src='img/warning.png' class="sentiment_icon"></img>
-                  <% } %>
-                  -->
                 <% } %>
               </td>
               <td width="12%" class="td-active">
