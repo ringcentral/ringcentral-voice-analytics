@@ -151,7 +151,7 @@
           </div-->
         </br>
           <div class="with-border">
-            <div style="width: 100%; background:#f2f4f7;">
+            <div style="width: 100%;">
               <ul id="tabs" class="nav nav-tabs nav-justified" data-tabs="tabs">
                 <li id="keyword-tab"><a href="#" onclick="displayAnalytics('keywords')" selected data-toggle="tab">Keywords</a></li>
                 <li id="sentiment-tab"><a href="#" onclick="displayAnalytics('sentiment')" data-toggle="tab">Sentiments</a></li>
@@ -159,32 +159,32 @@
             </div>
             <div id="sentiment_adjust" class="form-inline with-border" style="display: none !important">
               <label for="positiveSentimentRange">Positive: </label>
-                <input type="range" min="0" max="1000" value="500" class="sliderPos" name="positiveSentimentRange" id="positiveSentimentRange"></input>
+              <input type="range" min="0" max="1000" value="500" class="sliderPos" name="positiveSentimentRange" id="positiveSentimentRange"></input>
               <span id="posval">0.50</span>&nbsp;&nbsp;&nbsp;
               <label for="negativeSentimentRange">Negative: </label>
-                <input type="range" min="0" max="1000" value="500" class="sliderNeg" id="negativeSentimentRange"></input>
-                <span id="negval">-0.50</span>&nbsp;&nbsp;&nbsp;
-                <% if (results.call_type != 'VM') { %>
-                <select id="speakers" onchange="setSpeakersWithSentiment()">
-                  <option selected value=-1>All</option>
-                  <% var arr = [] %>
-                  <% var conversations = JSON.parse (results.conversations) %>
-                  <% for (var i = 0; i < conversations.length; i++) { %>
-                    <% var newSpeaker = true; for (var n = 0; n < arr.length; n++) { %>
-                      <% if (arr[n] == conversations[i].speakerId) { %>
-                        <% newSpeaker = false; break; } %>
-                    <% } %>
-                    <% if (newSpeaker == true) { arr.push(conversations[i].speakerId); %>
-                    <option value=<%= conversations[i].speakerId %> >Speaker <%= conversations[i].speakerId %></option>
-                    <% } %>
+              <input type="range" min="0" max="1000" value="500" class="sliderNeg" id="negativeSentimentRange"></input>
+              <span id="negval">-0.50</span>&nbsp;&nbsp;&nbsp;
+              <% if (results.call_type != 'VM') { %>
+              <select id="speakers" onchange="setSpeakersWithSentiment()">
+                <option selected value=-1>All</option>
+                <% var arr = [] %>
+                <% var conversations = JSON.parse (results.conversations) %>
+                <% for (var i = 0; i < conversations.length; i++) { %>
+                  <% var newSpeaker = true; for (var n = 0; n < arr.length; n++) { %>
+                    <% if (arr[n] == conversations[i].speakerId) { %>
+                      <% newSpeaker = false; break; } %>
                   <% } %>
-                </select>
+                  <% if (newSpeaker == true) { arr.push(conversations[i].speakerId); %>
+                  <option value=<%= conversations[i].speakerId %> >Speaker <%= conversations[i].speakerId %></option>
+                  <% } %>
                 <% } %>
+              </select>
+              <% } %>
             </div>
             <div id="analyzed_content" class="scrollable_container"></div>
           </div>
         </div>
-        <div class="column right with-border">
+        <div class="column right with-border player-content">
           <div style="margin-bottom:10px; width: 100%; background:#f2f4f7">
           <!--
             <% if (results['from_number'] == "Unknown #") { %>
@@ -240,8 +240,8 @@
               <% var convs = JSON.parse (results.conversations) %>
               <% for (var i = 0; i < convs.length; i++) { %>
                 <tr class="conversation_block">
-                  <td class="scol"><b>Speaker <%= convs[i].speakerId %>:</b></td>
-                  <td class="tcol">
+                  <td class="scol speaker_name"><b>Speaker <%= convs[i].speakerId %>:</b></td>
+                  <td class="tcol conversation_text">
                 <% for (var n = 0; n < convs[i].sentence.length; n++) { %>
                   <% var wId = "word" + index %>
                   <span onclick= "jumpTo(<%= convs[i].timestamp[n] %>, false)" class="unreadtext" id="<%= wId %>" ><%= convs[i].sentence[n] %></span>
@@ -257,5 +257,6 @@
       </div>
     </div>
   </section>
+  <%- include('_footer') %>
 </body>
 </html>

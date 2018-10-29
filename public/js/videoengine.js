@@ -29,7 +29,9 @@ function init() {
   var sliderPos = document.getElementById("positiveSentimentRange");
   sliderPos.oninput = function() {
     positiveThreshold = this.value/1000;
-    $("#posval").html(positiveThreshold)
+    $("#posval").html(positiveThreshold);
+    var percent = positiveThreshold * 100;
+    sliderPos.css('background', 'linear-gradient(to right, #b8e986, #b8e986 ' + percent + '%, #c8ccd1 ' + percent + '%)');
     displayAnalytics('sentiment')
   }
 

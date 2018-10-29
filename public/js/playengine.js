@@ -28,7 +28,7 @@ function init() {
 
   $("#conversations_block").height(h)
   $("#analytics_block").height(h)
-  $("#analyzed_content").height(h-145)
+  $("#analyzed_content").height(h-125)
   //$("#my_canvas").height(h)
   //$("#my_canvas").width(h)
 
@@ -36,6 +36,9 @@ function init() {
   sliderPos.oninput = function() {
     positiveThreshold = this.value/1000;
     $("#posval").html(positiveThreshold.toFixed(2))
+    var percent = (positiveThreshold * 100).toFixed(2);
+    var style = 'linear-gradient(to right, #b8e986 0%, #b8e986 ' + percent + '%, #c8ccd1 ' + percent + '%, #c8ccd1)';
+    sliderPos.style.background = style;
     displayAnalytics('sentiment')
   }
 
@@ -43,6 +46,9 @@ function init() {
   sliderNeg.oninput = function() {
       negativeThreshold = (this.value/1000) * -1;
       $("#negval").html(negativeThreshold.toFixed(2))
+      var percent = (positiveThreshold * 100).toFixed(2);
+      var style = 'linear-gradient(to right, #e98f86 0%, #e98f86 ' + percent + '%, #c8ccd1 ' + percent + '%, #c8ccd1)';
+      sliderNeg.style.background = style;
       displayAnalytics('sentiment')
   }
   displayAnalytics('keywords')
@@ -394,8 +400,8 @@ function displayAnalytics(option){
                 if (pos.score > positiveThreshold){
                   sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(pos.text) + "')\">"
                   //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
-                  sentence += "<img src=\"img/positive.png\" class=\"sentiment_icon\"></img>"
-                  sentence += "<span class=\"positive_block\">" + pos.text + "</span>"
+                  sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
+                  sentence += "<span class=\"positive_block\">.." + pos.text + "..</span>"
                   //alert(sentence)
                   /*
                   if (pos.topic != null)
@@ -421,8 +427,8 @@ function displayAnalytics(option){
                 if (neg.score < negativeThreshold){
                   sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(neg.text) + "')\">"
                   //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
-                  sentence += "<img src=\"img/negative.png\" class=\"sentiment_icon\"></img>"
-                  sentence += "<span class=\"negative_block\">" + neg.text + "</span>"
+                  sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
+                  sentence += "<span class=\"negative_block\">.." + neg.text + "..</span>"
                   //alert(sentence)
                   /*
                   if (neg.topic != null)
@@ -444,7 +450,7 @@ function displayAnalytics(option){
           }
           for (var i=0; i<speakersArr.length; i++) {
             var sp = speakersArr[i]
-            text += "<div class=\"sentiment_line\">Speaker "+ sp.name + ": </div>"
+            text += "<div class=\"sentiment_line speaker_name\">Speaker "+ sp.name + ": </div>"
             for (var sent of sp.sentences){
               //alert(sent)
               text += sent
@@ -471,7 +477,7 @@ function displayAnalytics(option){
                   if (pos.score > positiveThreshold){
                     sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(pos.text) + "')\">"
                     //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
-                    sentence += "<img src=\"img/positive.png\" class=\"sentiment_icon\"></img>"
+                    sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
                     sentence += "<span class=\"positive_block\">" + pos.text + "</span>"
                     /*
                     if (pos.topic != null)
@@ -489,7 +495,7 @@ function displayAnalytics(option){
                   if (neg.score < negativeThreshold){
                     sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(neg.text) + "')\">"
                     //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
-                    sentence += "<img src=\"img/negative.png\" class=\"sentiment_icon\"></img>"
+                    sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
                     sentence += "<span class=\"negative_block\">" + neg.text + "</span>"
                     /*
                     if (neg.topic != null)
@@ -504,7 +510,7 @@ function displayAnalytics(option){
               }
             }
           }
-          text += "<div class=\"sentiment_line\">Speaker "+ speaker.name + ": </div>"
+          text += "<div class=\"sentiment_line speaker_name\">Speaker "+ speaker.name + ": </div>"
           for (var sent of speaker.sentences){
             text += sent
           }
