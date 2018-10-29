@@ -54,18 +54,6 @@
           <img src='<%= icon %>' ></img>
       <% } %>
       <span><b>&nbsp;Subjects: </b></span>
-<!--
-      <% var itemArr = JSON.parse(results.keywords)%>
-      <% var count = itemArr.length %>
-      <% for (var i=0; i < count; i++) { %>
-        <% var item =itemArr[i] %>
-        <span><%- item.text %></span>
-        <% if (i > 1) { %>
-        <%  break %>
-        <% } %>
-        <span>, </span>
-      <% } %>
--->
       <span><%= results['subject'] %></span>
       <% var icon = 'img/' %>
       <% icon += results['sentiment_label'] %>
@@ -79,77 +67,60 @@
     <div class="row">
       <div class="col-xs-12">
         <div class="column left left-block">
+          <div id="upper_block">
           <div class="with-border upper-block">
             <div class="block_header">Call info</div>
               <div>
-              <span class="bold">Agent: </span>
-              <% if (results['direction'] == "Out") { %>
-                <% if (results['from_number'] == "Unknown #") { %>
-                  <span><b>Unknown</b></span>
+                <span class="bold">Employee: </span>
+                <% if (results['direction'] == "Out") { %>
+                  <% if (results['from_number'] == "Unknown #") { %>
+                    <span><b>Unknown</b></span>
+                  <% } else { %>
+                  <% if (results['from_name'] != "Unknown") { %>
+                    <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
+                  <% } else { %>
+                    <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
+                  <% } } %>
                 <% } else { %>
-                <% if (results['from_name'] != "Unknown") { %>
-                  <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
+                  <% if (results['to_number'] == "Unknown #") { %>
+                    <span>Unknown</span>
+                  <% } else { %>
+                  <% if (results['to_name'] != "Unknown") { %>
+                    <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
+                  <% } else { %>
+                    <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
+                  <% } } %>
+                <% } %>
+              </div>
+              <div>
+                <span class="bold">Customer: </span>
+                <% if (results['direction'] == "In") { %>
+                  <% if (results['from_number'] == "Unknown #") { %>
+                    <span>Unknown</span>
+                  <% } else { %>
+                  <% if (results['from_name'] != "Unknown") { %>
+                    <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
+                  <% } else { %>
+                    <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
+                  <% } } %>
                 <% } else { %>
-                  <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
-                <% } } %>
-              <% } else { %>
-                <% if (results['to_number'] == "Unknown #") { %>
-                  <span>Unknown</span>
-                <% } else { %>
-                <% if (results['to_name'] != "Unknown") { %>
-                  <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
-                <% } else { %>
-                  <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
-                <% } } %>
-              <% } %>
+                  <% if (results['to_number'] == "Unknown #") { %>
+                    <span>Unknown</span>
+                  <% } else { %>
+                  <% if (results['to_name'] != "Unknown") { %>
+                    <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
+                  <% } else { %>
+                    <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
+                  <% } } %>
+                <% } %>
+              </div>
+              <div>
+                <% let dateformat = {  month: 'short',day: 'numeric',year: 'numeric',hour: '2-digit',minute: '2-digit'}; %>
+                <% var d = new Date(parseInt(results['call_date'])).toLocaleDateString("en-US", dateformat) %>
+                <span><%= d %></span>
+              </div>
             </div>
-            <div>
-              <span class="bold">Customer: </span>
-              <% if (results['direction'] == "In") { %>
-                <% if (results['from_number'] == "Unknown #") { %>
-                  <span>Unknown</span>
-                <% } else { %>
-                <% if (results['from_name'] != "Unknown") { %>
-                  <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
-                <% } else { %>
-                  <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
-                <% } } %>
-              <% } else { %>
-                <% if (results['to_number'] == "Unknown #") { %>
-                  <span>Unknown</span>
-                <% } else { %>
-                <% if (results['to_name'] != "Unknown") { %>
-                  <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
-                <% } else { %>
-                  <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
-                <% } } %>
-              <% } %>
-            </div>
-            <div>
-              <% let dateformat = {  month: 'short',day: 'numeric',year: 'numeric',hour: '2-digit',minute: '2-digit'}; %>
-              <% var d = new Date(parseInt(results['call_date'])).toLocaleDateString("en-US", dateformat) %>
-              <span><%= d %></span>
-            </div>
-          </div>
-
-          <!--div class="with-border upper-block">
-            <div style="width: 100%; background:#f2f4f7;">Concepts</div>
-            <% var itemArr = JSON.parse(results.concepts) %>
-            <div>
-            <% for (var item of itemArr) { %>
-            <%   var highlighted = "" %>
-            <%   if (item.relevance > 0.9) { %>
-            <%     highlighted = "high-relevance" %>
-            <%   }else if (item.relevance > 0.7) { %>
-            <%     highlighted = "medium-relevance" %>
-            <%   }else{ %>
-            <%     highlighted = "low-relevance" %>
-            <%   } %>
-            <div><a target="_blank"  class="low-relevance" href=" <%- item.dbpedia_resource %>  "> <%- item.text %> </a></div>
-            <% } %>
-            </div>
-          </div-->
-        </br>
+          </br>
           <div class="with-border">
             <div style="width: 100%;">
               <ul id="tabs" class="nav nav-tabs nav-justified" data-tabs="tabs">
@@ -181,43 +152,17 @@
               </select>
               <% } %>
             </div>
-            <div id="analyzed_content" class="scrollable_container"></div>
+            </div>
           </div>
+          <div id="analyzed_content" class="scrollable_container"></div>
         </div>
         <div class="column right with-border player-content">
           <div style="margin-bottom:10px; width: 100%; background:#f2f4f7">
-          <!--
-            <% if (results['from_number'] == "Unknown #") { %>
-              <span>Call from: <b>Unknown</b></span>
-            <% } else { %>
-            <% if (results['from_name'] != "Unknown") { %>
-              <span>Call from: <a href="rcmobile://call?number=<%= results['from_number'] %>"><b><%= results['from_name'] %></b></a></span>
-            <% } else { %>
-              <span>Call from: <a href="rcmobile://call?number=<%= results['from_number'] %>"><b><%= results['from_number'] %></b></a></span>
-            <% } } %>
-            &nbsp;&nbsp;&nbsp;
-            <% if (results['to_number'] == "Unknown #") { %>
-              <span>Call to: <b>Unknown</b></span>
-            <% } else { %>
-            <% if (results['to_name'] != "Unknown") { %>
-              <span>Call to: <a href="rcmobile://call?number=<%= results['to_number'] %>"><b><%= results['to_name'] %></b></a></span>
-            <% } else { %>
-              <span>Call to: <a href="rcmobile://call?number=<%= results['to_number'] %>"><b><%= results['to_number'] %></b></a></span>
-            <% } } %>
-
-            <% var icon = 'img/' %>
-            <% icon += results['sentiment_label'] %>
-            <% icon += '.png' %>
-            <span class="display-right">
-              <img src='<%= icon %>' class="sentiment_icon"></img>
-              <% let options = {  month: 'short',day: 'numeric',year: 'numeric',hour: '2-digit',minute: '2-digit'}; %>
-              <% var d = new Date(parseInt(results['call_date'])).toLocaleDateString("en-US", options) %>
-              <span><%= d %></span>
-            </span>
-          -->
             <div class="form-group" style="width: 100%;padding-left:10px;">
-              <% if (results['call_type'] == "PR") { %>
+              <% if (results['call_type'] == "PR" || results['call_type'] == "CR") { %>
                 <span class="bold">Recorded call </span>
+              <% } else if (results.call_type == 'VM') { %>
+                <span class="bold">Voicemail </span>
               <% } %>
               <audio id="audio_player" controls  controlsList="nodownload">
                 <source src='<%= results['recording_url']  %>' type="audio/mpeg">

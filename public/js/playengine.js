@@ -1,36 +1,32 @@
 window.onload = init;
-//var result
 var aPlayer = null;
 var index = 0;
 var mIndex = 1;
 var wwoArr = []
-var conceptsArr;
-var occurrencesArr;
+
 var wordElm = null;
 var mContent = "";
-var searchWordArr = new Array();
-
-var mReference = "";
 
 var speakerSentiment = -1
 var foundIndex = 0;
 var positiveThreshold = 0.5;
 var negativeThreshold = -0.5;
+var fixedSubstractedHeight = 0
 
 function init() {
   initializeAudioPlayer()
+  fixedSubstractedHeight = $("#menu_header").height()
+  fixedSubstractedHeight += $("#search_bar").height()
+  fixedSubstractedHeight += $("#subject_header").height()
+  fixedSubstractedHeight += $("#footer").height()
+  //alert($("#footer").height())
+  //upperBlockHeight = $("#upper_block").height()
+  var h = $(window).height() - (fixedSubstractedHeight);
 
-  var height = $("#menu_header").height()
-  height += $("#search_bar").height()
-  height += $("#subject_header").height()
-  //height += $("#footer").height()
-  var h = $(window).height() - (height + 190);
+//  var h = $(window).height() - (height + 190);
 
-  $("#conversations_block").height(h)
-  $("#analytics_block").height(h)
-  $("#analyzed_content").height(h-125)
-  //$("#my_canvas").height(h)
-  //$("#my_canvas").width(h)
+  $("#conversations_block").height(h-210)
+  //$("#analyzed_content").height(h-125)
 
   var sliderPos = document.getElementById("positiveSentimentRange");
   sliderPos.oninput = function() {
@@ -53,15 +49,6 @@ function init() {
   }
   displayAnalytics('keywords')
   $("#search").focus()
-  /*
-  $('#dropdown-list').click(function(e){
-    $('#sentiment-dropdown').text(this.innerHTML);
-  });
-
-  $(document.body).on('click', '.dropdown-menu li a', function (e) {
-    alert($(this).text());
-  });
-  */
 }
 
 function setSpeakersWithSentiment(){
@@ -73,18 +60,16 @@ function displayConversations() {
   $("#conversations_block").show()
 }
 function displayAnalytics(option){
-  if (option == 'transcript'){
-    $("#analytics_block").hide()
-    //$("#sentiment_adjust").hide()
-    $("#conversations_block").show()
-
-  }else if (option == 'sentiment'){
+  if (option == 'sentiment'){
     $("#sentiment_adjust").show()
-    //$("#keyword-tab").css('class', 'tab-selected')
     $("#sentiment-tab").addClass("tab-selected");
     $("#keyword-tab").removeClass("tab-selected");
-      var itemArr = JSON.parse(window.results.sentiments)
-      var text = "<div>"
+    var upperBlockHeight = $("#upper_block").height() + 130
+    var h = $(window).height() - (fixedSubstractedHeight);
+    $("#analyzed_content").height(h-upperBlockHeight)
+    $("#analyzed_content").show();
+    var itemArr = JSON.parse(window.results.sentiments)
+    var text = "<div>"
 /*
       // HPE sentiment analysis
       if (window.results.type == "VM"){
@@ -398,11 +383,10 @@ function displayAnalytics(option){
             if (item.hasOwnProperty('positive')){
               for (var pos of item.positive){
                 if (pos.score > positiveThreshold){
-                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(pos.text) + "')\">"
-                  //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
+                  var tText = truncateText(pos.text)
+                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(tText) + "')\">"
                   sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
-                  sentence += "<span class=\"positive_block\">.." + pos.text + "..</span>"
-                  //alert(sentence)
+                  sentence += "<span class=\"positive_block\">.." + tText + "..</span>"
                   /*
                   if (pos.topic != null)
                     sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
@@ -411,7 +395,6 @@ function displayAnalytics(option){
                   //text += sentence + "</div>"
                   */
                   sentence += "</div>"
-                  //alert(sentence)
                   for (var i=0; i<speakersArr.length; i++) {
                     var sp = speakersArr[i]
                     if (sp.name == item.speakerId){
@@ -425,11 +408,10 @@ function displayAnalytics(option){
             if (item.hasOwnProperty('negative')){
               for (var neg of item.negative){
                 if (neg.score < negativeThreshold){
-                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(neg.text) + "')\">"
-                  //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
+                  var tText = truncateText(neg.text)
+                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(tText) + "')\">"
                   sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
-                  sentence += "<span class=\"negative_block\">.." + neg.text + "..</span>"
-                  //alert(sentence)
+                  sentence += "<span class=\"negative_block\">.. " + tText + " ..</span>"
                   /*
                   if (neg.topic != null)
                     sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
@@ -452,14 +434,10 @@ function displayAnalytics(option){
             var sp = speakersArr[i]
             text += "<div class=\"sentiment_line speaker_name\">Speaker "+ sp.name + ": </div>"
             for (var sent of sp.sentences){
-              //alert(sent)
               text += sent
             }
             text += "</div>"
           }
-          //alert(text)
-          //if (sentence != '')
-          //  text += sentence + "</div>"
         }else{ //if (speakerSentiment == 0){
           var speaker = {}
           for (var item of itemArr) {
@@ -475,10 +453,10 @@ function displayAnalytics(option){
               if (item.hasOwnProperty('positive')){
                 for (var pos of item.positive){
                   if (pos.score > positiveThreshold){
-                    sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(pos.text) + "')\">"
-                    //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
+                    var tText = truncateText(pos.text)
+                    sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(tText) + "')\">"
                     sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
-                    sentence += "<span class=\"positive_block\">" + pos.text + "</span>"
+                    sentence += "<span class=\"positive_block\">.. " + tText + " ..</span>"
                     /*
                     if (pos.topic != null)
                       sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
@@ -493,10 +471,10 @@ function displayAnalytics(option){
               if (item.hasOwnProperty('negative')){
                 for (var neg of item.negative){
                   if (neg.score < negativeThreshold){
-                    sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(neg.text) + "')\">"
-                    //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
+                    var tText = truncateText(neg.text)
+                    sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(tText) + "')\">"
                     sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
-                    sentence += "<span class=\"negative_block\">" + neg.text + "</span>"
+                    sentence += "<span class=\"negative_block\">.. " + tText + " ..</span>"
                     /*
                     if (neg.topic != null)
                       sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
@@ -520,91 +498,13 @@ function displayAnalytics(option){
       text += "</div>"
       //alert(text)
       $("#analyzed_content").html(text)
-    }else if (option == 'entities'){
-      $("#sentiment_adjust").hide()
-      $("#my_canvas").hide()
-      $("#analytics_block").show()
-
-      getInterestsRequestCallback(window.results.entities)
-      return
-      var entityArr = JSON.parse(window.results.entities)
-      var text = "<div>"
-      for (var item of entityArr){
-        text += "<div>" + item.type + "/" + item.text + "</div>"
-      }
-      text += "</div>"
-      $("#analytics_block").html(text)
-    }else if (option == 'concepts'){
-      $("#sentiment_adjust").hide()
-      /*
-      $("#my_canvas").show()
-      $("#analytics_block").hide()
-      var itemArr = JSON.parse(window.results.concepts)
-      var list = []
-      for (var item of itemArr){
-        var kw = []
-        kw.push(item.text)
-        kw.push(parseInt(item.relevance*10))
-        kw.push(item.dbpedia_resource)
-        list.push(kw)
-      }
-      var options = {
-        list : list,
-        gridSize: 8,
-        weightFactor: 5,
-        fontFamily: 'Finger Paint, cursive, sans-serif',
-        //click: function(item) {alert(item[0] + ':' + item[1]);},
-        click : function(item) { window.open(item[2]) },
-        fontCSS: 'https://fonts.googleapis.com/css?family=Finger+Paint',
-        backgroundColor: '#425563'
-      }
-      WordCloud(document.getElementById('my_canvas'), options );
-      //WordCloud(document.getElementById('my_canvas'), { list: list } );
-      */
-      var itemArr = JSON.parse(window.results.concepts)
-      var text = "<div>"
-      for (var item of itemArr){
-        var highlighted = ""
-        if (item.relevance > 0.9)
-          highlighted = "high-relevance"
-        else if (item.relevance > 0.7)
-          highlighted = "medium-relevance"
-        else
-          highlighted = "low-relevance"
-        text += "<div>" + "<a target='_blank'  class='" + highlighted + "' href='" + item.dbpedia_resource + "'>" + item.text + "</a>" + "</div>"
-        //text += "<a href='" + item.dbpedia_resource + "'>Resource</a>"
-      }
-      text += "</div>"
-      $("#analytics_block").html(text)
-
     }else if (option == 'keywords'){
       $("#sentiment-tab").removeClass("tab-selected");
       $("#keyword-tab").addClass("tab-selected");
       $("#sentiment_adjust").hide()
-
-      /*
-      $("#analytics_block").hide()
-      $("#my_canvas").show()
-      var itemArr = JSON.parse(window.results.keywords)
-      var list = []
-      for (var item of itemArr){
-        var kw = []
-        kw.push(item.text)
-        kw.push(parseInt(item.relevance*10))
-        list.push(kw)
-      }
-      var options = {
-        list : list,
-        gridSize: 10,
-        weightFactor: 10,
-        fontFamily: 'Finger Paint, cursive, sans-serif',
-        fontCSS: 'https://fonts.googleapis.com/css?family=Finger+Paint',
-        shape: 'diamond'
-      }
-      //WordCloud(document.getElementById('my_canvas'), options );
-      WordCloud(document.getElementById('my_canvas'), { list: list } );
-      //WordCloud(document.getElementById('canvas'), options );
-      */
+      var upperBlockHeight = $("#upper_block").height() + 130
+      var h = $(window).height() - (fixedSubstractedHeight);
+      $("#analyzed_content").height(h-upperBlockHeight)
       var text = ""//"<div>" + window.results.transcript + "</div>"
       var itemArr = JSON.parse(window.results.keywords)
       for (var item of itemArr){
@@ -618,8 +518,6 @@ function displayAnalytics(option){
 
     }else if (option == 'actions'){
       $("#sentiment_adjust").hide()
-      //$("#my_canvas").hide()
-      //$("#analytics_block").show()
 
       var itemArr = JSON.parse(window.results.actions)
       var text = ""
@@ -629,6 +527,22 @@ function displayAnalytics(option){
       }
       $("#analyzed_content").html(text)
     }
+}
+function truncateText(text){
+  var wordsArr = text.split(" ")
+  var ret = ""
+  if (wordsArr.length > 15){
+    for (var i=0; i<wordsArr.length; i++){
+      if (i == 15){
+        ret += wordsArr[i]
+        break
+      }
+      ret += wordsArr[i] + " "
+    }
+  }else {
+    ret = text
+  }
+  return ret
 }
 
 function initializeAudioPlayer(){
@@ -682,14 +596,7 @@ function resetReadWords(value) {
         pos =  wwoArr[mIndex].offset;
     }
 }
-/*
-$("#searchForm").submit(function(e){
-    e.preventDefault();
-    alert("call this")
-    searchForText()
-    return false;
-});
-*/
+
 function jumpToSentiment(timeStamp, sentence, words){
   sentence = unescape(sentence)
   words = unescape(words)
@@ -721,6 +628,7 @@ function jumpToSentiment(timeStamp, sentence, words){
 function jumptToKeyword(keyword){
   var wordArr = keyword.split(" ")
   var searchWord = $("#search").val(keyword)
+  $("#search").focus()
   let regEx = new RegExp(`\\b${keyword}\\b`, 'i');
   for (var i=mIndex; i<wwoArr.length; i++){
     var matchArr = []
@@ -758,26 +666,6 @@ function jumptToKeyword(keyword){
       }
     }
   }
-/*
-  for (var i=0; i<wwoArr.length; i++){
-    var matchArr = []
-    for (n=0; n<wordArr.length; n++){
-      //matchArr.push(wwoArr[i+n].word)
-      var m = i+n
-      if (m < wwoArr.length - wordArr.length)
-        matchArr.push(wwoArr[m].word)
-      else
-        break
-    }
-    var match = matchArr.join(" ")
-    if (regEx.test(match)){
-      timeStamp = wwoArr[i].offset
-      //alert(wwoArr[i+n].word)
-      jumpTo(timeStamp, true)
-      return
-    }
-  }
-*/
 }
 
 function selectWord(){
@@ -789,48 +677,8 @@ function searchForText(){
   this.event.preventDefault();
   if (searchWord == "*")
     return
-  $("#search").focus()
+  //$("#search").focus()
   jumptToKeyword(searchWord)
-/*
-  var wordArr = searchWord.split(" ")
-  let regEx = new RegExp(`\\b${searchWord}\\b`, 'i');
-  for (var i=mIndex; i<wwoArr.length; i++){
-    var matchArr = []
-    for (n=0; n<wordArr.length; n++){
-      var m = i+n
-      if (m < wwoArr.length - wordArr.length)
-        matchArr.push(wwoArr[m].word)
-      else
-        break
-    }
-    var match = matchArr.join(" ")
-    if (regEx.test(match)){
-      var timeStamp = wwoArr[i].offset
-      jumpTo(timeStamp, true)
-      return
-    }
-  }
-  //alert("not found")
-  if (i >= wwoArr.length){
-    //alert("in here")
-    for (var i=0; i<wwoArr.length; i++){
-      var matchArr = []
-      for (n=0; n<wordArr.length; n++){
-        var m = i+n
-        if (m < wwoArr.length - wordArr.length)
-          matchArr.push(wwoArr[m].word)
-        else
-          break
-      }
-      var match = matchArr.join(" ")
-      if (regEx.test(match)){
-        var timeStamp = wwoArr[i].offset
-        jumpTo(timeStamp, true)
-        break
-      }
-    }
-  }
-*/
 }
 
 function jumpTo(timeStamp, scrollIntoView) {
@@ -839,11 +687,13 @@ function jumpTo(timeStamp, scrollIntoView) {
   var id = "word" + mIndex;
   wordElm = document.getElementById(id);
   aPlayer.currentTime = timeStamp;
-  aPlayer.play();
   if (scrollIntoView){
     var elm = "#" + id
     $(elm)[0].scrollIntoView();
   }
+  window.setTimeout(function(){
+    aPlayer.play();
+  }, 800)
 }
 
 function getInterestsRequestCallback(resp) {
