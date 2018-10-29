@@ -458,3 +458,36 @@ body {
 #conversations_block .conversation_text .readtext {
   color: #3a6b01;
 }
+
+.vr_icon {
+  width: 16px;
+  height: 10px;
+}
+
+.vr-left {
+  width: 40%;
+}
+
+.vr-right {
+  width: 60%;
+}
+
+.vr-left video {
+  margin-top: 13px;
+  width: 100%;
+}
+
+.vr-transcript {
+  background-color: #f9f9f9;
+  height: 72px;
+  line-height: 72px;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  color: #000000;
+  padding: 0 12px;
+}
+
+#conversations_block.video_container {
+  padding-top: 22px;
+}

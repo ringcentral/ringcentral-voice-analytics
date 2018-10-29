@@ -9,20 +9,24 @@
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
   <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="css/main.css"></head>
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+  <link rel="stylesheet" type="text/css" href="css/ui.css">
+</head>
 <body>
-  <nav class="navbar navbar-default">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <a href="/" class="navbar-brand"><b>Call Recordings</b> ANALYSIS</a>
-      </div>
-      <ul class="nav navbar-nav">
-        <li><a href="/recordedcalls">Back</a></li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="https://www.ringcentral.com" target="_blank">Powered by&nbsp;<img alt="Brand" src="img/ringcentral.png" height="20"></a></li>
-      </ul>
-    </div>
+  <script>
+    window.results = <%- JSON.stringify(results) %>;
+  </script>
+  <nav class="navbar navbar-default no-border">
+    <span class="left-middle-align">
+      <span class="rclogo"><a href="/"><img alt="Brand" src="img/ringcentral.png" height="40"></a></span>&nbsp;&nbsp;
+      <span class="title">Voice Analytics</span>
+    </span>
+    <ul class="nav navbar-nav navbar-right middle-align">
+      <li><span><b>&nbsp;&nbsp;<%- userName %>&nbsp;&nbsp;</b></span</li>
+      <li><a href="/about">&nbsp;&nbsp;About</a></li>
+      <li><a href="/#">&nbsp;|&nbsp;</a</li>
+      <li><a href="/recordedcalls">Back</a></li>
+    </ul>
   </nav>
 
   <section id='content'>
@@ -33,48 +37,128 @@
             <input type="text" class="form-control" placeholder="enter word to search" id="search" required>
             <button class="btn btn-default" onclick="searchForText()">Search</button>
           -->
-          <input type="text" class="form-control" id="search" onfocus="selectWord()" value="<%= searchWord %>" required>
-          <button id="searchButton" class="btn btn-default">Search</button>
-            <span class="form-group" style="width: 160px; padding-left:20px">
-              <% if (results['from_name'] != "Unknown") { %>
-                <div>Fr: <a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></div>
-              <% } else if (results['from_number'] != "Unknown #") { %>
-                <div>Fr: <a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></div>
-              <% } else { %>
-                <div>Fr: <%= results['from_number'] %></div>
-              <% } %>
-
-              <% if (results['to_name'] != "Unknown") { %>
-                <div>To: <a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></div>
-              <% } else if (results['to_number'] != "Unknown #") { %>
-                <div>To: <a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></div>
-              <% } else { %>
-                <div>To: <%= results['to_name'] %></div>
-              <% } %>
-            </span>
-            <span class="form-group" style="width: 60px; padding-left:20px">
-              <% var icon = 'img/' + results['call_type'] + '.png' %>
-              <img src='<%= icon %>' class='call_icon'></img>
-            </span>
-            <div class="form-group" style="width: 100px;padding-left:20px">
-              <% var icon = 'img/' %>
-              <% icon += results['sentiment_label'] %>
-              <% icon += '.png' %>
-              <img src='<%= icon %>' class="sentiment_icon"></img>
-              <% if (results['sentiment_score_hi'] > 0.7) { %>
-                <img src='img/good.png' class="sentiment_icon"></img>
-              <% } %>
-              <% if (results['sentiment_score_low'] < -0.7) { %>
-                <img src='img/bad.png' class="sentiment_icon"></img>
-              <% } %>
-              <% if (results['hasProfanity'] == 1) { %>
-                <img src='img/warning.png' class="sentiment_icon"></img>
-              <% } %>
-            </div>
+          <input type="text" class="form-control search-input search-transcript" id="search" onfocus="selectWord()" value="<%= searchWord %>" required>
+          <button id="searchButton" class="btn btn-default btn-rc">Search</button>
         </form>
       </div>
     </div>
+    <div id="subject_header" class="row">
+      <div class="col-xs-12 subject-line">
+        <% var icon = 'img/' + results['call_type'] + '.png' %>
+        <img src='<%= icon %>' class='call_icon vr_icon'></img>
+        <span><b>&nbsp;Subjects: </b></span>
+        <span><%= results['subject'] %></span>
+        <span>
+          <% var icon = 'img/' %>
+          <% icon += results['sentiment_label'] %>
+          <% icon += '.png' %>
+          <img src='<%= icon %>' class="sentiment_icon"></img>
+          <% if (results['sentiment_score_hi'] > 0.7) { %>
+            <img src='img/good.png' class="sentiment_icon"></img>
+          <% } %>
+          <% if (results['sentiment_score_low'] < -0.7) { %>
+            <img src='img/bad.png' class="sentiment_icon"></img>
+          <% } %>
+          <% if (results['hasProfanity'] == 1) { %>
+            <img src='img/warning.png' class="sentiment_icon"></img>
+          <% } %>
+        </span>
+      </div>
+    </div>
     <div class="row">
+      <div class="col-xs-12">
+        <div class="column left left-block vr-left">
+          <div class="block_header">Meeting info</div>
+          <div>
+            <span class="bold">From: </span>
+            <% if (results['from_name'] != "Unknown") { %>
+              <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
+            <% } else if (results['from_number'] != "Unknown #") { %>
+              <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
+            <% } else { %>
+              <span><%= results['from_number'] %></span>
+            <% } %>
+          </div>
+          <div>
+            <span class="bold">To: </span>
+            <% if (results['to_name'] != "Unknown") { %>
+              <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
+            <% } else if (results['to_number'] != "Unknown #") { %>
+              <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
+            <% } else { %>
+              <span><%= results['to_name'] %></span>
+            <% } %>
+          </div>
+          <div>
+            <% let options = {  month: 'short',day: 'numeric',year: 'numeric',hour: '2-digit',minute: '2-digit'}; %>
+            <% var d = new Date(parseInt(results['call_date'])).toLocaleDateString("en-US", options) %>
+            <%= d %>
+          </div>
+          <div>
+            <video id="audio_player" controls class="video_player">
+              <source id='mp4Source' src='<%= results['recording_url']  %>' />
+            </video>
+          </div>
+          <div class="with-border">
+            <div style="width: 100%;">
+              <ul id="tabs" class="nav nav-tabs nav-justified" data-tabs="tabs">
+                <li id="keyword-tab"><a href="#" onclick="displayAnalytics('keywords')" selected data-toggle="tab">Keywords</a></li>
+                <li id="sentiment-tab"><a href="#" onclick="displayAnalytics('sentiment')" data-toggle="tab">Sentiments</a></li>
+              </ul>
+            </div>
+            <div id="sentiment_adjust" class="form-inline with-border">
+              <label for="positiveSentimentRange">Positive: </label>
+              <input type="range" min="0" max="1000" value="500" class="sliderPos" name="positiveSentimentRange" id="positiveSentimentRange"></input>
+              <span id="posval">0.5</span>&nbsp;&nbsp;&nbsp;
+              <label for="negativeSentimentRange">Negative: </label>
+              <input type="range" min="0" max="1000" value="500" class="sliderNeg" id="negativeSentimentRange"></input>
+              <span id="negval">-0.5</span>&nbsp;&nbsp;&nbsp;
+
+              <% var conversations = JSON.parse(results.conversations) %>
+              <select id="speakers" onchange="setSpeakersWithSentiment()">
+                <option selected value=-1>All</option>
+                <% var arr = [] %>
+                <% for (var i = 0; i < conversations.length; i++) { %>
+                  <% var newSpeaker = true; for (var n = 0; n < arr.length; n++) { %>
+                    <% if (arr[n] == conversations[i].speakerId) { %>
+                      <% newSpeaker = false; break; } %>
+                  <% } %>
+                  <% if (newSpeaker == true) { arr.push(conversations[i].speakerId); %>
+                  <option value=<%= conversations[i].speakerId %> >Speaker <%= conversations[i].speakerId %></option>
+                  <% } %>
+                <% } %>
+              </select>
+            </div>
+            <div id="analyzed_content" class="scrollable_container"></div>
+          </div>
+        </div>
+        <div class="column right vr-right with-border player-content">
+          <div class="vr-transcript">
+            Meeting Transcript
+          </div>
+          <div id="analytics_block" class="scrollable_container analytics_block" style="display: none"></div>
+          <div id="conversations_block" class="video_container">
+            <table>
+              <% var conversations = JSON.parse(results.conversations) %>
+              <% var index = 0 %>
+              <% for (var i=0; i<conversations.length; i++) { %>
+                <tr class="conversation_block">
+                  <td class="scol speaker_name"><b>Speaker <%= conversations[i].speakerId %>:</b></td>
+                  <td class="tcol conversation_text">
+                <% for (var n=0; n<conversations[i].sentence.length; n++) { %>
+                  <% var wId = "word" + index %>
+                  <span onclick= "jumpTo(<%= conversations[i].timestamp[n] %>)" class="unreadtext" id="<%= wId %>" ><%= conversations[i].sentence[n] %></span>
+                  <% index += 1 %>
+                <% } %>
+                  </td>
+              </tr>
+              <% } %>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="row">
       <div class="col-xs-12">
       <table>
         <thead>
@@ -95,61 +179,17 @@
         <tbody>
       <tr>
         <td width="40%" vAlign="top"  class="left_col">
-          <script>
-            window.results = <%- JSON.stringify(results) %>;
-          </script>
-          <video id="audio_player" controls class="video_player">
-              <source id='mp4Source' src='<%= results['recording_url']  %>' />
-          </video>
+          
         </td>
         <td vAlign="top" class="right-col">
-            <div id="sentiment_adjust" class="form-inline dark_block">
-              <label for="positiveSentimentRange">Positive threshold: </label>
-                <input type="range" min="0" max="1000" value="500" class="sliderPos" name="positiveSentimentRange" id="positiveSentimentRange"></input>
-              <span id="posval">0.5</span>&nbsp;&nbsp;&nbsp;
-              <label for="negativeSentimentRange">Negative threshold: </label>
-                <input type="range" min="0" max="1000" value="500" class="sliderNeg" id="negativeSentimentRange"></input>
-                <span id="negval">-0.5</span>&nbsp;&nbsp;&nbsp;
-
-              <% var conversations = JSON.parse(results.conversations) %>
-              <select id="speakers" onchange="setSpeakersWithSentiment()">
-                <option selected value=-1>All</option>
-                <% var arr = [] %>
-                <% for (var i = 0; i < conversations.length; i++) { %>
-                  <% var newSpeaker = true; for (var n = 0; n < arr.length; n++) { %>
-                    <% if (arr[n] == conversations[i].speakerId) { %>
-                      <% newSpeaker = false; break; } %>
-                  <% } %>
-                  <% if (newSpeaker == true) { arr.push(conversations[i].speakerId); %>
-                  <option value=<%= conversations[i].speakerId %> >Speaker <%= conversations[i].speakerId %></option>
-                  <% } %>
-                <% } %>
-              </select>
-            </div>
-          <div id="analytics_block" class="scrollable_container analytics_block" style="display: none"></div>
-          <div id="conversations_block" class="video_container">
-            <table>
-            <% var index = 0 %>
-            <% for (var i=0; i<conversations.length; i++) { %>
-              <tr class="conversation_block">
-                <td class="scol"><b>Speaker <%= conversations[i].speakerId %>:</b></td>
-                <td class="tcol">
-              <% for (var n=0; n<conversations[i].sentence.length; n++) { %>
-                <% var wId = "word" + index %>
-                <span onclick= "jumpTo(<%= conversations[i].timestamp[n] %>)" class="unreadtext" id="<%= wId %>" ><%= conversations[i].sentence[n] %></span>
-                <% index += 1 %>
-              <% } %>
-                </td>
-            </tr>
-            <% } %>
-            </table>
-          </div>
+            
         </td>
       </tr>
       <tbody>
     </table>
     </div>
-  </div>
+  </div> -->
   </section>
+  <%- include('_footer') %>
 </body>
 </html>

@@ -3,7 +3,7 @@ window.onload = init;
 var aPlayer = null;
 var index = 0;
 var mIndex = 1;
-var wwoArr = []
+var wwoArr = [];
 var wordsArr = [];
 var offsetArr = [];
 var conceptsArr;
@@ -30,19 +30,23 @@ function init() {
   sliderPos.oninput = function() {
     positiveThreshold = this.value/1000;
     $("#posval").html(positiveThreshold);
-    var percent = positiveThreshold * 100;
-    sliderPos.css('background', 'linear-gradient(to right, #b8e986, #b8e986 ' + percent + '%, #c8ccd1 ' + percent + '%)');
-    displayAnalytics('sentiment')
+    var percent = (positiveThreshold * 100).toFixed(2);
+    var style = 'linear-gradient(to right, #b8e986 0%, #b8e986 ' + percent + '%, #c8ccd1 ' + percent + '%, #c8ccd1)';
+    sliderPos.style.background = style;
+    displayAnalytics('sentiment');
   }
 
   var sliderNeg = document.getElementById("negativeSentimentRange");
   sliderNeg.oninput = function() {
       negativeThreshold = (this.value/1000) * -1;
       $("#negval").html(negativeThreshold)
-      displayAnalytics('sentiment')
+      var percent = (this.value/10).toFixed(2);
+      var style = 'linear-gradient(to right, #e98f86 0%, #e98f86 ' + percent + '%, #c8ccd1 ' + percent + '%, #c8ccd1)';
+      sliderNeg.style.background = style;
+      displayAnalytics('sentiment');
   }
   $("#search").focus()
-  displayAnalytics('transcript')
+  displayAnalytics('keywords');
 }
 function setSpeakersWithSentiment(){
   speakerSentiment = $("#speakers").val()
@@ -64,30 +68,250 @@ function displayAnalytics(option){
       var text = "<div>" + window.results.transcript + "</div>"
       $("#analytics_block").html(text)
     }else if (option == 'sentiment'){
-      $("#conversations_block").hide()
-      $("#analytics_block").show()
       $("#sentiment_adjust").show()
+      $("#sentiment-tab").addClass("tab-selected");
+      $("#keyword-tab").removeClass("tab-selected");
+      $("#analyzed_content").show();
+
       var itemArr = JSON.parse(window.results.sentiments)
       var text = "<div>"
       // HPE sentiment analysis
-      if (window.results.type == "VM"){
-        var sentence = "<span class='sentiment_line'>" + window.results.transcript + "</span>"
+      // if (window.results.type == "VM"){
+      //   var sentence = "<span class='sentiment_line'>" + window.results.transcript + "</span>"
+      //   for (var item of itemArr){
+      //     if (item.hasOwnProperty('positive')){
+      //       for (var pos of item.positive){
+      //         if (pos.score > positiveThreshold){
+      //           var fullStop = window.results.transcript + "."
+      //           if (pos.sentiment == null && pos.topic == null && fullStop == pos.text){
+      //             sentence = "<span class='sentiment_line positive_block'>" + sentence + "</span>"
+      //           }else{
+      //             var lowerCaseText = pos.text.toLowerCase()
+      //             sentence = sentence.replace(lowerCaseText, "<span class='positive_block'>" + lowerCaseText + "</span>")
+      //           }
+      //           if (pos.topic != null){
+      //             sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
+      //           }
+      //           if (pos.sentiment != null){
+      //             sentence = sentence.replace(pos.sentiment, "<span style='color:#fff624'>" + pos.sentiment + "</span>")
+      //           }
+      //         }
+      //       }
+      //     }
+      //     if (item.hasOwnProperty('negative')){
+      //       for (var neg of item.negative){
+      //         if (neg.score < negativeThreshold){
+      //           var fullStop = window.results.transcript + "."
+      //           if (neg.sentiment == null && neg.topic == null && fullStop == neg.text){
+      //             sentence = "<span class='sentiment_line negative_block'>" + sentence + "</span>"
+      //           }else{
+      //             var lowerCaseText = neg.text.toLowerCase()
+      //             sentence = sentence.replace(neg.text, "<span class='negative_block'>" + neg.text + "</span>")
+      //           }
+      //           if (neg.topic != null)
+      //             sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
+      //           if (neg.sentiment != null)
+      //             sentence = sentence.replace(neg.sentiment, "<span style='color:#fff624'>" + neg.sentiment + "</span>")
+      //         }
+      //       }
+      //     }
+      //   }
+      //   text += sentence
+      // }else{ // call recording dialogue
+      //   for (var item of itemArr){
+      //       if (speakerSentiment == -1){
+
+      //         sentence = '' //item.sentence
+      //         if (item.hasOwnProperty('positive')){
+      //           for (var pos of item.positive){
+      //             if (pos.score > positiveThreshold){
+      //               if (sentence == ''){
+      //                 text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
+      //                 sentence = item.sentence
+      //               }
+      //               var fullStop = item.sentence + "."
+      //               if (pos.sentiment == null && pos.topic == null && fullStop == pos.text){
+      //                 sentence = "<span class='positive_block'>" + sentence + "</span>"
+      //               }else
+      //                 sentence = sentence.replace(pos.text, "<span class='positive_block'>" + pos.text + "</span>")
+      //               if (pos.topic != null)
+      //                 sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
+      //               if (pos.sentiment != null)
+      //                 sentence = sentence.replace(pos.sentiment, "<span style='color:#fff624'>" + pos.sentiment + "</span>")
+      //             }
+      //           }
+      //         }
+      //         if (item.hasOwnProperty('negative')){
+      //           for (var neg of item.negative){
+      //             if (neg.score < negativeThreshold){
+      //               if (sentence == ''){
+      //                 text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
+      //                 sentence = item.sentence
+      //               }
+      //               var fullStop = item.sentence + "."
+      //               if (neg.sentiment == null && neg.topic == null && fullStop == neg.text){
+      //                 sentence = "<span class='negative_block'>" + sentence + "</span>"
+      //               }else
+      //                 sentence = sentence.replace(neg.text, "<span class='negative_block'>" + neg.text + "</span>")
+      //               if (neg.topic != null)
+      //                 sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
+      //               if (neg.sentiment != null)
+      //                 sentence = sentence.replace(neg.sentiment, "<span style='color:#fff624'>" + neg.sentiment + "</span>")
+      //             }
+      //           }
+      //         }
+      //         if (sentence != '')
+      //           text += sentence + "</div>"
+      //       //}
+      //         /*
+      //         if (item.sentiment_score > positiveThreshold){
+      //           text += "<div class='sentiment_line'><span onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
+      //           var sentence = item.sentence
+      //           for (var pos of item.positive){
+      //             sentence = sentence.replace(pos.text, "<span class='positive_block'>" + pos.text + "</span>")
+      //             //
+      //             if (pos.topic != null)
+      //               sentence = sentence.replace(pos.topic, "<span style='color:#fff624#0112ad'>" + pos.topic + "</span>")
+      //             //
+      //             if (pos.sentiment != null)
+      //               sentence = sentence.replace(pos.sentiment, "<span style='color:#fff624'>" + pos.sentiment + "</span>")
+      //           }
+      //           text += sentence + "</div>"
+      //           if (item.hasOwnProperty('negative')){
+      //             //alert("conflict 0" + JSON.stringify(item.negative))
+      //             sentence = item.sentence
+      //             text += "<div class='sentiment_line'><span onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
+      //             for (var neg of item.negative){
+      //               //if (neg.sentiment == null && neg.topic == null)
+      //                 sentence = "<span class='negative_block'>" + neg.text + "</span>"
+      //               //
+      //               if (neg.topic != null)
+      //                 sentence = sentence.replace(neg.topic, "<span style='color:#fff624#AC291F'>" + neg.topic + "</span>")
+      //               //
+      //             }
+      //             text += sentence + "</div>"
+      //           }
+      //         }else if (item.sentiment_score < negativeThreshold){
+      //           text += "<div class='sentiment_line'><span onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
+      //           var sentence = item.sentence
+      //           for (var neg of item.negative){
+      //             sentence = sentence.replace(neg.text, "<span class='negative_block'>" + neg.text + "</span>")
+      //             //
+      //             if (neg.topic != null)
+      //               sentence = sentence.replace(neg.topic, "<span style='color:#fff624#AC291F'>" + neg.topic + "</span>")
+      //             //
+      //             if (neg.sentiment != null)
+      //               sentence = sentence.replace(neg.sentiment, "<span style='color:#fff624'>" + neg.sentiment + "</span>")
+
+      //           }
+      //           text += sentence + "</div>"
+      //           if (item.hasOwnProperty('positive')){
+      //             alert("conflict 1")
+      //             //alert(JSON.stringify(item))
+      //             sentence = item.sentence
+      //             text += "<div class='sentiment_line'><span onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
+      //             for (var pos of item.positive){
+      //               sentence = sentence.replace(pos.text, "<span class='positive_block'>" + pos.text + "</span>")
+      //               //alert(pos.sentiment + '/' + pos.topic)
+      //               //if (pos.sentiment == null && pos.topic == null)
+      //               //  sentence = "<span class='positive_block'>" + pos.text + "</span>"
+      //             }
+      //             text += sentence + "</div>"
+      //           }
+      //         }
+      //         */
+      //       }else{ //if (speakerSentiment == 0){
+      //         if (item.speakerId == speakerSentiment){
+      //           sentence = '' //item.sentence
+      //           if (item.hasOwnProperty('positive')){
+      //             for (var pos of item.positive){
+      //               if (pos.score > positiveThreshold){
+      //                 if (sentence == ''){
+      //                   text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
+      //                   sentence = item.sentence
+      //                 }
+      //                 var fullStop = item.sentence + "."
+      //                 if (pos.sentiment == null && pos.topic == null && fullStop == pos.text){
+      //                   sentence = "<span class='positive_block'>" + sentence + "</span>"
+      //                 }else
+      //                   sentence = sentence.replace(pos.text, "<span class='positive_block'>" + pos.text + "</span>")
+      //                 if (pos.topic != null)
+      //                   sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
+      //                 if (pos.sentiment != null)
+      //                   sentence = sentence.replace(pos.sentiment, "<span style='color:#fff624'>" + pos.sentiment + "</span>")
+      //               }
+      //             }
+      //           }
+      //           if (item.hasOwnProperty('negative')){
+      //             for (var neg of item.negative){
+      //               if (neg.score < negativeThreshold){
+      //                 if (sentence == ''){
+      //                   text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
+      //                   sentence = item.sentence
+      //                 }
+      //                 var fullStop = item.sentence + "."
+      //                 if (neg.sentiment == null && neg.topic == null && fullStop == neg.text){
+      //                   sentence = "<span class='negative_block'>" + sentence + "</span>"
+      //                 }else
+      //                   sentence = sentence.replace(neg.text, "<span class='negative_block'>" + neg.text + "</span>")
+      //                 if (neg.topic != null)
+      //                   sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
+      //                 if (neg.sentiment != null)
+      //                   sentence = sentence.replace(neg.sentiment, "<span style='color:#fff624'>" + neg.sentiment + "</span>")
+      //               }
+      //             }
+      //           }
+      //           if (sentence != '')
+      //             text += sentence + "</div>"
+      //         }
+      //       }
+      //   }
+      // }
+      if (speakerSentiment == -1){
+        var speakerCount = itemArr.length
+        var speakersArr = []
+        for (var item of itemArr) {
+          var newSpeaker = true
+          for (var i=0; i<speakersArr.length; i++) {
+            var sp = speakersArr[i]
+            if (sp.name == item.speakerId.toString()){
+              newSpeaker = false
+              break
+            }
+          }
+          if (newSpeaker){
+            var speaker = {}
+            speaker['name'] = item.speakerId.toString()
+            //alert(speaker.name)
+            speaker['sentences'] = []
+            speakersArr.push(speaker)
+          }
+        }
         for (var item of itemArr){
+          sentence = '' //item.sentence
           if (item.hasOwnProperty('positive')){
             for (var pos of item.positive){
               if (pos.score > positiveThreshold){
-                var fullStop = window.results.transcript + "."
-                if (pos.sentiment == null && pos.topic == null && fullStop == pos.text){
-                  sentence = "<span class='sentiment_line positive_block'>" + sentence + "</span>"
-                }else{
-                  var lowerCaseText = pos.text.toLowerCase()
-                  sentence = sentence.replace(lowerCaseText, "<span class='positive_block'>" + lowerCaseText + "</span>")
-                }
-                if (pos.topic != null){
+                sentence = "<div class=\"sentiment_line\" onclick=\"jumpTo(" + item.timeStamp + ")\">"
+                //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
+                sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
+                sentence += "<span class=\"positive_block\">.." + pos.text + "..</span>"
+                //alert(sentence)
+                /*
+                if (pos.topic != null)
                   sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
-                }
-                if (pos.sentiment != null){
-                  sentence = sentence.replace(pos.sentiment, "<span style='color:#fff624'>" + pos.sentiment + "</span>")
+                if (pos.sentiment != null)
+                  sentence = sentence.replace(pos.sentiment, "<span class=\"sentiment\">" + pos.sentiment + "</span>")
+                //text += sentence + "</div>"
+                */
+                sentence += "</div>"
+                //alert(sentence)
+                for (var i=0; i<speakersArr.length; i++) {
+                  var sp = speakersArr[i]
+                  if (sp.name == item.speakerId){
+                    sp.sentences.push(sentence)
+                    break
+                  }
                 }
               }
             }
@@ -95,175 +319,99 @@ function displayAnalytics(option){
           if (item.hasOwnProperty('negative')){
             for (var neg of item.negative){
               if (neg.score < negativeThreshold){
-                var fullStop = window.results.transcript + "."
-                if (neg.sentiment == null && neg.topic == null && fullStop == neg.text){
-                  sentence = "<span class='sentiment_line negative_block'>" + sentence + "</span>"
-                }else{
-                  var lowerCaseText = neg.text.toLowerCase()
-                  sentence = sentence.replace(neg.text, "<span class='negative_block'>" + neg.text + "</span>")
-                }
+                sentence = "<div class=\"sentiment_line\" onclick=\"jumpTo(" + item.timeStamp + ")\">"
+                //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
+                sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
+                sentence += "<span class=\"negative_block\">.." + neg.text + "..</span>"
+                //alert(sentence)
+                /*
                 if (neg.topic != null)
                   sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
                 if (neg.sentiment != null)
-                  sentence = sentence.replace(neg.sentiment, "<span style='color:#fff624'>" + neg.sentiment + "</span>")
+                  sentence = sentence.replace(neg.sentiment, "<span class=\"sentiment\">" + neg.sentiment + "</span>")
+                */
+                sentence += "</div>"
+                for (var i=0; i<speakersArr.length; i++) {
+                  var sp = speakersArr[i]
+                  if (sp.name == item.speakerId){
+                    sp.sentences.push(sentence)
+                    break
+                  }
+                }
               }
             }
           }
         }
-        text += sentence
-      }else{ // call recording dialogue
+        for (var i=0; i<speakersArr.length; i++) {
+          var sp = speakersArr[i]
+          text += "<div class=\"sentiment_line speaker_name\">Speaker "+ sp.name + ": </div>"
+          for (var sent of sp.sentences){
+            //alert(sent)
+            text += sent
+          }
+          text += "</div>"
+        }
+        //alert(text)
+        //if (sentence != '')
+        //  text += sentence + "</div>"
+      }else{ //if (speakerSentiment == 0){
+        var speaker = {}
+        for (var item of itemArr) {
+          if (item.speakerId == speakerSentiment){
+            speaker['name'] = item.speakerId.toString()
+            speaker['sentences'] = []
+            break
+          }
+        }
         for (var item of itemArr){
-            if (speakerSentiment == -1){
-
-              sentence = '' //item.sentence
-              if (item.hasOwnProperty('positive')){
-                for (var pos of item.positive){
-                  if (pos.score > positiveThreshold){
-                    if (sentence == ''){
-                      text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
-                      sentence = item.sentence
-                    }
-                    var fullStop = item.sentence + "."
-                    if (pos.sentiment == null && pos.topic == null && fullStop == pos.text){
-                      sentence = "<span class='positive_block'>" + sentence + "</span>"
-                    }else
-                      sentence = sentence.replace(pos.text, "<span class='positive_block'>" + pos.text + "</span>")
-                    if (pos.topic != null)
-                      sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
-                    if (pos.sentiment != null)
-                      sentence = sentence.replace(pos.sentiment, "<span style='color:#fff624'>" + pos.sentiment + "</span>")
-                  }
-                }
-              }
-              if (item.hasOwnProperty('negative')){
-                for (var neg of item.negative){
-                  if (neg.score < negativeThreshold){
-                    if (sentence == ''){
-                      text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
-                      sentence = item.sentence
-                    }
-                    var fullStop = item.sentence + "."
-                    if (neg.sentiment == null && neg.topic == null && fullStop == neg.text){
-                      sentence = "<span class='negative_block'>" + sentence + "</span>"
-                    }else
-                      sentence = sentence.replace(neg.text, "<span class='negative_block'>" + neg.text + "</span>")
-                    if (neg.topic != null)
-                      sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
-                    if (neg.sentiment != null)
-                      sentence = sentence.replace(neg.sentiment, "<span style='color:#fff624'>" + neg.sentiment + "</span>")
-                  }
-                }
-              }
-              if (sentence != '')
-                text += sentence + "</div>"
-            //}
-              /*
-              if (item.sentiment_score > positiveThreshold){
-                text += "<div class='sentiment_line'><span onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
-                var sentence = item.sentence
-                for (var pos of item.positive){
-                  sentence = sentence.replace(pos.text, "<span class='positive_block'>" + pos.text + "</span>")
-                  //
+          if (item.speakerId == speakerSentiment){
+            sentence = '' //item.sentence
+            if (item.hasOwnProperty('positive')){
+              for (var pos of item.positive){
+                if (pos.score > positiveThreshold){
+                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpTo(" + item.timeStamp + ")\">"
+                  //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
+                  sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
+                  sentence += "<span class=\"positive_block\">" + pos.text + "</span>"
+                  /*
                   if (pos.topic != null)
-                    sentence = sentence.replace(pos.topic, "<span style='color:#fff624#0112ad'>" + pos.topic + "</span>")
-                  //
+                    sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
                   if (pos.sentiment != null)
-                    sentence = sentence.replace(pos.sentiment, "<span style='color:#fff624'>" + pos.sentiment + "</span>")
+                    sentence = sentence.replace(pos.sentiment, "<span class=\"sentiment\">" + pos.sentiment + "</span>")
+                  */
+                  sentence += "</div>"
+                  speaker.sentences.push(sentence)
                 }
-                text += sentence + "</div>"
-                if (item.hasOwnProperty('negative')){
-                  //alert("conflict 0" + JSON.stringify(item.negative))
-                  sentence = item.sentence
-                  text += "<div class='sentiment_line'><span onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
-                  for (var neg of item.negative){
-                    //if (neg.sentiment == null && neg.topic == null)
-                      sentence = "<span class='negative_block'>" + neg.text + "</span>"
-                    //
-                    if (neg.topic != null)
-                      sentence = sentence.replace(neg.topic, "<span style='color:#fff624#AC291F'>" + neg.topic + "</span>")
-                    //
-                  }
-                  text += sentence + "</div>"
-                }
-              }else if (item.sentiment_score < negativeThreshold){
-                text += "<div class='sentiment_line'><span onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
-                var sentence = item.sentence
-                for (var neg of item.negative){
-                  sentence = sentence.replace(neg.text, "<span class='negative_block'>" + neg.text + "</span>")
-                  //
-                  if (neg.topic != null)
-                    sentence = sentence.replace(neg.topic, "<span style='color:#fff624#AC291F'>" + neg.topic + "</span>")
-                  //
-                  if (neg.sentiment != null)
-                    sentence = sentence.replace(neg.sentiment, "<span style='color:#fff624'>" + neg.sentiment + "</span>")
-
-                }
-                text += sentence + "</div>"
-                if (item.hasOwnProperty('positive')){
-                  alert("conflict 1")
-                  //alert(JSON.stringify(item))
-                  sentence = item.sentence
-                  text += "<div class='sentiment_line'><span onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
-                  for (var pos of item.positive){
-                    sentence = sentence.replace(pos.text, "<span class='positive_block'>" + pos.text + "</span>")
-                    //alert(pos.sentiment + '/' + pos.topic)
-                    //if (pos.sentiment == null && pos.topic == null)
-                    //  sentence = "<span class='positive_block'>" + pos.text + "</span>"
-                  }
-                  text += sentence + "</div>"
-                }
-              }
-              */
-            }else{ //if (speakerSentiment == 0){
-              if (item.speakerId == speakerSentiment){
-                sentence = '' //item.sentence
-                if (item.hasOwnProperty('positive')){
-                  for (var pos of item.positive){
-                    if (pos.score > positiveThreshold){
-                      if (sentence == ''){
-                        text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
-                        sentence = item.sentence
-                      }
-                      var fullStop = item.sentence + "."
-                      if (pos.sentiment == null && pos.topic == null && fullStop == pos.text){
-                        sentence = "<span class='positive_block'>" + sentence + "</span>"
-                      }else
-                        sentence = sentence.replace(pos.text, "<span class='positive_block'>" + pos.text + "</span>")
-                      if (pos.topic != null)
-                        sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
-                      if (pos.sentiment != null)
-                        sentence = sentence.replace(pos.sentiment, "<span style='color:#fff624'>" + pos.sentiment + "</span>")
-                    }
-                  }
-                }
-                if (item.hasOwnProperty('negative')){
-                  for (var neg of item.negative){
-                    if (neg.score < negativeThreshold){
-                      if (sentence == ''){
-                        text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
-                        sentence = item.sentence
-                      }
-                      var fullStop = item.sentence + "."
-                      if (neg.sentiment == null && neg.topic == null && fullStop == neg.text){
-                        sentence = "<span class='negative_block'>" + sentence + "</span>"
-                      }else
-                        sentence = sentence.replace(neg.text, "<span class='negative_block'>" + neg.text + "</span>")
-                      if (neg.topic != null)
-                        sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
-                      if (neg.sentiment != null)
-                        sentence = sentence.replace(neg.sentiment, "<span style='color:#fff624'>" + neg.sentiment + "</span>")
-                    }
-                  }
-                }
-                if (sentence != '')
-                  text += sentence + "</div>"
               }
             }
+            if (item.hasOwnProperty('negative')){
+              for (var neg of item.negative){
+                if (neg.score < negativeThreshold){
+                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpTo(" + item.timeStamp + ")\">"
+                  //sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ")\">"
+                  sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
+                  sentence += "<span class=\"negative_block\">" + neg.text + "</span>"
+                  /*
+                  if (neg.topic != null)
+                    sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
+                  if (neg.sentiment != null)
+                    sentence = sentence.replace(neg.sentiment, "<span class=\"sentiment\">" + neg.sentiment + "</span>")
+                  */
+                  sentence += "</div>"
+                  speaker.sentences.push(sentence)
+                }
+              }
+            }
+          }
         }
+        text += "<div class=\"sentiment_line speaker_name\">Speaker "+ speaker.name + ": </div>"
+        for (var sent of speaker.sentences){
+          text += sent
+        }
+        text += "</div>"
       }
-
       text += "</div>"
-      $("#analytics_block").html(text)
+      $("#analyzed_content").html(text)
     }else if (option == 'entities'){
       $("#conversations_block").hide()
       $("#analytics_block").show()
@@ -315,9 +463,11 @@ function displayAnalytics(option){
 */
       $("#analytics_block").html(text)
     }else if (option == 'keywords'){
-      $("#conversations_block").hide()
-      $("#analytics_block").show()
-      $("#sentiment_adjust").hide()
+      $("#sentiment-tab").removeClass("tab-selected");
+      $("#keyword-tab").addClass("tab-selected");
+      // $("#conversations_block").hide()
+      $("#analyzed_content").show();
+      $("#sentiment_adjust").hide();
       /*
       var itemArr = JSON.parse(window.results.keywords)
       var text = "<div>"
@@ -326,27 +476,40 @@ function displayAnalytics(option){
       }
       text += "</div>"
       */
-      var text = "<div>" + window.results.transcript + "</div>"
+      var text = ""//"<div>" + window.results.transcript + "</div>"
       var itemArr = JSON.parse(window.results.keywords)
       for (var item of itemArr){
         if (item.text != "class" && item.text != 'keywords'){
-        var regEx = new RegExp("\\b" + item.text + "\\b", "g");
-        text = text.replace(regEx, "<span class='keywords'>" + item.text + "</span>")
+        //var regEx = new RegExp("\\b" + item.text + "\\b", "g");
+        //text = text.replace(regEx, "<span class='keywords'>" + item.text + "</span>")
+        text += "<span class='keyword' onclick='jumptToKeyword(\"" + item.text + "\")'>" + item.text + "</span>"
         }
       }
-      //alert(text)
-      $("#analytics_block").html(text)
+      $("#analyzed_content").html(text)
+      // var text = "<div>" + window.results.transcript + "</div>"
+      // var itemArr = JSON.parse(window.results.keywords)
+      // for (var item of itemArr){
+      //   if (item.text != "class" && item.text != 'keywords'){
+      //   var regEx = new RegExp("\\b" + item.text + "\\b", "g");
+      //   text = text.replace(regEx, "<span class='keywords'>" + item.text + "</span>")
+      //   }
+      // }
+      // //alert(text)
+      // $("#analyzed_content").html(text)
     }else if (option == 'semantic'){
-      $("#conversations_block").hide()
-      $("#analytics_block").show()
-      $("#sentiment_adjust").hide()
+      // $("#conversations_block").hide();
+      $("#sentiment_adjust").show()
+      $("#sentiment-tab").addClass("tab-selected");
+      $("#keyword-tab").removeClass("tab-selected");
+      $("#analyzed_content").show();
+      $("#sentiment_adjust").show();
       var itemArr = JSON.parse(window.results.semantic_roles)
       var text = ""
       for (var item of itemArr){
         var upper = item.sentence.charAt(0).toUpperCase() + item.sentence.substr(1);
         text += "<div>" + upper + "</div>"
       }
-      $("#analytics_block").html(text)
+      $("#analyzed_content").html(text)
     }
 }
 
@@ -671,4 +834,43 @@ function getInterestsRequestCallback(resp) {
 }
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+function jumptToKeyword(keyword) {
+  var wordArr = keyword.split(" ")
+  let regEx = new RegExp(`\\b${keyword}\\b`, 'i');
+  for (var i=mIndex; i<wwoArr.length; i++){
+    var matchArr = []
+    for (n=0; n<wordArr.length; n++){
+      var m = i+n
+      if (m < wwoArr.length - wordArr.length)
+        matchArr.push(wwoArr[m].word)
+      else
+        break
+    }
+    var match = matchArr.join(" ")
+    if (regEx.test(match)){
+      var timeStamp = wwoArr[i].offset
+      jumpTo(timeStamp, true)
+      return
+    }
+  }
+  if (i >= wwoArr.length){
+    //alert("in here")
+    for (var i=0; i<wwoArr.length; i++){
+      var matchArr = []
+      for (n=0; n<wordArr.length; n++){
+        var m = i+n
+        if (m < wwoArr.length - wordArr.length)
+          matchArr.push(wwoArr[m].word)
+        else
+          break
+      }
+      var match = matchArr.join(" ")
+      if (regEx.test(match)){
+        var timeStamp = wwoArr[i].offset
+        jumpTo(timeStamp, true)
+        break
+      }
+    }
+  }
 }
