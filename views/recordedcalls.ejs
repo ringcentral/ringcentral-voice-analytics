@@ -39,10 +39,11 @@
   <section id='content'>
     <div id="search_bar" class="row">
       <div class="col-xs-12 search-block">
-        <form action="/search" method="POST" class="form-inline">
+        <!--form action="/search" method="POST" class="form-inline"-->
+        <form class="form-inline" id="searchForm" action="/search" method="POST">
           <div class="form-group">
             <div class="input-group">
-              <select name='fields' class="input-group-btn selectpicker filter-select search-input-filter" onchange="setSearchFields(this)">
+              <select name='fields' class="input-group-btn selectpicker filter-select search-input-filter">
                 <% if (fieldArg == 'all') { %>
                   <option selected value='all'>All</option>
                 <% } else { %>
@@ -84,10 +85,10 @@
               <input type="text" class="form-control search-input" name="search" placeholder="Search calls" value="<%= searchArg %>" id="search" required onfocus="selectSelectText()">
             </div>
             &nbsp;
-            <button type="submit" class="btn-rc" id="search">Search</button>
+            <button class="btn-rc" id="search" onclick="startSearch();">Search</button>
 
             <label for="types" class="filter-label">Filter by</label>
-            <select name='types' class="selectpicker filter-select">
+            <select name='types' class="selectpicker filter-select" onchange="startSearch()">
               <% if (typeArg == '') { %>
                 <option value="" disabled selected>Call Type</option>
               <% } %>
@@ -117,7 +118,7 @@
                 <option value='PR'>Call Demo</option>
               <% } %>
             </select>
-            <select id="sentiment-option" name='sentiment' class="selectpicker filter-select" onchange="enableSlider()">
+            <select id="sentiment-option" name='sentiment' class="selectpicker filter-select" onchange="startSearch()">
               <% if (sentimentArg == '') { %>
                 <option value="" disabled selected>Sentiment</option>
               <% } %>
@@ -143,7 +144,7 @@
               <% } %>
             </select>
           </div>
-          <select name="categories" class="selectpicker filter-select" id="categoryField" style="display: inline">
+          <select name="categories" class="selectpicker filter-select" id="categoryField" onchange="startSearch()">
           <% var categoryArr = JSON.parse(categories) %>
           <% if (catIndex == '') { %>
             <option value="" disabled selected>Category</option>

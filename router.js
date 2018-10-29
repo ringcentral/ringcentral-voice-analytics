@@ -47,7 +47,8 @@ var router = module.exports = {
       user.loadDemo()
       res.render('readlog', {
         userName: "Demo Guy",
-        userLevel: 'demo'
+        userLevel: 'demo',
+        autoProcessingOn: false
       })
       return
     }
@@ -73,10 +74,13 @@ var router = module.exports = {
       console.log("Must be a reload page")
       var index = getUserIndex(req.session.userId)
       if (index >= 0)
+        users[index].loadReadLogPage(req, res)
+        /*
         res.render('readlog', {
           userName: users[index].getUserName(),
           userLevel: users[index].getUserLevel()
         })
+        */
       else{
         this.forceLogin(req, res)
       }

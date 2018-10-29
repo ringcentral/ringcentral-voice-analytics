@@ -114,16 +114,37 @@ User.prototype = {
   },
   loadReadLogPage: function(req, res){
     var userName = ""
+    var thisRes = res
     for (var ext of this.extensionList){
       if (ext.id == this.extensionId){
         userName = ext.fullName
         break
       }
     }
-    res.render('readlog', {
-      userLevel: this.getUserLevel(),
-      userName: userName,
-      extensionList: JSON.stringify(this.extensionList)
+    var query = "SELECT * FROM " + this.getSubscriptionIdTable() + " WHERE ext_id=" + this.getExtensionId();
+    console.log(query)
+    pgdb.read(query, (err, result) => {
+      //console.log(result)
+      var autoProcessing = false
+      if(err != null){
+        console.log(err);
+      }
+      if (result.rows.length == 0){
+        console.log("no subId found. create one after")
+      }else{
+        // found the subId, use it to check and renew
+        var subId = result.rows[0].sub_id
+        if (result.rows[0].sub_id != "")
+          autoProcessing = true
+        console.log(subId)
+      }
+
+      thisRes.render('readlog', {
+        userLevel: this.getUserLevel(),
+        userName: userName,
+        extensionList: JSON.stringify(this.extensionList),
+        autoProcessingOn: autoProcessing
+      })
     })
   },
   login: function(req, res, callback){
@@ -450,6 +471,16 @@ User.prototype = {
               });
             }else{
               console.log("PLATFORM PROBLEM:" + err.message)
+              var query = "UPDATE " + thisUser.getSubscriptionIdTable() + " SET sub_id=''"
+              query += " WHERE ext_id=" + thisUser.getExtensionId();
+              console.log("REMOVE SUBS: " + query)
+              pgdb.update(query, (err, result) => {
+                if (err){
+                  return console.error(err.message);
+                }else{
+                  return console.error(JSON.stringify(result))
+                }
+              });
             }
           })
         }
@@ -899,6 +930,7 @@ User.prototype = {
             item['rec_id'] = record.id
             item['duration'] = record.duration
             item['direction'] = (record.direction == "Inbound") ? "In" : "out"
+            item['extension_id'] = extensionId
             var extensionList = thisUser.getExtensionList()
             for (var ext of extensionList){
               for (var leg of record.legs){
@@ -913,9 +945,15 @@ User.prototype = {
               }
             }
             var query = "INSERT INTO " + thisUser.getUserTable()
+            /*
             query += "(uid, rec_id, call_date, call_type, extension_num, full_name, from_number, from_name, to_number, to_name, recording_url, duration, direction, processed, wordsandoffsets, transcript, conversations, sentiments, sentiment_label, sentiment_score, sentiment_score_hi, sentiment_score_low, has_profanity, profanities, keywords, entities, concepts, categories, actions)"
             query += " VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29)"
             var values = [item['uid'], item['rec_id'],item['call_date'],item['call_type'],item['extension_num'],item['full_name'],item['from_number'],item['from_name'],item['to_number'],item['to_name'],item['recording_url'],item['duration'],item['direction'],0,"","","","","",0,0,0,0,"","","","","",""]
+            query += " ON CONFLICT DO NOTHING"
+            */
+            query += "(uid, rec_id, call_date, call_type, extension_id, extension_num, full_name, from_number, from_name, to_number, to_name, recording_url, duration, direction, processed, wordsandoffsets, transcript, conversations, sentiments, sentiment_label, sentiment_score, sentiment_score_hi, sentiment_score_low, has_profanity, profanities, keywords, entities, concepts, categories, actions, subject)"
+            query += " VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27,$28,$29,$30,$31)"
+            var values = [item['uid'], item['rec_id'],item['call_date'],item['call_type'],item['extension_id'],item['extension_num'],item['full_name'],item['from_number'],item['from_name'],item['to_number'],item['to_name'],item['recording_url'],item['duration'],item['direction'],0,"","","","","",0,0,0,0,"","","","","","",""]
             query += " ON CONFLICT DO NOTHING"
             pgdb.insert(query, values, (err, result) =>  {
               if (err){

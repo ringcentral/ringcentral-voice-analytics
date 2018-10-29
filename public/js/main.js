@@ -186,43 +186,10 @@ function enableNotification(){
     });
   }
 }
-function setSearchFields(elm){
-  /*
-  var opt = $(elm).val()
-  if (opt == 'categories'){
-    $('#categoryField').css('display', 'inline');
-    $('#search').css('display', 'none');
-  }else{
-    $('#search').css('display', 'inline');
-    $('#categoryField').css('display', 'none');
-  }
-  */
-}
-function enableSlider(){
-  var sliderPos = document.getElementById("positiveRange");
-  var sliderNeg = document.getElementById("negativeRange");
-  var val = $("#sentiment-option").val()
-  if (val == 'all'){
-    $('#positiveRange').fadeTo(0, 1.0);
-    $('#negativeRange').fadeTo(0, 1,0);
-    sliderNeg.disabled = false
-    sliderPos.disabled = false
-  }else if (val == 'positive'){
-    $('#negativeRange').fadeTo(0, 0.4);
-    $('#positiveRange').fadeTo(0, 1.0);
-    sliderNeg.disabled = true
-    sliderPos.disabled = false
-  }else if (val == 'negative'){
-    $('#negativeRange').fadeTo(0, 1.0);;
-    $('#positiveRange').fadeTo(0, 0.4);
-    sliderNeg.disabled = false
-    sliderPos.disabled = true
-  }else if (val == 'neutral'){
-    $('#negativeRange').fadeTo(0, 0.4);
-    $('#positiveRange').fadeTo(0, 0.4);
-    sliderNeg.disabled = true
-    sliderPos.disabled = true
-  }
+
+function startSearch(){
+  $("#searchForm").submit()
+  this.event.preventDefault();
 }
 var fileName = ""
 function loadCRAudioFile(el) {
