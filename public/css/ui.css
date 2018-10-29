@@ -201,10 +201,13 @@ body {
   color: #8c8c8c;
 }
 
-.input-group .search-input {
+.search-input {
   height: 32px!important;
-  border-left: none;
   width: 238px;
+}
+
+.input-group .search-input {
+  border-left: none;
 }
 
 .filter-label {
@@ -230,4 +233,33 @@ body {
   float: left;
   height: 32px;
   margin-top: 10px;
+}
+
+.search-transcript {
+  width: 328px!important;
+}
+
+.subject-line {
+  font-size: 20px;
+  margin-top: 24px;
+  margin-bottom: 25px;
+}
+
+.sentiment_icon {
+  width: 27px;
+  height: 27px;
+}
+
+.left-block {
+  padding-right: 25px;
+  margin-right: 0;
+  font-size: 14px;
+}
+
+.left-block .block_header {
+  background: #ffffff;
+  font-size: 18px;
+  line-height: 40px;
+  border-bottom: solid 1px #e2e2e2;
+  margin-bottom: 5px;
 }

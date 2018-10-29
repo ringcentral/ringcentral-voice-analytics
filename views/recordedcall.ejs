@@ -38,13 +38,13 @@
     <div id="search_bar" class="row">
       <div class="col-xs-12 search-block">
         <form class="form-inline" id="searchForm" onsubmit="searchForText();">
-          <input type="text" class="form-control" id="search" onfocus="selectWord()" value="<%= searchWord %>" required>
+          <input type="text" class="form-control search-input search-transcript" id="search" onfocus="selectWord()" value="<%= searchWord %>" required>
           <button id="searchButton" class="btn-rc">Search</button>
         </form>
       </div>
     </div>
     <div id="subject_header" class="row">
-      <div class="col-xs-12">
+      <div class="col-xs-12 subject-line">
       <% if (results['call_type'] == "CR") { %>
       <% var icon = 'img/' + results['direction'] + '_' + results['call_type'] + '.png' %>
         <img src='<%= icon %>' ></img>
@@ -78,7 +78,7 @@
   </br>
     <div class="row">
       <div class="col-xs-12">
-        <div class="column left">
+        <div class="column left left-block">
           <div class="with-border upper-block">
             <div class="block_header">Call info</div>
               <div>
