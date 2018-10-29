@@ -25,13 +25,13 @@
   <nav id="menu_header" class="navbar navbar-default no-border">
     <span class="left-middle-align">
       <span class="rclogo"><a href="/"><img alt="Brand" src="img/ringcentral.png" height="40"></a></span>&nbsp;&nbsp;
-      <span class="title">Voice Analytics</span>
+      <span class="title orange">Voice Analytics</span>
     </span>
     <ul class="nav navbar-nav navbar-right middle-align">
       <li><span><b>&nbsp;&nbsp;<%- userName %>&nbsp;&nbsp;</b></span</li>
       <li><a href="/about">&nbsp;&nbsp;About</a></li>
       <li><a href="/#">&nbsp;|&nbsp;</a</li>
-      <li><a href="javascript: window.history.back()">Back</a></li>
+      <li><a href="/recordedcalls">Back</a></li>
     </ul>
   </nav>
   <section id='content'>
@@ -153,8 +153,8 @@
           <div class="with-border">
             <div style="width: 100%;">
               <ul id="tabs" class="nav nav-tabs nav-justified" data-tabs="tabs">
-                <li id="keyword-tab"><a href="#" onclick="displayAnalytics('keywords')" selected data-toggle="tab">Keywords</a></li>
-                <li id="sentiment-tab"><a href="#" onclick="displayAnalytics('sentiment')" data-toggle="tab">Sentiments</a></li>
+                <li id="keyword-tab"><a href="#" onclick="displayAnalytics('keywords')" selected>Keywords</a></li>
+                <li id="sentiment-tab"><a href="#" onclick="displayAnalytics('sentiment')">Sentiments</a></li>
               </ul>
             </div>
             <div id="sentiment_adjust" class="form-inline with-border" style="display: none !important">

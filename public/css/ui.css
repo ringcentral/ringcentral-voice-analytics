@@ -47,6 +47,10 @@ body {
   color: #0684bd;
 }
 
+.left-middle-align .title.orange {
+  color: #f9971d;
+}
+
 .middle-align {
   height: 50px;
   margin: 0 30px;
