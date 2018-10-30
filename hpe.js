@@ -208,7 +208,7 @@ module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, tran
         })
         //
     }else{
-      console.log("ERROR: " + err)
+      console.log("ERROR: " + JSON.stringify(err))
       var ret = {}
       ret['sentiment'] = ""
       ret['keywords'] = ""

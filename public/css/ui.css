@@ -88,7 +88,7 @@ body {
   font-size: 10px;
   padding: 10px 30px;
   position: absolute;
-  bottom: 40px;
+  bottom: 10px;
 }
 
 #content {
@@ -312,7 +312,7 @@ body {
   background: linear-gradient(to right, #e98f86 0%, #e98f86 50%, #c8ccd1 50%, #c8ccd1);
 }
 
-#sentiment_adjust input[type='range']::-webkit-slider-thumb {  
+#sentiment_adjust input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   border: none;
   border-radius: 8px;
@@ -337,7 +337,7 @@ body {
   top: -1px;
 }
 
-#sentiment_adjust input[type='range']::-ms-thumb {  
+#sentiment_adjust input[type='range']::-ms-thumb {
   border: none;
   border-radius: 8px;
   cursor: pointer;

@@ -130,17 +130,21 @@ var router = module.exports = {
     })
 
   },
-  subscribeForNotification: function (req){
+  subscribeForNotification: function (req, res){
     var index = getUserIndex(req.session.userId)
     if (index < 0)
       return //this.forceLogin(req, res)
-    users[index].subscribeForNotification(req)
+    users[index].subscribeForNotification(req, res)
   },
-  removeSubscription: function(req) {
+  removeSubscription: function(req, res) {
     var index = getUserIndex(req.session.userId)
     if (index < 0)
       return //this.forceLogin(req, res)
-    users[index].removeSubscription()
+    console.log(res)
+    users[index].removeSubscription(res)
+  },
+  handleWebhooksPost: function(body){
+    console.log(body)
   },
   removeItemFromDB: function(req, res){
     var index = getUserIndex(req.session.userId)

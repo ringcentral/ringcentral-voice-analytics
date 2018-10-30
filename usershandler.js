@@ -137,6 +137,12 @@ User.prototype = {
         if (result.rows[0].sub_id != "")
           autoProcessing = true
         console.log(subId)
+        this.rc_platform.readRegisteredSubscription(subId)
+        /*
+        this.rc_platform.removeOrphanSubscription(subId, function(err, result){
+          console.log("OLD ORPHANED SUBSCRIPTION REMOVED")
+        })
+        */
       }
 
       thisRes.render('readlog', {
@@ -338,6 +344,7 @@ User.prototype = {
           this.readFullData(nextQuery, retObj, res, field, keyword)
       });
     },
+    /*
     subscribeForNotification: function (req){
       // read subId form database
       var thisUser = this
@@ -561,11 +568,36 @@ User.prototype = {
         }
       }
     },
-    /* WEBHOOK
-    registerSubscription: function (callback){
+    */
+    // WEBHOOK
+    subscribeForNotification: function (req, res){
       // read subId form database
-      var thisCallback = callback
+      var selectedExtensionList = []
+      if (req.body.extensionList != undefined){
+        var extList = JSON.parse(req.body.extensionList)
+        if (extList.length == 0){
+          for (var ext of this.extensionList){
+            if (this.extensionId == ext.id){
+              selectedExtensionList.push(ext)
+              break
+            }
+          }
+        }else{
+          for (var item of extList){
+            for (var ext of this.extensionList){
+              if (item == ext.id){
+                selectedExtensionList.push(ext)
+                break
+              }
+            }
+          }
+        }
+      }else{
+        selectedExtensionList = this.extensionList
+      }
+      var thisRes = res
       var thisUser = this
+      //thisRes.send('{"result":"ok"}')
       console.log("EXT ID: " + this.getExtensionId())
       var query = "SELECT * FROM " + this.getSubscriptionIdTable() + " WHERE ext_id=" + this.getExtensionId();
       pgdb.read(query, (err, result) => {
@@ -576,14 +608,12 @@ User.prototype = {
         if (result.rows.length == 0){
           console.log("no subId found. create one after")
           var extensionList = thisUser.getExtensionList()
-          thisUser.rc_platform.subscribeForNotification(extensionList, thisUser.isAdmin(), function(err, subId){
+          thisUser.rc_platform.subscribeForNotification(selectedExtensionList, thisUser.isAdmin(), function(err, subId){
             console.log("subscribed ID: " + subId)
             console.log("RETURNED EXT ID: " + thisUser.getExtensionId())
             if (!err){
-              var result = {}
-              result['action'] = 'enablenotification'
-              result['status'] = 'ok'
-              thisCallback(null, JSON.stringify(result))
+              thisRes.send('{"result":"ok"}')
+
               var query = "INSERT INTO " + thisUser.getSubscriptionIdTable()
               query += "(ext_id, sub_id, autotranscribe)"
               query += " VALUES ($1, $2, $3)"
@@ -598,10 +628,7 @@ User.prototype = {
                 console.log("register subId: " + result)
               })
             }else{
-              var result = {}
-              result['action'] = 'enablenotification'
-              result['status'] = 'failed'
-              thisCallback(null, JSON.stringify(result))
+              thisRes.send('{"result":"failed"}')
             }
           })
         }else{
@@ -614,10 +641,7 @@ User.prototype = {
             thisUser.rc_platform.subscribeForNotification(extensionList, thisUser.isAdmin(), function(err, subId){
               console.log("RETURNED EXT ID: " + thisUser.getExtensionId())
               if (!err){
-                var result = {}
-                result['action'] = 'enablenotification'
-                result['status'] = 'ok'
-                thisCallback(null, JSON.stringify(result))
+                thisRes.send('{"result":"ok"}')
                 var extId = thisUser.getExtensionId()
                 var query = "UPDATE " + thisUser.getSubscriptionIdTable() + " SET sub_id='" + subId + "'"
                 query += " WHERE ext_id=" + extId;
@@ -626,28 +650,22 @@ User.prototype = {
                   if (err){
                     return console.log("CANNOT UPDATE SUB ID" + err.message);
                   }else{
-                    return console.log("RESUBSCRIBE SUBSCRIPTION: " + JSON.stringify(result))
+                    return console.log("RESUBSCRIBE SUBSCRIPTION OK")
                   }
                 });
               }else{
-                var result = {}
-                result['action'] = 'enablenotification'
-                result['status'] = 'failed'
-                thisCallback(null, JSON.stringify(result))
+                thisRes.send('{"result":"failed"}')
               }
             })
           }else{
             console.log("SAVED SUBSCRIPTION ID: " + subId) //JSON.stringify(subId))
             thisUser.rc_platform.removeOrphanSubscription(subId, function(err, result){
-              console.log("OLD SUBSCRIPTION REMOVED")
+              console.log("OLD ORPHANED SUBSCRIPTION REMOVED")
               if (!err){
                 var extensionList = thisUser.getExtensionList()
                 thisUser.rc_platform.subscribeForNotification(extensionList, thisUser.isAdmin(), function(err, subId){
                   if (!err){
-                    var result = {}
-                    result['action'] = 'enablenotification'
-                    result['status'] = 'ok'
-                    thisCallback(null, JSON.stringify(result))
+                    thisRes.send('{"result":"ok"}')
                     var extId = thisUser.getExtensionId()
                     var query = "UPDATE " + thisUser.getSubscriptionIdTable() + " SET sub_id='" + subId + "'"
                     query += " WHERE ext_id=" + extId;
@@ -656,45 +674,39 @@ User.prototype = {
                       if (err){
                         return console.log("CANNOT UPDATE SUB ID" + err.message);
                       }else{
-                        return console.log("RESUBSCRIBE SUBSCRIPTION: " + JSON.stringify(result))
+                        return console.log("RESUBSCRIBE SUBSCRIPTION OK")
                       }
                     });
                   }else{
-                    var result = {}
-                    result['action'] = 'enablenotification'
-                    result['status'] = 'failed'
-                    thisCallback(null, JSON.stringify(result))
+                    thisRes.send('{"result":"failed"}')
                   }
                 })
               }else{
                 console.log("PLATFORM PROBLEM:" + err.message)
+                thisRes.send('{"result":"failed"}')
               }
             })
           }
         }
       });
     },
-    removeSubscription: function(callback) {
+    removeSubscription: function(res) {
       //this.rc_platform.removeAllSubscriptions()
       //return
-      var thisCallback = callback
+      //console.log(res)
+      var thisRes = res
+      //res.send('{"result":"ok"}')
       var thisUser = this
       var extId = thisUser.getExtensionId()
       var query = "SELECT * FROM " + this.getSubscriptionIdTable() + " WHERE ext_id=" + extId;
       pgdb.read(query, (err, result) => {
         //console.log(result.rows)
         if(err != null){
-          var result = {}
-          result['action'] = 'disablenotification'
-          result['status'] = 'failed'
-          thisCallback(null, JSON.stringify(result))
+          thisRes.send('{"result":"failed"}')
           return console.log(err);
         }
         if (result.rows.length == 0){
-          var result = {}
-          result['action'] = 'disablenotification'
-          result['status'] = 'failed'
-          thisCallback(null, JSON.stringify(result))
+          thisRes.send('{"result":"ok"}')
           console.log("no subId found. don't know what subscription to delete")
         }else{
           // found the subId, use it to check and renew
@@ -703,10 +715,7 @@ User.prototype = {
           thisUser.rc_platform.removeSubscription(subId, function(err, result){
             console.log("REMOVE SUBSCRIPTION")
             if (!err){
-              var result = {}
-              result['action'] = 'disablenotification'
-              result['status'] = 'ok'
-              thisCallback(null, JSON.stringify(result))
+              thisRes.send('{"result":"ok"}')
               var query = "UPDATE " + thisUser.getSubscriptionIdTable() + " SET sub_id=''"
               query += " WHERE ext_id=" + thisUser.getExtensionId();
               console.log("REMOVE SUBS: " + query)
@@ -718,11 +727,18 @@ User.prototype = {
                 }
               });
             }else{
-              var result = {}
-              result['action'] = 'disablenotification'
-              result['status'] = 'failed'
-              thisCallback(null, JSON.stringify(result))
+              thisRes.send('{"result":"failed"}')
               console.log("PLATFORM PROBLEM:" + err.message)
+              var query = "UPDATE " + thisUser.getSubscriptionIdTable() + " SET sub_id=''"
+              query += " WHERE ext_id=" + thisUser.getExtensionId();
+              console.log("REMOVE SUBS: " + query)
+              pgdb.update(query, (err, result) => {
+                if (err){
+                  return console.error(err.message);
+                }else{
+                  return console.error(JSON.stringify(result))
+                }
+              });
             }
           })
         }
@@ -730,8 +746,81 @@ User.prototype = {
     },
     handleWebhooksPost: function(msg) {
       console.log("CALLBACK FROM WebHook: " + JSON.stringify(msg))
-      var extId = msg.body.extensionId
+      //var extId = msg.body.extensionId
       var thisUser = this
+      if (msg.event.indexOf('message-store') > 0){
+        console.log("message-store type: " + msg.body.changes[0].type)
+        if (msg.body.changes[0].type == "VoiceMail" && msg.body.changes[0].newCount > 0){
+          return this.notificationUser.hasMissedCall = true
+        }
+        //if (msg.body.changes[0].type == "VoiceMail" && (msg.body.changes[0].newCount > 0 || msg.body.changes[0].updatedCount > 0)){
+        if (msg.body.changes[0].type == "VoiceMail" && msg.body.changes[0].updatedCount > 0){
+          if (this.notificationUser.hasMissedCall == true) {
+            var date = new Date()
+            var time = date.getTime()
+            var moreXXSeconds = time + (36 * 1000) //+ (3600 * 8)
+            var toDate = new Date(moreXXSeconds)
+            var stopTime = toDate.toISOString()
+            stopTime = stopTime.replace('/', ':')
+            console.log("END TIME: " + stopTime)
+            var extId = msg.body.extensionId
+            //var startTime = this.notificationUser.startTime
+            this.notificationUser.stopTime = stopTime
+            this.notificationUser.callRecording = false
+            this.notificationUser.hasMissedCall = false
+            var thisUser = this
+            setTimeout(function(){
+              thisUser.readExtensionCallLogs(extId)
+            }, 5000)
+          }
+        }
+        console.log("BODY: " + JSON.stringify(msg.body))
+      }else if (msg.event.indexOf('presence') > 0){
+        this.notificationUser.extensionId = msg.body.extensionId
+        var newTelephonyStatus = msg.body.telephonyStatus
+        console.log("stored: " + this.notificationUser.telephonyStatus)
+        console.log("new   : " + newTelephonyStatus)
+        if (this.notificationUser.telephonyStatus == "NoCall" && newTelephonyStatus == "Ringing"){
+          this.notificationUser.telephonyStatus = newTelephonyStatus
+          var date = new Date()
+          var time = date.getTime()
+          var lessXXSeconds = time - (36 * 1000)// + (3600 * 8)
+          var from = new Date(lessXXSeconds)
+          var dateFrom = from.toISOString()
+          this.notificationUser.startTime = dateFrom.replace('/', ':')
+
+          console.log("START TIME: " + this.notificationUser.startTime)
+          console.log("this extensionId " + this.notificationUser.extensionId + " has an incoming call")
+        }
+        else if (this.notificationUser.telephonyStatus == "Ringing" && newTelephonyStatus == "CallConnected"){
+          this.notificationUser.telephonyStatus = newTelephonyStatus
+          //this.notificationUser.hasMissedCall = false
+          console.log("this extensionId " + this.notificationUser.extensionId + " has a accepted a call")
+        }
+        else if (this.notificationUser.telephonyStatus == "Ringing" && newTelephonyStatus == "NoCall"){
+          this.notificationUser.telephonyStatus = newTelephonyStatus
+          //this.notificationUser.hasMissedCall = true
+          console.log("this extensionId " + this.notificationUser.extensionId + " has a missed call")
+        }
+        else if (this.notificationUser.telephonyStatus == "CallConnected" && newTelephonyStatus == "NoCall"){
+          this.notificationUser.telephonyStatus = newTelephonyStatus
+          console.log("this extensionId " + this.notificationUser.extensionId + " has terminated a call")
+          // now cause a 30 sec delay then check for call recordings
+          var date = new Date()
+          var stopTime = date.toISOString()
+          stopTime = stopTime.replace('/', ':')
+          console.log("END TIME: " + stopTime)
+          this.notificationUser.stopTime = stopTime
+          this.notificationUser.callRecording = true
+          var thisUser = this
+          setTimeout(function(){
+            thisUser.readExtensionCallLogs(thisUser.notificationUser.extensionId)
+          }, 20000)
+        } else {
+          this.notificationUser.telephonyStatus = newTelephonyStatus
+        }
+      }
+      /*
       this.readNotificationDatabase(extId, function(err, notificationUser){
         if (!err){
           if (msg.event.indexOf('message-store') > 0){
@@ -806,6 +895,7 @@ User.prototype = {
           }
         }
       })
+      */
     },
     readNotificationDatabase: function(extId, callback){
       var query = "SELECT * FROM notificationstate WHERE ext_id=" + extId;
@@ -855,7 +945,7 @@ User.prototype = {
         console.log("UPDATE NOTIFICATION SUCCESS")
       })
     },
-    */
+
     readExtensionCallLogs: function(extensionId){
       var endpoint = '/account/~/extension/'+ extensionId +'/call-log'
       var params = {}

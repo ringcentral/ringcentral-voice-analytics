@@ -508,12 +508,10 @@ function displayAnalytics(option){
       var upperBlockHeight = $("#upper_block").height() + 130
       var h = $(window).height() - (fixedSubstractedHeight);
       $("#analyzed_content").height(h-upperBlockHeight)
-      var text = ""//"<div>" + window.results.transcript + "</div>"
+      var text = "" // 942249526628
       var itemArr = JSON.parse(window.results.keywords)
       for (var item of itemArr){
         if (item.text != "class" && item.text != 'keywords'){
-        //var regEx = new RegExp("\\b" + item.text + "\\b", "g");
-        //text = text.replace(regEx, "<span class='keywords'>" + item.text + "</span>")
         text += "<span class='keyword' onclick='jumptToKeyword(\"" + item.text + "\")'>" + item.text + "</span>"
         }
       }
@@ -589,6 +587,7 @@ function initializeAudioPlayer(){
   wavesurfer.on('play', function () {
     $('#audio-play').hide();
     $('#audio-pause').show();
+    seekEnded() // think better to be here
   });
   wavesurfer.on('ready', function () {
     $('#audio-play').show();
@@ -601,7 +600,7 @@ function initializeAudioPlayer(){
   wavesurfer.on('finish', function(seeking) {
     $('#audio-play').show();
     $('#audio-pause').hide();
-    seekEnded();
+    //seekEnded();
   });
   $('#audio-button').click(function() {
     if (wavesurfer.isPlaying()) {
@@ -753,9 +752,11 @@ function jumpTo(timeStamp, scrollIntoView) {
     var elm = "#" + id
     $(elm)[0].scrollIntoView();
   }
+  // David wants to have some delay to play on click. Keep this value
   window.setTimeout(function(){
     wavesurfer.play(timeStamp);
-  }, 10)
+    //seekEnded() // either here or inside the play
+  }, 800)
 }
 
 function getInterestsRequestCallback(resp) {

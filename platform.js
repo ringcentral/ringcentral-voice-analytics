@@ -41,7 +41,7 @@ RCPlatform.prototype = {
     })
     .then(function (token) {
       var json = token.json()
-      console.log("ACCOUNT INFO" + JSON.stringify(json))
+      //console.log("ACCOUNT INFO" + JSON.stringify(json))
       var newToken = {}
       newToken['access_token'] = json.access_token
       newToken['expires_in'] = json.expires_in
@@ -49,8 +49,8 @@ RCPlatform.prototype = {
       newToken['refresh_token'] = json.refresh_token
       newToken['refresh_token_expires_in'] = json.refresh_token_expires_in
       newToken['login_timestamp'] = Date.now() / 1000
-      console.log("ACCESS-TOKEN-EXPIRE-IN: " + json.expires_in)
-      console.log("REFRESH-TOKEN-EXPIRE-IN: " + json.refresh_token_expires_in)
+      //console.log("ACCESS-TOKEN-EXPIRE-IN: " + json.expires_in)
+      //console.log("REFRESH-TOKEN-EXPIRE-IN: " + json.refresh_token_expires_in)
       thisPlatform.token_json = newToken
       thisPlatform.extensionId = json.owner_id
       return callback(null, json.owner_id)
@@ -116,6 +116,7 @@ RCPlatform.prototype = {
       return null
     }
   },
+  /* pubnub
   subscribeForNotification: function(extensionList, isAdmin, callback){
     var eventFilter = []
     eventFilter.push('/restapi/v1.0/account/~/extension/~/presence?detailedTelephonyState=true')
@@ -176,6 +177,64 @@ RCPlatform.prototype = {
         thisCallback(e, "record.id")
       });
   },
+  */
+  // webhook
+  subscribeForNotification: function(extensionList, isAdmin, callback){
+    var eventFilters = []
+    eventFilters.push('/restapi/v1.0/account/~/extension/~/presence?detailedTelephonyState=true')
+    if (isAdmin){
+      console.log("ADMIN NOTIFICATION")
+      for (var ext of extensionList){
+        var fil = '/restapi/v1.0/account/~/extension/' + ext.id + '/message-store'
+        console.log(fil)
+        eventFilters.push(fil)
+      }
+    }else{
+      console.log("USER NOTIFICATION")
+      var fil = '/restapi/v1.0/account/~/extension/~/message-store'
+      console.log(fil)
+      eventFilters.push(fil)
+    }
+    var thisPlatform = this
+    var thisCallback = callback
+    this.platform.post('/subscription',
+    {
+        eventFilters: eventFilters,
+        deliveryMode: {
+          transportType: process.env.DELIVERY_MODE_TRANSPORT_TYPE,
+          address: process.env.DELIVERY_MODE_ADDRESS
+        }
+    })
+    .then(function(resp) {
+        var json = resp.json();
+        console.log('ready to get detect recorded calls and voicemail via webhooks')
+        //console.log("resp: " + JSON.stringify(resp))
+        //console.log("owner_id: " + json.owner_id)
+        console.log("subscriptionId: " + json.id)
+        thisCallback(null, json.id)
+    })
+    .catch(function(e) {
+      callback(e, "Cannot subscribeForNotification")
+      return console.log("subscribeForNotification: " + e.message)
+    });
+  },
+  removeSubscription: function (subscriptionId, callback) {
+    var thisPlatform = this
+    var thisCallback = callback
+    this.platform
+      .delete('/subscription/' + subscriptionId)
+      .then(function (response) {
+        console.log("deleted: " + subscriptionId)
+        console.log("deleted by remove function")
+        thisPlatform.subscriptionId = ""
+        thisCallback(null, "record.id")
+      })
+      .catch(function(e) {
+        console.error(e);
+        thisCallback(e, "record.id")
+      });
+  },
+  //
   removeOrphanSubscription: function(subId, callback) {
     var thisPlatform = this
     var thisCallback = callback
@@ -190,6 +249,7 @@ RCPlatform.prototype = {
             console.log("subId/record.id:" + subId + "/" + record.id)
             if (subId == record.id){
               console.log(record)
+              /*
               return thisPlatform.platform.delete('/subscription/' + record.id)
                 .then(function (response) {
                   console.log("deleted by subId: " + record.id)
@@ -202,6 +262,7 @@ RCPlatform.prototype = {
                   console.error(e);
                   thisCallback(e, record.id)
                 });
+              */
             }
           }
           console.log("no matched subscription")
@@ -215,6 +276,45 @@ RCPlatform.prototype = {
         console.error(e);
         thisCallback(e, "PLATFORM ERROR")
       });
+  },
+  readRegisteredSubscription: function(subscriptionId) {
+      this.platform.get('/subscription')
+        .then(function (response) {
+          var data = response.json();
+          if (data.records.length > 0){
+            for(var record of data.records) {
+              console.log(record)
+              if (record.id == subscriptionId) {
+                if (record.deliveryMode.transportType == "WebHook"){
+                  if (record.status !== "Active"){
+                    console.log("subscription is not active. Renew it")
+                    return renewSubscription(record.id)
+                  }else {
+                    console.log("subscription is active. Good to go.")
+                    return
+                  }
+                }
+              }
+            }
+          }
+          console.log("No subscription for this service => Create one")
+          //startWebhookSubscription()
+        })
+        .catch(function(e) {
+            console.error(e);
+            throw e;
+        });
+  },
+  renewSubscription: function(subscriptionId) {
+      return this.platform
+        .post('/subscription/' + subscriptionId + "/renew")
+        .then(function (response) {
+          console.log("updated: " + subscriptionId)
+        })
+        .catch(function(e) {
+          console.error(e);
+          throw e;
+        });
   },
   removeAllSubscriptions: function() {
     var thisPlatform = this

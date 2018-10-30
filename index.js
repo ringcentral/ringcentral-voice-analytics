@@ -115,14 +115,15 @@ app.post('/createrecord', function (req, res) {
 
 app.post('/enablenotification', function (req, res) {
   console.log("enable notification")
-  router.subscribeForNotification(req)
-  res.send('{"result":"ok"}')
+  router.subscribeForNotification(req, res)
+  //res.send('{"result":"ok"}')
 })
 
 app.get('/disablenotification', function (req, res) {
   console.log("disable notification")
-  router.removeSubscription(req)
-  res.send('{"result":"ok"}')
+  console.log(res)
+  router.removeSubscription(req, res)
+  //res.send('{"result":"ok"}')
 })
 
 app.get('/recordedcalls', function (req, res) {
@@ -170,28 +171,52 @@ app.post('/findsimilar', function (req, res) {
   router.findSimilar(req, res)
 })
 
-app.post('/webbhooks', function(req, res) {
-  console.log("check event body payload")
-  //var headers = JSON.parse(event.headers)
-  if (event.headers.hasOwnProperty("Validation-Token")){
-    var validationToken = event.headers['Validation-Token'];
-      if (validationToken) {
-        console.log(validationToken)
-        res.setHeader('Validation-Token', validationToken);
-        res.statusCode = 200;
-        res.end();
-      }
-    }else{
-      if (event.body != null){
-        console.log(event.body)
-        res.statusCode = 200;
-        res.end();
-        if (event.body){
-          var body = JSON.parse(event.body)
-          router.handleWebhooksPost(body)
-        }
-      }
+app.post('/webhooks', function(req, res) {
+  console.log("webhook called: " + req)
+  var headers = req.headers;
+  var validationToken = headers['validation-token'];
+  var body = [];
+  if(validationToken) {
+      res.setHeader('Validation-Token', validationToken);
+      res.statusCode = 200;
+      res.end();
+  } else {
+      req.on('data', function(chunk) {
+          body.push(chunk);
+      }).on('end', function() {
+          body = Buffer.concat(body).toString();
+          console.log(body)
+          var jsonObj = JSON.parse(body)
+          router.handleWebhooksPost(jsonObj.body)
+          res.statusCode = 200;
+          res.end();
+      });
+  }
+  /*
+  var headers = req.headers;
+  console.log("check headers: " + JSON.stringify(headers))
+  if (headers.hasOwnProperty("Validation-Token")){
+    var validationToken = headers['Validation-Token'];
+    if (validationToken) {
+      console.log(validationToken)
+      res.setHeader('Validation-Token', validationToken);
+      res.statusCode = 200;
+      res.end();
     }
+  }else{
+    var body = [];
+    req.on('data', function(chunk) {
+      body.push(chunk);
+    }).on('end', function() {
+      body = Buffer.concat(body).toString();
+      console.log(body)
+      var jsonObj = JSON.parse(body)
+      router.handleWebhooksPost(jsonObj.body)
+      res.statusCode = 200;
+      res.end();
+    });
+  }
+  */
 })
 
 app.post('/callback', function (req, res) {
