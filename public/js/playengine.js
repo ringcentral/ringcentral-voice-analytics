@@ -1,5 +1,5 @@
 window.onload = init;
-var aPlayer = null;
+// var aPlayer = null;
 var index = 0;
 var mIndex = 1;
 var wwoArr = []
@@ -11,7 +11,10 @@ var speakerSentiment = -1
 var foundIndex = 0;
 var positiveThreshold = 0.5;
 var negativeThreshold = -0.5;
-var fixedSubstractedHeight = 0
+var fixedSubstractedHeight = 0;
+
+var wavesurfer;
+var audioPlayLine;
 
 function init() {
   initializeAudioPlayer()
@@ -548,33 +551,92 @@ function truncateText(text){
 function initializeAudioPlayer(){
   wwoArr = JSON.parse(window.results.wordsandoffsets)
   wordElm = document.getElementById("word0");
-  aPlayer = document.getElementById("audio_player");
-  aPlayer.addEventListener("timeupdate",seektimeupdate,false);
-  aPlayer.addEventListener('loadeddata', audioLoaded, false);
-  aPlayer.addEventListener('seeked', seekEnded, false);
+  // aPlayer = document.getElementById("audio_player");
+  // aPlayer.addEventListener("timeupdate",seektimeupdate,false);
+  // aPlayer.addEventListener('loadeddata', audioLoaded, false);
+  // aPlayer.addEventListener('seeked', seekEnded, false);
+
+  wavesurfer = WaveSurfer.create({
+    // Use the id or class-name of the element you created, as a selector
+    container: '#waveform',
+    // The color can be either a simple CSS color or a Canvas gradient
+    // waveColor: linGrad,
+    // progressColor: 'hsla(200, 100%, 30%, 0.5)',
+    cursorColor: '#fff',
+    backend: 'MediaElement', // This parameter makes the waveform look like SoundCloud's player
+    barWidth: 2,
+    barGap: 2,
+    height: 30,
+    fillParent: true,
+    // maxCanvasWidth: 600,
+    progressColor: '#0684bd',
+    waveColor: '#ffffff',
+    cursorWidth: 0,
+    normalize: true,
+  });
+
+  wavesurfer.load('/proxyaudio?url=' + encodeURIComponent(window.results.recording_url));
+  audioPlayLine = document.getElementById("audio_play_line");
+  wavesurfer.on('audioprocess', function () {
+    var currentTime = wavesurfer.getCurrentTime();
+    var duration = wavesurfer.getDuration();
+    var percent = (currentTime * 100.0 /duration).toFixed(2);
+    var style = 'linear-gradient(to right, transparent 0%, transparent ' + percent + '%, #c8ccd1 ' + percent + '%, #c8ccd1)';
+    audioPlayLine.style.background = style;
+    $('#audio-play-time').html(formatDuration(currentTime));
+    seektimeupdate();
+  });
+  wavesurfer.on('play', function () {
+    $('#audio-play').hide();
+    $('#audio-pause').show();
+  });
+  wavesurfer.on('ready', function () {
+    $('#audio-play').show();
+    $('#audio-pause').hide();
+    var duration = wavesurfer.getDuration();
+    $('#audio-duration').html(formatDuration(duration));
+    $('#audio-play-time').html(formatDuration(0));
+    audioLoaded();
+  });
+  wavesurfer.on('finish', function(seeking) {
+    $('#audio-play').show();
+    $('#audio-pause').hide();
+    seekEnded();
+  });
+  $('#audio-button').click(function() {
+    if (wavesurfer.isPlaying()) {
+      wavesurfer.pause();
+      $('#audio-play').show();
+      $('#audio-pause').hide();
+    } else {
+      wavesurfer.play();
+      $('#audio-play').hide();
+      $('#audio-pause').show();
+    }
+  });
 }
 
 function audioLoaded() {
     mIndex = 0;
 }
 function seekEnded() {
-    var pos = aPlayer.currentTime;
+    var pos = wavesurfer.getCurrentTime();
     resetReadWords(pos);
     var id = "word" + mIndex;
     wordElm = document.getElementById(id);
 }
 function seektimeupdate() {
-    var pos = aPlayer.currentTime;
+    var pos = wavesurfer.getCurrentTime();
     if (mIndex < wwoArr.length)
     {
         var check = wwoArr[mIndex].offset;
-        while (pos >= check)
+        while (check && pos >= check)
         {
             wordElm.setAttribute("class", "readtext");
             wordElm = document.getElementById("word"+mIndex);
             wordElm.setAttribute("class", "word");
             mIndex++;
-            check = wwoArr[mIndex].offset;
+            check = wwoArr[mIndex] && wwoArr[mIndex].offset;
         }
     }
 }
@@ -588,12 +650,12 @@ function resetReadWords(value) {
     }
     mIndex = 0;
     var pos =  wwoArr[mIndex].offset;
-    while (pos < value) {
+    while (pos && pos < value) {
         var idee = "word" + mIndex;
         elm = document.getElementById(idee);
         elm.setAttribute("class", "readtext");
         mIndex++;
-        pos =  wwoArr[mIndex].offset;
+        pos =  wwoArr[mIndex] && wwoArr[mIndex].offset;
     }
 }
 
@@ -682,18 +744,18 @@ function searchForText(){
 }
 
 function jumpTo(timeStamp, scrollIntoView) {
-  aPlayer.pause();
+  wavesurfer.pause();
   resetReadWords(timeStamp);
   var id = "word" + mIndex;
   wordElm = document.getElementById(id);
-  aPlayer.currentTime = timeStamp;
+  // aPlayer.currentTime = timeStamp;
   if (scrollIntoView){
     var elm = "#" + id
     $(elm)[0].scrollIntoView();
   }
   window.setTimeout(function(){
-    aPlayer.play();
-  }, 800)
+    wavesurfer.play(timeStamp);
+  }, 10)
 }
 
 function getInterestsRequestCallback(resp) {
@@ -920,4 +982,30 @@ function getInterestsRequestCallback(resp) {
 }
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+function padLeft(input, char, length) {
+  var str = `${input}`;
+  var padding = [];
+  for (var i = str.length; i < length; i += 1) {
+    padding.push(char);
+  }
+  return padding.join('') + str;
+}
+function formatDuration(duration) {
+  if (Number.isNaN(duration)) {
+    return '--:--';
+  }
+  var intDuration = typeof duration === 'number' ?
+    Math.round(duration) :
+    parseInt(duration, 10);
+
+  var seconds = padLeft(intDuration % 60, '0', 2);
+  var minutes = padLeft(Math.floor(intDuration / 60) % 60, '0', 2);
+  var hours = Math.floor(intDuration / 3600) % 24;
+  var string = '';
+  if (hours > 0) {
+    string = string + padLeft(hours, '0', 2)   + ':';
+  }
+  string = string + minutes + ':' + seconds;
+  return string;
 }

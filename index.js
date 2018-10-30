@@ -149,6 +149,12 @@ app.post('/analyze', function (req, res) {
   router.analyzeContent(req, res)
 })
 
+app.get('/proxyaudio', function (req, res) {
+  console.log("proxy audio")
+  console.log("SESSION:" + JSON.stringify(req.session))
+  router.proxyAudio(req, res)
+})
+
 app.post('/remove', function (req, res) {
   console.log("user clicks remove")
   router.removeItemFromDB(req, res)

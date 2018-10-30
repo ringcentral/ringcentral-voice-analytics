@@ -1,5 +1,6 @@
 const User = require('./usershandler.js')
 require('dotenv').load()
+const request = require('request');
 
 var users = []
 
@@ -170,6 +171,18 @@ var router = module.exports = {
     if (index < 0)
       return this.forceLogin(req, res)
     users[index].analyzeContent(req, res)
+  },
+  proxyAudio: function(req, res){
+    var index = getUserIndex(req.session.userId)
+    if (index < 0)
+      return this.forceLogin(req, res)
+      console.log(req.query.url);
+    let remoteReq = request.get(req.query.url);
+    req.on('close', function() {
+        remoteReq.abort();
+        res.end();
+    });
+    req.pipe(remoteReq).pipe(res);
   },
   // use async
   readCallRecordingsAsync: function(req, res){
