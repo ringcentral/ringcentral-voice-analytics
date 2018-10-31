@@ -22,7 +22,7 @@ function init() {
   fixedSubstractedHeight += $("#footer").height()
   //upperBlockHeight = $("#upper_block").height()
   var h = $(window).height() - (fixedSubstractedHeight);
-  $("#conversations_block").height(h - 200)
+  $("#conversations_block").height(h - 150);
 
   var sliderPos = document.getElementById("positiveSentimentRange");
   sliderPos.oninput = function() {
@@ -58,7 +58,7 @@ function displayAnalytics(option){
     $("#keyword-tab").removeClass("tab-selected");
     var upperBlockHeight = $("#upper_block").height() + 130
     var h = $(window).height() - (fixedSubstractedHeight);
-    $("#analyzed_content").height(h-upperBlockHeight < 150 ? 150 : h-upperBlockHeight)
+    $("#analyzed_content").height(h-upperBlockHeight < 150 ? 150 : h-upperBlockHeight);
 
     var itemArr = JSON.parse(window.results.sentiments)
     var text = "<div>"
@@ -86,7 +86,7 @@ function displayAnalytics(option){
         if (item.hasOwnProperty('positive')){
           for (var pos of item.positive){
             if (pos.score > positiveThreshold){
-              var tText = truncateText(pos.text)
+              var tText = truncateText(pos.text || pos.normalized_text);
               sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(tText) + "')\">"
               sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
               sentence += "<span class=\"positive_block\">.. " + tText + " ..</span>"
@@ -104,7 +104,7 @@ function displayAnalytics(option){
         if (item.hasOwnProperty('negative')){
           for (var neg of item.negative){
             if (neg.score < negativeThreshold){
-              var tText = truncateText(neg.text)
+              var tText = truncateText(neg.text || neg.normalized_text);
               sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(tText) + "')\">"
               sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
               sentence += "<span class=\"negative_block\">.. " + tText + " ..</span>"
@@ -143,7 +143,7 @@ function displayAnalytics(option){
           if (item.hasOwnProperty('positive')){
             for (var pos of item.positive){
               if (pos.score > positiveThreshold){
-                var tText = truncateText(pos.text)
+                var tText = truncateText(pos.text || pos.normalized_text);
                 sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(tText) + "')\">"
                 sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
                 sentence += "<span class=\"positive_block\">.. " + tText + " ..</span>"
@@ -155,7 +155,7 @@ function displayAnalytics(option){
           if (item.hasOwnProperty('negative')){
             for (var neg of item.negative){
               if (neg.score < negativeThreshold){
-                var tText = truncateText(neg.text)
+                var tText = truncateText(neg.text || neg.normalized_text);
                 sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(tText) + "')\">"
                 sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
                 sentence += "<span class=\"negative_block\">.. " + tText + " ..</span>"
@@ -180,36 +180,36 @@ function displayAnalytics(option){
     $("#sentiment_adjust").hide();
     var upperBlockHeight = $("#upper_block").height() + 130
     var h = $(window).height() - (fixedSubstractedHeight);
-    $("#analyzed_content").height(h-upperBlockHeight)
-    var text = ""
-    var itemArr = JSON.parse(window.results.keywords)
+    $("#analyzed_content").height(h-upperBlockHeight < 150 ? 150 : h-upperBlockHeight);
+    var text = "";
+    var itemArr = JSON.parse(window.results.keywords);
     for (var item of itemArr){
       if (item.text != "class" && item.text != 'keywords'){
         text += "<span class='keyword' onclick='jumptToKeyword(\"" + item.text + "\")'>" + item.text + "</span>"
       }
     }
-    $("#analyzed_content").html(text)
+    $("#analyzed_content").html(text);
   }
 }
 function truncateText(text){
-  var wordsArr = text.split(" ")
-  var ret = ""
+  var wordsArr = text.split(" ");
+  var ret = "";
   if (wordsArr.length > 15){
     for (var i=0; i<wordsArr.length; i++){
       if (i == 15){
-        ret += wordsArr[i]
+        ret += wordsArr[i];
         break
       }
-      ret += wordsArr[i] + " "
+      ret += wordsArr[i] + " ";
     }
   }else {
-    ret = text
+    ret = text;
   }
-  return ret
+  return ret;
 }
 
 function initializeAudioPlayer(){
-  wwoArr = JSON.parse(window.results.wordsandoffsets)
+  wwoArr = JSON.parse(window.results.wordsandoffsets);
   wordElm = document.getElementById("word0");
   aPlayer = document.getElementById("audio_player");
   aPlayer.addEventListener("timeupdate",seektimeupdate,false);
