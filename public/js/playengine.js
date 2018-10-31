@@ -563,14 +563,15 @@ function initializeAudioPlayer(){
     cursorColor: '#fff',
     backend: 'MediaElement', // This parameter makes the waveform look like SoundCloud's player
     barWidth: 2,
-    barGap: 2,
+    barHeight: 5,
+    barGap: 1,
     height: 30,
     fillParent: true,
     // maxCanvasWidth: 600,
     progressColor: '#0684bd',
     waveColor: '#ffffff',
     cursorWidth: 0,
-    normalize: true,
+    // normalize: true,
   });
 
   wavesurfer.load('/proxyaudio?url=' + encodeURIComponent(window.results.recording_url));
