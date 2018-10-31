@@ -237,6 +237,8 @@ body {
   float: left;
   height: 32px;
   margin-top: 10px;
+  border: solid 1px #cbcbcb;
+  color: #1f1f1f;
 }
 
 .search-transcript {
@@ -281,6 +283,8 @@ body {
   margin-top: 17px;
   margin-bottom: 1px;
   border-radius: 20px;
+  border: solid 1px #cbcbcb;
+  color: #1f1f1f;
 }
 
 #sentiment_adjust {
@@ -297,7 +301,9 @@ body {
   display: none;
 }
 
-#sentiment_adjust input[type='range'] {
+.range-input input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
   width: 50px!important;
   height: 4px;
   border-radius: 2px;
@@ -312,7 +318,7 @@ body {
   background: linear-gradient(to right, #e98f86 0%, #e98f86 50%, #c8ccd1 50%, #c8ccd1);
 }
 
-#sentiment_adjust input[type='range']::-webkit-slider-thumb {
+.range-input input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   border: none;
   border-radius: 8px;
@@ -325,7 +331,7 @@ body {
   top: -1px;
 }
 
-#sentiment_adjust input[type='range']::-moz-range-thumb {
+.range-input input[type='range']::-moz-range-thumb {
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -337,7 +343,7 @@ body {
   top: -1px;
 }
 
-#sentiment_adjust input[type='range']::-ms-thumb {
+.range-input input[type='range']::-ms-thumb {
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -573,23 +579,24 @@ body {
   color: #2f2f2f;
   font-size: 12px;
   position: absolute;
-  right: 90px;
+  right: 110px;
   top: 50%;
   margin-top: -7px;
 }
 
 .audio-volume {
   position: absolute;
-  right: 12px;
+  right: 20px;
   top: 50%;
-  width: 50px;
-  margin-top: -7px;
+  width: 70px;
+  height: 12px;
+  margin-top: -6px;
 }
 
 .audio_play_wrapper {
   display: block;
   position: absolute;
-  width: 420px;
+  width: 400px;
   height: 30px;
   left: 56px;
   top: 50%;
@@ -604,4 +611,18 @@ body {
   top: 15px;
   z-index: 2;
   pointer-events: none;
+}
+
+.audio-volume .sliderVolume {
+  background: linear-gradient(to right, #0684bd 0%, #0684bd 50%, #c8ccd1 50%, #c8ccd1);
+  position: absolute;
+  left: 20px;
+  top: 4px;
+}
+
+.audio-volume .volumn-icon {
+  width: 14px;
+  height: auto;
+  position: absolute;
+  left: 0;
 }

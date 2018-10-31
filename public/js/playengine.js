@@ -563,7 +563,7 @@ function initializeAudioPlayer(){
     cursorColor: '#fff',
     backend: 'MediaElement', // This parameter makes the waveform look like SoundCloud's player
     barWidth: 2,
-    barHeight: 5,
+    barHeight: 4,
     barGap: 1,
     height: 30,
     fillParent: true,
@@ -573,7 +573,7 @@ function initializeAudioPlayer(){
     cursorWidth: 0,
     // normalize: true,
   });
-
+  wavesurfer.setVolume(0.5);
   wavesurfer.load('/proxyaudio?url=' + encodeURIComponent(window.results.recording_url));
   audioPlayLine = document.getElementById("audio_play_line");
   wavesurfer.on('audioprocess', function () {
@@ -614,6 +614,14 @@ function initializeAudioPlayer(){
       $('#audio-pause').show();
     }
   });
+  var sliderVolumeRange = document.getElementById("sliderVolumeRange");
+  sliderVolumeRange.oninput = function() {
+    var volume = this.value/1000.0;
+    var percent = (volume * 100).toFixed(2);
+    var style = 'linear-gradient(to right, #0684bd 0%, #0684bd ' + percent + '%, #c8ccd1 ' + percent + '%, #c8ccd1)';
+    sliderVolumeRange.style.background = style;
+    wavesurfer.setVolume(volume);
+  }
 }
 
 function audioLoaded() {

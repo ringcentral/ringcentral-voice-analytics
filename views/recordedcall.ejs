@@ -133,7 +133,7 @@
                 <li id="sentiment-tab"><a href="#" onclick="displayAnalytics('sentiment')">Sentiments</a></li>
               </ul>
             </div>
-            <div id="sentiment_adjust" class="form-inline with-border" style="display: none !important">
+            <div id="sentiment_adjust" class="form-inline with-border range-input" style="display: none !important">
               <label for="positiveSentimentRange">Positive: </label>
               <input type="range" min="0" max="1000" value="500" class="sliderPos" name="positiveSentimentRange" id="positiveSentimentRange"></input>
               <span id="posval">0.50</span>&nbsp;&nbsp;&nbsp;
@@ -179,10 +179,11 @@
                   <div id="audio_play_line"></div>
                 </div>
                 <div class="audio-duration">
-                    <span id="audio-play-time">00:00</span>/<span id="audio-duration">--:--</span>
+                  <span id="audio-play-time">00:00</span>/<span id="audio-duration">--:--</span>
                 </div>
-                <div class="audio-volume">
-                  <input type="range" min="0" max="1" value="0.5" class="sliderVolume" id="sliderVolumeRange"></input>
+                <div class="audio-volume range-input">
+                  <img src="./img/volume.png" class="volumn-icon" />
+                  <input type="range" min="0" max="1000" value="500" class="sliderVolume" id="sliderVolumeRange"></input>
                 </div>
               </div>
             </div>

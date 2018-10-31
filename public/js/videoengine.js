@@ -58,7 +58,7 @@ function displayAnalytics(option){
     $("#keyword-tab").removeClass("tab-selected");
     var upperBlockHeight = $("#upper_block").height() + 130
     var h = $(window).height() - (fixedSubstractedHeight);
-    $("#analyzed_content").height(h-upperBlockHeight)
+    $("#analyzed_content").height(h-upperBlockHeight < 150 ? 150 : h-upperBlockHeight)
 
     var itemArr = JSON.parse(window.results.sentiments)
     var text = "<div>"
