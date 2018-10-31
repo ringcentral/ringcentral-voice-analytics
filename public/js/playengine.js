@@ -44,8 +44,8 @@ function init() {
   var sliderNeg = document.getElementById("negativeSentimentRange");
   sliderNeg.oninput = function() {
       negativeThreshold = (this.value/1000) * -1;
-      $("#negval").html(negativeThreshold.toFixed(2))
-      var percent = (positiveThreshold * 100).toFixed(2);
+      $("#negval").html(negativeThreshold.toFixed(2));
+      var percent = (this.value / 10).toFixed(2);
       var style = 'linear-gradient(to right, #e98f86 0%, #e98f86 ' + percent + '%, #c8ccd1 ' + percent + '%, #c8ccd1)';
       sliderNeg.style.background = style;
       displayAnalytics('sentiment')

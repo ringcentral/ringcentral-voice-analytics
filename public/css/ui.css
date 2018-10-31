@@ -546,6 +546,7 @@ body {
   left: 12px;
   top: 50%;
   margin-top: -12px;
+  cursor: pointer;
 }
 
 .audio-button .pause {

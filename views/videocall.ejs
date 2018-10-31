@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="css/main.css">
   <link rel="stylesheet" type="text/css" href="css/ui.css">
+  <link rel="stylesheet" type="text/css" href="css/videoplayer.css">
 </head>
 <body>
   <script>
@@ -113,10 +114,33 @@
             <% var d = new Date(parseInt(results['call_date'])).toLocaleDateString("en-US", options) %>
             <%= d %>
             </div>
-            <div>
-              <video id="audio_player" controls class="video_player">
-                <source id='mp4Source' src='<%= results['recording_url']  %>' />
+            <div class="video-wrapper">
+              <div class="video-area">
+                <video id="audio_player" class="video_player">
+                  <source id='mp4Source' src='<%= results['recording_url'] %>' />
                 </video>
+              </div>
+              <div class="video-progress">
+                <progress id="video-progress" value="0" min="0">
+                  <span id="progress-bar"></span>
+                </progress>
+              </div>
+              <div class="video-controls">
+                <div class="video-play">
+                  <div class="pause" style="display: none;" id="video-pause"></div>
+                  <div class="play" style="display: none;" id="video-play"></div>
+                </div>
+                <div class="video-volume range-input">
+                  <img src="./img/volume-white.jpeg" id="volume-icon"/>
+                  <input type="range" min="0" max="1000" value="500" class="videoSliderVolume" id="videoSliderVolumeRange" style="display:none;"></input>
+                </div>
+                <div class="video-duration">
+                  <span id="video-playing-time">00:00</span>&nbsp;/&nbsp;<span id="video-duration">--:--</span>
+                </div>
+                <div class="video-fullscreen">
+                  <img src="./img/fullscreen.jpeg" id="fullscreen-icon" />
+                </div>
+              </div>
             </div>
             <div class="with-border">
               <div style="width: 100%;">
