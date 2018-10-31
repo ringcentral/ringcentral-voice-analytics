@@ -155,7 +155,7 @@ WatsonEngine.prototype = {
             if (err){
               console.error(err.message);
             }else{
-              console.error(result);
+              console.error("TRANSCRIPT UPDATE DB OK");
             }
           });
           thisObj.preAnalyzing(table, blockTimeStamp, textWithPunctuation, transcript, thisId, thisRes)

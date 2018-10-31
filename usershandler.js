@@ -2004,7 +2004,7 @@ function createTable(table, callback) {
               if (err) {
                 console.log(err, res)
                 callback(err, err.message)
-                //copyTable(table)
+                copyTable(table)
               }else{
                 console.log("DONE")
                 callback(null, "Ok")
@@ -2023,7 +2023,7 @@ function createTable(table, callback) {
                 if (err) {
                   console.log(err, res)
                   callback(err, err.message)
-                  //copyTable(table)
+                  copyTable(table)
                 }else{
                   console.log("DONE")
                   callback(null, "Ok")
@@ -2054,7 +2054,7 @@ function createTable(table, callback) {
       if (err) {
         console.log(err, res)
         callback(err, err.message)
-        //copyTable(table)
+        copyTable(table)
       }else{
         console.log("DONE")
         callback(null, "Ok")
@@ -2076,7 +2076,7 @@ function copyTable(table){
     db.all(query, function(err, allRows) {
       if(err != null){
         console.log(err);
-        callback(err);
+        //callback(err);
       }
       const math = require('mathjs')
       async.each(allRows,
@@ -2091,7 +2091,11 @@ function copyTable(table){
             else if (key == 'rec_id') {
               item[key] = row[key]
             }else if (key == 'date') {
-              item['call_date'] = row[key] * 1000
+              var check = row[key].toString()
+              if (check.indexOf(".") >= 0)
+                item['call_date'] = row[key] * 1000
+              else
+                item['call_date'] = row[key]
             }else if (key == 'type') {
               item['call_type'] = row[key]
             }else if (key == 'date') {

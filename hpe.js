@@ -1,6 +1,5 @@
 var havenondemand = require('havenondemand')
 var hodClient = new havenondemand.HODClient(process.env.HOD_APIKEY, "v2")
-console.log(process.env.HOD_APIKEY)
 const pgdb = require('./db')
 
 var callActionDictionary = ['my number is', 'my cell phone is', 'my cell number is', 'my phone number is', 'call me back', 'give me a call', 'ring me mback', 'reach me at']
