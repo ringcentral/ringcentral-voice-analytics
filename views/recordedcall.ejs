@@ -43,7 +43,7 @@
     <div id="search_bar" class="row">
       <div class="col-xs-12 search-block">
         <form class="form-inline" id="searchForm" onsubmit="searchForText();">
-          <input type="text" class="form-control search-input search-transcript" id="search" onfocus="selectWord()" value="<%= searchWord %>" required>
+          <input type="text" class="form-control search-input search-transcript" id="search" placeholder="Search Transcript" onfocus="selectWord()" value="<%= searchWord === '*' ? '' : searchWord %>" required>
           <button id="searchButton" class="btn btn-default btn-rc">Search</button>
         </form>
       </div>

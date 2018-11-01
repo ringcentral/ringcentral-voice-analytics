@@ -41,7 +41,7 @@
             <input type="text" class="form-control" placeholder="enter word to search" id="search" required>
             <button class="btn btn-default" onclick="searchForText()">Search</button>
           -->
-          <input type="text" class="form-control search-input search-transcript" id="search" onfocus="selectWord()" value="<%= searchWord %>" required>
+          <input type="text" class="form-control search-input search-transcript" placeholder="Search Transcript" id="search" onfocus="selectWord()" value="<%= searchWord === '*' ? '' : searchWord %>" required>
           <button id="searchButton" class="btn btn-default btn-rc">Search</button>
         </form>
       </div>

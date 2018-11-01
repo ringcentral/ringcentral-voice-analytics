@@ -1436,6 +1436,9 @@ User.prototype = {
       }
       //query += filterQuery
       var searchArg = req.body.search.trim()
+      if (!searchArg) {
+        searchArg = '*';
+      }
       // check if needed processed field
       //if (req.body.fields == "all" OR req.body.fields == "transcript" OR req.body.fields == "all")
       if (req.body.fields == "all"){
@@ -1517,6 +1520,9 @@ User.prototype = {
         typeQuery = "call_type='" + checkType + "' AND "
       }
       var searchArg = req.body.search.trim()
+      if (!searchArg) {
+        searchArg = '*'
+      }
       query += typeQuery
       if (req.body.fields == "all"){
         if (searchArg == "*") {
