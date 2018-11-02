@@ -181,6 +181,7 @@ RevAIEngine.prototype = {
     for (var item of conversations){
       transcript += item.sentence.join("")
     }
+    console.log("Watson data analysis")
     var parameters = {
       'text': transcript,
       'features': {
@@ -196,15 +197,21 @@ RevAIEngine.prototype = {
       }
     }
     this.nlu.analyze(parameters, function(err, response) {
+      var resp = {}
       if (err)
         console.log('error:', err);
+        resp['status'] = "failed"
+        resp['result'] = err.messsage
+        if (thisRes != null){
+          thisRes.send(resp)
+        }
       else{
         console.log(JSON.stringify(response))
         var haven = require('./hpe-ai');
         console.log("load engine")
         haven.haven_sentiment(table, blockTimeStamp, conversations, response, transcript, thisId, function(err, result){
           console.log("TRANSCRIBE: " + result)
-          var resp = {}
+
           if (!err){
             resp['status'] = "ok"
             resp['result'] = result
