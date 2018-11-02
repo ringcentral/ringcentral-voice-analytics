@@ -16,7 +16,7 @@ function RevAIEngine() {
 RevAIEngine.prototype = {
   transcribe: function(res, body, audioSrc, extensionId) {
     var data = {
-      media_url: audioSrc,
+      media_url: encodeURI(audioSrc),
       metadata: "This is a test call. Expecting webhook callback" //,
       //callback_url: "https://8b8f7ae3.ngrok.io/revaitranscriptcallback"
     }
@@ -24,6 +24,7 @@ RevAIEngine.prototype = {
     var thisId = body.audioSrc
     var thisEngine = this
     var thisBody = body
+    
     console.log(JSON.stringify(data))
     this.revAIClient.post('jobs', data, (err,resp,body) => {
       console.log("RESPONSE: " + resp.body.toString('utf8'))
@@ -64,7 +65,20 @@ RevAIEngine.prototype = {
       // use wait loop for testing
       var jobId = json.id
       if (json.status == "in_progress"){
+        var timeOut = 0
         var interval = setInterval(function () {
+          timeOut++
+          console.log("timeout: " + timeOut)
+          if (timeOut > 16){
+            console.log("return in_progress")
+            var response = {}
+            response['status'] = "in_progress"
+            response['result'] = "{}"
+            if (thisRes != null){
+              thisRes.send(JSON.stringify(response))
+              thisRes = null
+            }
+          }
           var query = 'jobs/' + jobId
           thisEngine.revAIClient.get(query, "", (err,resp,body) => {
             var json = body.data
@@ -72,7 +86,7 @@ RevAIEngine.prototype = {
               clearInterval(interval);
               console.log("read transcript")
               var table = "user_" + extensionId
-              thisEngine.getTranscript(json.id, thisId, thisRes, table, thisBody)
+              thisEngine.getTranscription(json.id, thisId, thisRes, table, thisBody)
             }else if(json.status == "failed"){
               console.log("failed transcribe")
               clearInterval(interval);
@@ -81,10 +95,124 @@ RevAIEngine.prototype = {
         }, 10000);
 
       }else{
-        resp['status'] = json.status
-        resp['result'] = "some error"
+        var response = {}
+        response['status'] = json.status
+        response['result'] = '{"error":"some error from rev ai"}'
+        if (thisRes != null){
+          thisRes.send(JSON.stringify(response))
+        }
       }
     })
+  },
+  getTranscription: function (transcriptId, id, res, table, body){
+    var thisEngine = this
+    var thisRes = res
+    console.log("get transcript and process data...")
+    var thisId = id //body.audioSrc
+    var query = 'jobs/' + transcriptId + "/transcript"
+    this.revAIClient.get(query, "", (err,resp,body) => {
+      var json = JSON.parse(resp.body.toString('utf8'))
+      var transcript = ""
+      var conversations = []
+      var wordsandoffsets = []
+      var blockTimeStamp = []
+      var sentencesForSentiment = []
+      for (var item of json.monologues){
+        var speakerSentence = {}
+        speakerSentence['sentence'] = []
+        speakerSentence['timestamp'] = []
+        speakerSentence['speakerId'] = item.speaker
+        var sentence = ""
+        var word = ""
+        var ts = -1
+        for (var element of item.elements){
+          sentence += element.value
+          if (element.type == 'text'){
+            if (element.value.toLowerCase() == "um" || element.value.toLowerCase() == "uh"){
+              console.log("remove: " + element.value.toLowerCase())
+              word = ""
+              ts = -1
+            }else{
+              word = element.value
+              ts = element.ts
+            }
+          }else{
+            var wordoffset = {}
+            if (word != ""){
+              word += element.value
+              wordoffset['word'] = word
+              wordoffset['offset'] = ts
+              wordsandoffsets.push(wordoffset)
+              speakerSentence['timestamp'].push(ts)
+              speakerSentence['sentence'].push(word)
+              word = ""
+              ts = -1
+            }
+          }
+        }
+        sentence = sentence.trim()
+        transcript += sentence
+        var speaker_timestamp = {}
+        speaker_timestamp['speakerId'] = item.speaker
+        speaker_timestamp['timeStamp'] = speakerSentence.timestamp[0]
+        blockTimeStamp.push(speaker_timestamp)
+        conversations.push(speakerSentence)
+      }
+      var query = "UPDATE " + table + " SET wordsandoffsets='" + escape(JSON.stringify(wordswithoffsets)) + "', transcript='" + escape(transcript) + "', conversations='" + escape(JSON.stringify(conversations))  + "' WHERE uid=" + thisId;
+      pgdb.update(query, function(err, result) {
+        if (err){
+          console.error(err.message);
+        }else{
+          console.error("TRANSCRIPT UPDATE DB OK");
+        }
+      });
+      thisEngine.preAnalyzing(table, blockTimeStamp, conversations, thisId, thisRes)
+    })
+  },
+  preAnalyzing: function(table, blockTimeStamp, conversations, thisId, res){
+    var thisRes = res
+    var transcript = ""
+    for (var item of conversations){
+      transcript += item.sentence.join("")
+    }
+    var parameters = {
+      'text': transcript,
+      'features': {
+        'concepts': {},
+        'categories': {},
+        'entities': {
+          'emotion': false,
+          'sentiment': false
+        },
+        'keywords': {
+          'limit': 100
+        }
+      }
+    }
+    this.nlu.analyze(parameters, function(err, response) {
+      if (err)
+        console.log('error:', err);
+      else{
+        console.log(JSON.stringify(response))
+        var haven = require('./hpe-ai');
+        console.log("load engine")
+        haven.haven_sentiment(table, blockTimeStamp, conversations, response, transcript, thisId, function(err, result){
+          console.log("TRANSCRIBE: " + result)
+          var resp = {}
+          if (!err){
+            resp['status'] = "ok"
+            resp['result'] = result
+          }else{
+            resp['status'] = "failed"
+            resp['result'] = JSON.stringify(result)
+          }
+          if (thisRes != null){
+            console.log("final call back from hod: " + JSON.stringify(resp))
+            thisRes.send(resp)
+          }
+        })
+      }
+    });
   },
   getTranscript: function(transcriptId, id, res, table, body){
     var thisEngine = this
@@ -149,47 +277,6 @@ RevAIEngine.prototype = {
         });
         thisEngine.preAnalyzing(table, blockTimeStamp, conversations, transcript, thisId, thisRes)
     })
-  },
-  preAnalyzing: function(table, blockTimeStamp, conversations, transcript, thisId, res){
-    var thisRes = res
-    var parameters = {
-      'text': transcript,
-      'features': {
-        'concepts': {},
-        'categories': {},
-        'entities': {
-          'emotion': false,
-          'sentiment': false
-        },
-        'keywords': {
-          'limit': 100
-        }
-      }
-    }
-    this.nlu.analyze(parameters, function(err, response) {
-      if (err)
-        console.log('error:', err);
-      else{
-        console.log(JSON.stringify(response))
-        var haven = require('./hpe-ai');
-        console.log("load engine")
-        haven.haven_sentiment(table, blockTimeStamp, conversations, response, transcript, thisId, function(err, result){
-          console.log("TRANSCRIBE: " + result)
-          var resp = {}
-          if (!err){
-            resp['status'] = "ok"
-            resp['result'] = result
-          }else{
-            resp['status'] = "failed"
-            resp['result'] = JSON.stringify(result)
-          }
-          if (thisRes != null){
-            console.log("final call back from hod: " + JSON.stringify(resp))
-            thisRes.send(resp)
-          }
-        })
-      }
-    });
   }
 }
 module.exports = RevAIEngine;
