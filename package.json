@@ -34,6 +34,7 @@
     "request": "^2.88.0",
     "ringcentral": "^3.2.0",
     "sqlite": "^2.9.1",
+    "util": "^0.11.1",
     "watson-developer-cloud": "^3.4.0",
     "words-to-numbers": "^1.5.1"
   },

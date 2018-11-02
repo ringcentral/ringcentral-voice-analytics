@@ -28,7 +28,7 @@ module.exports = {
     if (table.indexOf("user_") >= 0){
       console.log("table: " + table)
       return pool.query(
-        'CREATE TABLE IF NOT EXISTS ' + table + '(uid BIGINT PRIMARY KEY, rec_id VARCHAR(20) NOT NULL, call_date BIGINT NOT NULL, call_type VARCHAR(3) NOT NULL, extension_id VARCHAR(10) NOT NULL, extension_num VARCHAR(6) NOT NULL, full_name VARCHAR(48) NOT NULL, from_number VARCHAR(20) NOT NULL, from_name VARCHAR(48) NOT NULL, to_number VARCHAR(20) NOT NULL, to_name VARCHAR(48) NOT NULL, recording_url VARCHAR(256) NOT NULL, duration INT DEFAULT 0, direction VARCHAR(3) NOT NULL, processed BOOLEAN NOT NULL, wordsandoffsets TEXT NOT NULL, transcript TEXT NOT NULL,conversations TEXT NOT NULL, sentiments TEXT NOT NULL, sentiment_label VARCHAR(8) NOT NULL, sentiment_score double precision NOT NULL, sentiment_score_hi double precision NOT NULL, sentiment_score_low double precision NOT NULL, has_profanity BOOLEAN NOT NULL, profanities TEXT NOT NULL, keywords TEXT NOT NULL, entities TEXT NOT NULL, concepts TEXT NOT NULL, categories TEXT NOT NULL, actions TEXT NOT NULL, subject VARCHAR(256) NOT NULL)', callback);
+        'CREATE TABLE IF NOT EXISTS ' + table + '(uid BIGINT PRIMARY KEY, rec_id VARCHAR(20) NOT NULL, call_date BIGINT NOT NULL, call_type VARCHAR(3) NOT NULL, extension_id VARCHAR(10) NOT NULL, extension_num VARCHAR(6) NOT NULL, full_name VARCHAR(48) NOT NULL, from_number VARCHAR(20) NOT NULL, from_name VARCHAR(48) NOT NULL, to_number VARCHAR(20) NOT NULL, to_name VARCHAR(48) NOT NULL, recording_url VARCHAR(256) NOT NULL, duration INT DEFAULT 0, direction VARCHAR(3) NOT NULL, processed INT NOT NULL, wordsandoffsets TEXT NOT NULL, transcript TEXT NOT NULL,conversations TEXT NOT NULL, sentiments TEXT NOT NULL, sentiment_label VARCHAR(8) NOT NULL, sentiment_score double precision NOT NULL, sentiment_score_hi double precision NOT NULL, sentiment_score_low double precision NOT NULL, has_profanity BOOLEAN NOT NULL, profanities TEXT NOT NULL, keywords TEXT NOT NULL, entities TEXT NOT NULL, concepts TEXT NOT NULL, categories TEXT NOT NULL, actions TEXT NOT NULL, subject VARCHAR(256) NOT NULL)', callback);
     }else if (table == "subscriptionids"){
       return pool.query(
         'CREATE TABLE IF NOT EXISTS ' + table + '(ext_id BIGINT PRIMARY KEY, sub_id VARCHAR(64) NOT NULL, autotranscribe BOOLEAN DEFAULT false)', callback);
@@ -36,6 +36,10 @@ module.exports = {
       console.log("table: " + table)
       return pool.query(
         'CREATE TABLE IF NOT EXISTS ' + table + '(ext_id BIGINT PRIMARY KEY, telephony_status VARCHAR(12) NOT NULL, start_time VARCHAR(24) NOT NULL, has_missed_call BOOLEAN DEFAULT false)', callback);
+    }else if (table == "inprogressedtranscription"){
+      console.log("table: " + table)
+      return pool.query(
+        'CREATE TABLE IF NOT EXISTS ' + table + '(transcript_id BIGINT PRIMARY KEY, item_id BIGINT NOT NULL, ext_id BIGINT NOT NULL)', callback);
     }
   },
   delete_table:(query, callback) => {

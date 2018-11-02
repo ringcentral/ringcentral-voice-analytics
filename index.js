@@ -192,31 +192,16 @@ app.post('/webhooks', function(req, res) {
           res.end();
       });
   }
-  /*
-  var headers = req.headers;
-  console.log("check headers: " + JSON.stringify(headers))
-  if (headers.hasOwnProperty("Validation-Token")){
-    var validationToken = headers['Validation-Token'];
-    if (validationToken) {
-      console.log(validationToken)
-      res.setHeader('Validation-Token', validationToken);
-      res.statusCode = 200;
-      res.end();
-    }
-  }else{
-    var body = [];
-    req.on('data', function(chunk) {
-      body.push(chunk);
-    }).on('end', function() {
-      body = Buffer.concat(body).toString();
-      console.log(body)
-      var jsonObj = JSON.parse(body)
-      router.handleWebhooksPost(jsonObj.body)
-      res.statusCode = 200;
-      res.end();
-    });
-  }
-  */
+})
+
+app.post('/revaitranscriptcallback', function(req, res) {
+  console.log("webhook post called: " + req)
+  console.log("webhook res: " + res)
+  //console.log(util.inspect(req))
+  //console.log(JSON.stringify(req.body))
+  //router.handleRevAIWebhookPost(req)
+  res.statusCode = 200;
+  res.end();
 })
 
 app.post('/callback', function (req, res) {

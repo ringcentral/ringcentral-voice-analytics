@@ -1,22 +1,28 @@
-//var havenondemand = require('havenondemand')
-//var hodClient = new havenondemand.HODClient(process.env.HOD_APIKEY, "v2")
-//console.log("hod key: " + process.env.HOD_APIKEY)
+var havenondemand = require('havenondemand')
+var hodClient = new havenondemand.HODClient(process.env.HOD_APIKEY, "v2")
+console.log("key: " + process.env.HOD_APIKEY)
 const pgdb = require('./db')
 
 var callActionDictionary = ['my number is', 'my cell phone is', 'my cell number is', 'my phone number is', 'call me back', 'give me a call', 'ring me mback', 'reach me at']
 
-module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, transcript, id, callback){
+module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, input, transcript, id, callback){
   var thisId = id
   var thisCallback = callback
   var data = {}
   data['keywords'] = escape(JSON.stringify(input.keywords))
-  console.log(input.keywords)
-  if (input.keywords.length > 0)
-    data['subject'] = input.keywords[0].text
+  var subject = ""
+  if (for var nn=0; nn<input.keywords.length; nn++){
+    subject += input.keywords[nn].text
+    var subjectArr = concept.split(" ")
+    if (subjectArr.length > 1)
+      break
+  }
+  if (subject != "")
+    data['subject'] = subject
   else
     data['subject'] = "Not defined"
   //data['entities'] = escape(JSON.stringify(input.entities))
-  data['concepts'] = escape(JSON.stringify(input.concepts))
+  //data['concepts'] = escape(JSON.stringify(input.concepts))
 
   //"categories":[{"score":0.706865,"label":"/style and fashion/accessories/backpacks"},{"score":0.383294,"label":"/business and industrial/advertising and marketing/advertising"},{"score":0.347209,"label":"/shopping/retail"}]}
   var categories = []
@@ -32,14 +38,9 @@ module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, tran
   input['categories'] = categories
 
   data['categories'] = escape(JSON.stringify(categories))
-  /*
-  console.log("WATSON CONCEPTS: " + JSON.stringify(input.concepts))
-  console.log("WATSON ENTITIES: " + JSON.stringify(input.entities))
-  console.log("WATSON KEYWORDS: " + JSON.stringify(input.keywords))
-  */
-  var textArr = text.split(".")
-  for (var i=0; i<textArr.length; i++)
-    textArr[i] = textArr[i].trim()
+  var textArr = []
+  for (var i=0; i<conversations.length; i++)
+    textArr.push(conversations[i].sentence.join(" "))
   var request = {'text' : textArr}
   hodClient.get('analyzesentiment', request, false, function(err, resp, body) {
     if (!err) {
@@ -53,9 +54,9 @@ module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, tran
         for (var sentence of resp.body.sentiment_analysis){
           if (sentence.aggregate.score != 0){
             var modSentence = {}
-            if (count < blockTimeStamp.length){
-              modSentence['timeStamp'] = blockTimeStamp[count].timeStamp
-              modSentence['speakerId'] = blockTimeStamp[count].speakerId
+            if (count < conversations.length){
+              modSentence['timeStamp'] = conversations[count].timestamp[0]
+              modSentence['speakerId'] = conversations[count].speakerId
             }
             modSentence['sentence'] = textArr[count]
             var posArr = []
@@ -172,7 +173,7 @@ module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, tran
             }
             actions.push(actionTranscript)
             //console.log("action: " + transcript)
-            var query = "UPDATE " + table + " SET processed=true"
+            var query = "UPDATE " + table + " SET processed=1"
             query += ", sentiments='" + escape(JSON.stringify(results)) + "'"
             query += ", sentiment_label='" + data.sentiment_label + "'"
             query += ", sentiment_score=" + data.sentiment_score
@@ -187,6 +188,13 @@ module.exports.hod_sentiment = function(table, blockTimeStamp, text, input, tran
             query += ", categories='" + data.categories + "'"
             query += ", subject='" + data.subject + "'"
             query += " WHERE uid=" + thisId;
+            //console.log(query)
+            var ret = {}
+            ret['sentiment'] = data.sentiment_label
+            ret['keywords'] = unescape(data.keywords)
+            ret['subject'] = data.subject
+            console.log("KEYWORDS: " + unescape(data.keywords))
+            //thisCallback(null, ret)
             pgdb.update(query, (err, result) => {
               if (err){
                 var ret = {}

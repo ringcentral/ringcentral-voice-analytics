@@ -178,28 +178,31 @@ User.prototype = {
               thisUser.rc_platform.setAccountId(jsonObj.account.id)
               var table = thisUser.getUserTable()
               createTable(table, function(err, res){
-                if (!err){
-                  thisRes.send('login success');
-/*
-                  table = thisUser.getSubscriptionIdTable()
-                  createTable(table, function(err, res){
+                if (err)
+                  console.log("create table failed")
+
+                table = thisUser.getSubscriptionIdTable()
+                createTable(table, function(err, res){
+                  if (err)
+                    console.log('subscription table created failed');
+                  createTable("inprogressedtranscription", function(err, res){
                     if (!err)
-                      console.log('subscription table created');
+                      console.log('inprogressedtranscription table created');
                   })
-*/
-                }
+                })
+                thisRes.send('login success');
               })
+              /*
               table = thisUser.getSubscriptionIdTable()
               createTable(table, function(err, res){
                 if (!err)
                   console.log('subscription table created');
-              })
-/*
-              createTable("notificationstate", function(err, res){
+                createTable("transcription-inprogress", function(err, res){
                 if (!err)
-                  console.log('notificationstate table created');
+                    console.log('transcription-inprogress table created');
+                })
               })
-*/
+              */
               if (jsonObj.permissions.admin.enabled){
                 thisUser.setAdmin(true)
                 thisUser.getAccountExtensions(jsonObj.id)
@@ -1436,6 +1439,9 @@ User.prototype = {
       }
       //query += filterQuery
       var searchArg = req.body.search.trim()
+      if (!searchArg) {
+        searchArg = '*';
+      }
       // check if needed processed field
       //if (req.body.fields == "all" OR req.body.fields == "transcript" OR req.body.fields == "all")
       if (req.body.fields == "all"){
@@ -1517,6 +1523,9 @@ User.prototype = {
         typeQuery = "call_type='" + checkType + "' AND "
       }
       var searchArg = req.body.search.trim()
+      if (!searchArg) {
+        searchArg = '*'
+      }
       query += typeQuery
       if (req.body.fields == "all"){
         if (searchArg == "*") {
@@ -1993,7 +2002,7 @@ function dropTable(table, callback){
 function createTable(table, callback) {
   console.log("CREATE TABLE: " + table)
   if (table.indexOf('user_') >= 0) {
-    var query = "SELECT subject FROM " + table;
+    var query = "SELECT subjectss FROM " + table;
     pgdb.read(query, (err, result) => {
       if(err != null){
         // not exist => drop old table
@@ -2086,98 +2095,24 @@ function copyTable(table){
           var words = []
           var offsets = []
           Object.keys(row).forEach((key) => {
-            if (key == 'id')
-              item['uid'] = row[key]
-            else if (key == 'rec_id') {
-              item[key] = row[key]
-            }else if (key == 'date') {
-              var check = row[key].toString()
-              if (check.indexOf(".") >= 0)
-                item['call_date'] = row[key] * 1000
-              else
-                item['call_date'] = row[key]
-            }else if (key == 'type') {
-              item['call_type'] = row[key]
-            }else if (key == 'date') {
-              item['call_date'] = row[key]
-            }else if (key == 'extensionNum') {
-              item['extension_num'] = row[key]
-            }else if (key == 'fullName') {
-              item['full_name'] = row[key]
-            }else if (key == 'fromRecipient') {
-              item['from_number'] = row[key]
-            }else if (key == 'toRecipient') {
-              item['to_number'] = row[key]
-            }else if (key == 'extensionNum') {
-              item['extension_num'] = row[key]
-            }else if (key == 'recordingUrl') {
-              item['recording_url'] = row[key]
-            }else if (key == 'duration') {
-              item['duration'] = row[key]
-            }else if (key == 'processed') {
-              if (row[key] == 1)
-                item[key] = true
-              else
-                item[key] = false
-            }else if (key == 'words') {
-              //console.log("WORDS: " + unescape(row[key]))
-              words = JSON.parse(unescape(row[key]))
-              //wordsandoffsets['words'] = row[key]
-            }else if (key == 'offsets') {
-              //console.log("OFFSETS: " + unescape(row[key]))
-              offsets = JSON.parse(unescape(row[key]))
-              //wordsandoffsets['offsets'] = row[key]
-            }else if (key == 'transcript') {
-              item['transcript'] = escape(row[key])
-            }else if (key == 'conversations') {
-              item[key] = row[key]
-            }else if (key == 'sentiment') {
-              item['sentiments'] = row[key]
-            }else if (key == 'sentiment_label') {
-              item[key] = row[key]
-            }else if (key == 'sentiment_score') {
-              item[key] = row[key]
-            }else if (key == 'sentiment_score_hi') {
-              item[key] = row[key]
-            }else if (key == 'sentiment_score_low') {
-              item[key] = row[key]
-            }else if (key == 'hasProfanity') {
-              item['has_profanity'] = row[key]
-            }else if (key == 'profanities') {
-              item[key] = row[key]
-            }else if (key == 'keywords') {
-              item[key] = row[key]
-              var json = JSON.parse(unescape(item[key]))
-              item['subject'] = json[0].text
-            }else if (key == 'entities') {
-              item[key] = row[key]
-            }else if (key == 'concepts') {
-              item[key] = row[key]
-            }else if (key == 'categories') {
-              item[key] = row[key]
-            }else if (key == 'relations') {
-              item['actions'] = row[key]
-            }
-          });
-
-          item['from_name'] = 'Unknown'
-          item['to_name'] = 'Unknown'
-          item['direction'] = 'In'
-          item['extension_id'] = '100020303'
-          //item['subject'] = 'Test subject for demo'
-
-          for (var i=0; i<words.length; i++){
-            var temp = {}
-            temp['word'] = words[i]
-            temp['offset'] = offsets[i]
-            //console.log(JSON.stringify(temp))
-            wordsandoffsets.push(temp)
+            item[key] = row[key]
+          })
+          // dont need after adding from based app
+          var subject = ""
+          var keywords = JSON.parse(unescape(item['keywords']))
+          for (var nn=0; nn<keywords.length; nn++){
+            subject += keywords[nn].text
+            var subjectArr = subject.split(" ")
+            if (subjectArr.length > 1)
+              break
+            else
+              subject += " "
           }
-          //console.log("-----------------------")
-          //console.log(JSON.stringify(wordsandoffsets))
-          //console.log("-----------------------")
-          item['wordsandoffsets'] = escape(JSON.stringify(wordsandoffsets))
-          //console.log(item)
+          if (subject != "")
+            item['subject'] = subject
+          else
+            item['subject'] = "Not defined"
+          //
 
           var query = "INSERT INTO " + table
           query += "(uid, rec_id, call_date, call_type, extension_id, extension_num, full_name, from_number, from_name, to_number, to_name, recording_url, duration, direction, processed, wordsandoffsets, transcript, conversations, sentiments, sentiment_label, sentiment_score, sentiment_score_hi, sentiment_score_low, has_profanity, profanities, keywords, entities, concepts, categories, actions, subject)"
@@ -2204,6 +2139,7 @@ function copyTable(table){
     });
   });
 }
+
 function sortDates(a,b) {
   return new Date(parseInt(b.call_date)) - new Date(parseInt(a.call_date));
 }

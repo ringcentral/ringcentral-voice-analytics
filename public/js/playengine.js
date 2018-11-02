@@ -368,14 +368,14 @@ function displayAnalytics(option){
             var newSpeaker = true
             for (var i=0; i<speakersArr.length; i++) {
               var sp = speakersArr[i]
-              if (sp.name == item.speakerId.toString()){
+              if (sp.name == item.extra.speakerId.toString()){
                 newSpeaker = false
                 break
               }
             }
             if (newSpeaker){
               var speaker = {}
-              speaker['name'] = item.speakerId.toString()
+              speaker['name'] = item.extra.speakerId.toString()
               //alert(speaker.name)
               speaker['sentences'] = []
               speakersArr.push(speaker)
@@ -387,7 +387,7 @@ function displayAnalytics(option){
               for (var pos of item.positive){
                 if (pos.score > positiveThreshold){
                   var tText = truncateText(pos.text)
-                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(tText) + "')\">"
+                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
                   sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
                   sentence += "<span class=\"positive_block\">.." + tText + "..</span>"
                   /*
@@ -400,7 +400,7 @@ function displayAnalytics(option){
                   sentence += "</div>"
                   for (var i=0; i<speakersArr.length; i++) {
                     var sp = speakersArr[i]
-                    if (sp.name == item.speakerId){
+                    if (sp.name == item.extra.speakerId){
                       sp.sentences.push(sentence)
                       break
                     }
@@ -412,7 +412,7 @@ function displayAnalytics(option){
               for (var neg of item.negative){
                 if (neg.score < negativeThreshold){
                   var tText = truncateText(neg.text)
-                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(tText) + "')\">"
+                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
                   sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
                   sentence += "<span class=\"negative_block\">.. " + tText + " ..</span>"
                   /*
@@ -424,7 +424,7 @@ function displayAnalytics(option){
                   sentence += "</div>"
                   for (var i=0; i<speakersArr.length; i++) {
                     var sp = speakersArr[i]
-                    if (sp.name == item.speakerId){
+                    if (sp.name == item.extra.speakerId){
                       sp.sentences.push(sentence)
                       break
                     }
@@ -444,20 +444,20 @@ function displayAnalytics(option){
         }else{ //if (speakerSentiment == 0){
           var speaker = {}
           for (var item of itemArr) {
-            if (item.speakerId == speakerSentiment){
-              speaker['name'] = item.speakerId.toString()
+            if (item.extra.speakerId == speakerSentiment){
+              speaker['name'] = item.extra.speakerId.toString()
               speaker['sentences'] = []
               break
             }
           }
           for (var item of itemArr){
-            if (item.speakerId == speakerSentiment){
+            if (item.extra.speakerId == speakerSentiment){
               sentence = '' //item.sentence
               if (item.hasOwnProperty('positive')){
                 for (var pos of item.positive){
                   if (pos.score > positiveThreshold){
                     var tText = truncateText(pos.text)
-                    sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(tText) + "')\">"
+                    sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
                     sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
                     sentence += "<span class=\"positive_block\">.. " + tText + " ..</span>"
                     /*
@@ -475,7 +475,7 @@ function displayAnalytics(option){
                 for (var neg of item.negative){
                   if (neg.score < negativeThreshold){
                     var tText = truncateText(neg.text)
-                    sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.timeStamp + ",'" + escape(item.sentence) + "','" + escape(tText) + "')\">"
+                    sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
                     sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
                     sentence += "<span class=\"negative_block\">.. " + tText + " ..</span>"
                     /*
@@ -681,7 +681,10 @@ function jumpToSentiment(timeStamp, sentence, words){
       for (n=0; n<sentenceArr.length; n++){
         var matchArr = []
         for (var m=0; m<wordArr.length; m++){
-          matchArr.push(sentenceArr[n+m])
+          var cleanWord = sentenceArr[n+m].word.replace(/\b[.,!']+\B|\B[.,!']+\b/g,"")
+          //alert(cleanWord)
+          matchArr.push(cleanWord.trim())
+          //matchArr.push(sentenceArr[n+m])
         }
         var match = matchArr.join(" ")
         //alert(match)
@@ -695,6 +698,56 @@ function jumpToSentiment(timeStamp, sentence, words){
     }
   }
 }
+function jumptToKeyword(keyword){
+  //alert(keyword)
+  var wordArr = keyword.split(" ")
+  $("#search").val(keyword)
+  $("#search").focus()
+  let regEx = new RegExp(`\\b${keyword}\\b`, 'i');
+  for (var i=mIndex; i<wwoArr.length; i++){
+    var matchArr = []
+    for (n=0; n<wordArr.length; n++){
+      var m = i+n
+      if (m < wwoArr.length - wordArr.length){
+        // replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"")
+        // replace(/\b[-.,()&$#!\[\]{}"']+\B|\B[-.,()&$#!\[\]{}"']+\b/g, "");
+        //alert(wwoArr[m].word)
+        var cleanWord = wwoArr[m].word.replace(/\b[.,!']+\B|\B[.,!']+\b/g,"")
+        //alert(cleanWord)
+        matchArr.push(cleanWord.trim())
+      }else{
+        break
+      }
+    }
+    var match = matchArr.join(" ")
+    //alert("match: " + match)
+    if (regEx.test(match)){
+      var timeStamp = wwoArr[i].offset
+      jumpTo(timeStamp, true)
+      return
+    }
+  }
+  if (i >= wwoArr.length){
+    for (var i=0; i<wwoArr.length; i++){
+      var matchArr = []
+      for (n=0; n<wordArr.length; n++){
+        var m = i+n
+        if (m < wwoArr.length - wordArr.length){
+          var cleanWord = wwoArr[m].word.replace(/\b[.,!']+\B|\B[.,!']+\b/g,"")
+          matchArr.push(cleanWord.trim())
+        }else
+          break
+      }
+      var match = matchArr.join(" ")
+      if (regEx.test(match)){
+        var timeStamp = wwoArr[i].offset
+        jumpTo(timeStamp, true)
+        break
+      }
+    }
+  }
+}
+/*
 function jumptToKeyword(keyword){
   var wordArr = keyword.split(" ")
   var searchWord = $("#search").val(keyword)
@@ -737,7 +790,7 @@ function jumptToKeyword(keyword){
     }
   }
 }
-
+*/
 function selectWord(){
   $("#search").select()
 }

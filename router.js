@@ -146,6 +146,44 @@ var router = module.exports = {
   handleWebhooksPost: function(body){
     console.log(body)
   },
+  handleRevAIWebhookPost: function(req){
+    //if (req.body.status == "transcribed")
+    const pgdb = require('./db')
+    var query = "SELECT * FROM inprogressedtranscription WHERE transcript_id=" + req.body.id;
+    pgdb.read(query, (err, result) => {
+      console.log(result)
+      if (err){
+        // not found?
+      }else if (result.rows.length == 1){
+        console.log("no subId found")
+        // found the subId, use it to check and renew
+        var transcriptId = result.rows[0].transcript_id
+        var itemId = result.rows[0].item_id
+        var extensionId = result.rows[0].ext_id
+        console.log(transcriptId)
+        console.log(itemId)
+        console.log(extensionId)
+        if (req.body.status == "transcribed") {
+          // detect user then call to analyze transcript
+
+        }else{
+          // delete pending inprogress transcription
+
+          // update calllist item with processed to 0
+          var table = "user_" + extensionId
+          var query = "UPDATE " + table + " SET processed=0"
+          query += " WHERE uid=" + itemId;
+          pgdb.update(query, (err, result) => {
+            if (err){
+              console.error(err.message);
+            }else{
+              console.log("UPDATE CL DB: " + result);
+            }
+          });
+        }
+      }
+    })
+  },
   removeItemFromDB: function(req, res){
     var index = getUserIndex(req.session.userId)
     if (index < 0)
