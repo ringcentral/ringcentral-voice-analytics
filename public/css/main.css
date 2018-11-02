@@ -560,3 +560,14 @@ td{
 .multiselect-container>li>a>label {
   padding: 4px 20px 3px 20px;
 }
+
+.edit-box {
+  display: none;
+  position: fixed;
+  width: 200px;
+  height: 600px;
+  left: 0%;
+  top: 0%;
+  border: 1px gray solid;
+  z-index: 100;
+}

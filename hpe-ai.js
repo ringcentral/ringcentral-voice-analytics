@@ -115,7 +115,7 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
                         'entity_type' : entityType,
                         'show_alternatives': false
                       }
-        hodClient.get('extractentities', request, false, function(err, resp, body) {
+        hodClient.post('extractentities', request, false, function(err, resp, body) {
         //console.log(JSON.stringify(resp.body))
         if (!err) {
             var profanity = []

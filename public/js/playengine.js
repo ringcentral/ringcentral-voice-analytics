@@ -549,6 +549,32 @@ function truncateText(text){
   return ret
 }
 
+function showEditSubjectBox(){
+  $("#edit-box").show()
+  $("#edit-btn").hide()
+}
+function setSubject(uid){
+  $("#edit-box").hide()
+  $("#edit-btn").show()
+  return
+  var configs = {}
+  configs['uid'] = uid
+  configs['subject'] = $("#subject").val()
+  var url = "setsubject"
+  var posting = $.post( url, configs )
+  posting.done(function( response ) {
+    var res = JSON.parse(response)
+    if (res.status == "error") {
+      alert(res.calllog_error)
+    }else{
+        window.location = "recordedcalls"
+      }
+    });
+    posting.fail(function(response){
+      alert(response.statusText)
+    });
+}
+
 function initializeAudioPlayer(){
   wwoArr = JSON.parse(window.results.wordsandoffsets)
   wordElm = document.getElementById("word0");

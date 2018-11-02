@@ -2037,7 +2037,7 @@ function dropTable(table, callback){
 function createTable(table, callback) {
   console.log("CREATE TABLE: " + table)
   if (table.indexOf('user_') >= 0) {
-    var query = "SELECT subject FROM " + table;
+    var query = "SELECT subjects FROM " + table;
     pgdb.read(query, (err, result) => {
       if(err != null){
         // not exist => drop old table
@@ -2132,6 +2132,16 @@ function copyTable(table){
           Object.keys(row).forEach((key) => {
             item[key] = row[key]
           })
+/*
+          var subject = item['subject']
+          console.log(subject)
+          if (subject.indexOf("http://www.qcalendar.com/audios/") >= 0){
+            //http://www.qcalendar.com/audios/
+
+            item['subject'] = subject.substring(32, subject.length)
+          }
+*/
+          /*
           // dont need after adding from based app
           var subject = ""
           var keywords = JSON.parse(unescape(item['keywords']))
@@ -2147,7 +2157,7 @@ function copyTable(table){
             item['subject'] = subject
           else
             item['subject'] = "Not defined"
-          //
+          */
 
           var query = "INSERT INTO " + table
           query += "(uid, rec_id, call_date, call_type, extension_id, extension_num, full_name, from_number, from_name, to_number, to_name, recording_url, duration, direction, processed, wordsandoffsets, transcript, conversations, sentiments, sentiment_label, sentiment_score, sentiment_score_hi, sentiment_score_low, has_profanity, profanities, keywords, entities, concepts, categories, actions, subject)"
