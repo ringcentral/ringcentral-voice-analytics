@@ -72,10 +72,18 @@ RevAIEngine.prototype = {
       var jobId = json.id
       if (json.status == "in_progress"){
         var timeOut = 0
+        var response = {}
+        response['status'] = "in_progress"
+        response['result'] = "Transcribing... Please manually refresh frequenly to get the result."
+        if (thisRes != null){
+          thisRes.send(JSON.stringify(response))
+          thisRes = null
+        }
         var interval = setInterval(function () {
+          /*
           timeOut++
           console.log("timeout: " + timeOut)
-          if (timeOut > 16){
+          if (timeOut > 10){
             console.log("return in_progress")
             var response = {}
             response['status'] = "in_progress"
@@ -85,6 +93,7 @@ RevAIEngine.prototype = {
               thisRes = null
             }
           }
+          */
           var query = 'jobs/' + jobId
           thisEngine.revAIClient.get(query, "", (err,resp,body) => {
             var json = body.data
@@ -182,6 +191,7 @@ RevAIEngine.prototype = {
       transcript += item.sentence.join("")
     }
     console.log("Watson data analysis")
+    console.log("DATA: " + transcript)
     var parameters = {
       'text': transcript,
       'features': {
@@ -201,7 +211,7 @@ RevAIEngine.prototype = {
       if (err)
         console.log('error:', err);
         resp['status'] = "failed"
-        resp['result'] = err.messsage
+        resp['result'] = err
         if (thisRes != null){
           thisRes.send(resp)
         }
