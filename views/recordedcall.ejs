@@ -140,7 +140,7 @@
               <label for="negativeSentimentRange">Negative: </label>
               <input type="range" min="0" max="1000" value="500" class="sliderNeg" id="negativeSentimentRange"></input>
               <span id="negval">-0.50</span>&nbsp;&nbsp;&nbsp;
-              <% if (results.call_type != 'VM') { %>
+              <!-- <% if (results.call_type != 'VM') { %> -->
               <select id="speakers" onchange="setSpeakersWithSentiment()">
                 <option selected value=-1>All</option>
                 <% var arr = [] %>
@@ -155,7 +155,7 @@
                   <% } %>
                 <% } %>
               </select>
-              <% } %>
+              <!-- <% } %> -->
             </div>
             </div>
           </div>

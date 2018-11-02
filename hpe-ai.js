@@ -11,11 +11,12 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
   var data = {}
   data['keywords'] = escape(JSON.stringify(input.keywords))
   var subject = ""
-  if (for var nn=0; nn<input.keywords.length; nn++){
+  for (var nn=0; nn<input.keywords.length; nn++){
     subject += input.keywords[nn].text
-    var subjectArr = concept.split(" ")
+    var subjectArr = subject.split(" ")
     if (subjectArr.length > 1)
       break
+    subject += "; "
   }
   if (subject != "")
     data['subject'] = subject
@@ -38,11 +39,15 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
   input['categories'] = categories
 
   data['categories'] = escape(JSON.stringify(categories))
+
   var textArr = []
-  for (var i=0; i<conversations.length; i++)
-    textArr.push(conversations[i].sentence.join(" "))
-  var request = {'text' : textArr}
-  hodClient.get('analyzesentiment', request, false, function(err, resp, body) {
+  for (var i=0; i<conversations.length; i++){
+    var temp = conversations[i].sentence.join("")
+    //console.log("T: " + temp)
+    textArr.push(temp)
+  }
+  var request = {'text' : textArr }
+  hodClient.post('analyzesentiment', request, false, function(err, resp, body) {
     if (!err) {
       console.log("HOD SENTIMENT")
         var results = []
@@ -52,48 +57,37 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
         var hi = 0
         var low = 0
         for (var sentence of resp.body.sentiment_analysis){
+          var shortSentence = {}
+          console.log("speakerId" + blockTimeStamp[count].speakerId)
           if (sentence.aggregate.score != 0){
-            var modSentence = {}
-            if (count < conversations.length){
-              modSentence['timeStamp'] = conversations[count].timestamp[0]
-              modSentence['speakerId'] = conversations[count].speakerId
+            if (count < blockTimeStamp.length){
+              console.log(count + "/" + blockTimeStamp.length)
+              shortSentence['timeStamp'] = blockTimeStamp[count].timeStamp
+              shortSentence['speakerId'] = blockTimeStamp[count].speakerId
+              shortSentence['sentence'] = textArr[count]
             }
-            modSentence['sentence'] = textArr[count]
-            var posArr = []
-            var negArr = []
-            modSentence['sentiment_label'] = sentence.aggregate.sentiment
-            modSentence['sentiment_score'] = sentence.aggregate.score
+            //shortSentence['original_text'] = textArr[count]
+            //console.log(sentence['sentence'])
+            //shortSentence['sentiment_label'] = sentence.aggregate.sentiment
+            //shortSentence['sentiment_score'] = sentence.aggregate.score
             for (var pos of sentence.positive){
-              var posObj = {}
-              posObj['topic'] = pos.topic
-              posObj['sentiment'] = pos.sentiment
-              posObj['score'] = pos.score
-              posObj['text'] = pos.original_text
               if (pos.score > hi)
                 hi = pos.score
               score += pos.score
               num++
-              posArr.push(posObj)
             }
-            if (posArr.length > 0)
-              modSentence['positive'] = posArr
-
             for (var neg of sentence.negative){
-              var negObj = {}
-              negObj['topic'] = neg.topic
-              negObj['sentiment'] = neg.sentiment
-              negObj['score'] = neg.score
-              negObj['text'] = neg.original_text
               if (neg.score < low)
                 low = neg.score
               score += neg.score
               num++
-              negArr.push(negObj)
             }
-            if (negArr.length > 0)
-              modSentence['negative'] = negArr
-
-            results.push(modSentence)
+            console.log("SENTENCE: " + JSON.stringify(shortSentence))
+            var temp = sentence
+            temp['extra'] = shortSentence
+            //temp['']
+            console.log("SENTENCE: " + JSON.stringify(temp))
+            results.push(temp)
           }else{
             console.log(textArr[count])
           }

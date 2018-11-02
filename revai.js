@@ -14,7 +14,7 @@ function RevAIEngine() {
     return this
   }
 RevAIEngine.prototype = {
-  transcribe: function(res, body, audioSrc, extensionId) {
+  transcribe: function(table, res, body, audioSrc, extensionId) {
     var data = {
       media_url: encodeURI(audioSrc),
       metadata: "This is a test call. Expecting webhook callback" //,
@@ -24,8 +24,14 @@ RevAIEngine.prototype = {
     var thisId = body.audioSrc
     var thisEngine = this
     var thisBody = body
-    
     console.log(JSON.stringify(data))
+/*
+    // teemps delete till return
+    console.log("Use id")
+    this.getTranscription(395251314, thisId, res, table, body)
+    return
+    console.log("should not come here")
+*/
     this.revAIClient.post('jobs', data, (err,resp,body) => {
       console.log("RESPONSE: " + resp.body.toString('utf8'))
       //var json = JSON.parse(resp.body.toString('utf8'))
@@ -62,7 +68,7 @@ RevAIEngine.prototype = {
         thisRes.send(resp)
       }
       */
-      // use wait loop for testing
+      // use wait loop for testing: 498839493
       var jobId = json.id
       if (json.status == "in_progress"){
         var timeOut = 0
@@ -158,7 +164,7 @@ RevAIEngine.prototype = {
         blockTimeStamp.push(speaker_timestamp)
         conversations.push(speakerSentence)
       }
-      var query = "UPDATE " + table + " SET wordsandoffsets='" + escape(JSON.stringify(wordswithoffsets)) + "', transcript='" + escape(transcript) + "', conversations='" + escape(JSON.stringify(conversations))  + "' WHERE uid=" + thisId;
+      var query = "UPDATE " + table + " SET wordsandoffsets='" + escape(JSON.stringify(wordsandoffsets)) + "', transcript='" + escape(transcript) + "', conversations='" + escape(JSON.stringify(conversations))  + "' WHERE uid=" + thisId;
       pgdb.update(query, function(err, result) {
         if (err){
           console.error(err.message);
@@ -213,70 +219,6 @@ RevAIEngine.prototype = {
         })
       }
     });
-  },
-  getTranscript: function(transcriptId, id, res, table, body){
-    var thisEngine = this
-    var thisRes = res
-    console.log("get transcript and process data...")
-    var thisId = id //body.audioSrc
-
-    var query = 'jobs/' + transcriptId + "/transcript"
-    this.revAIClient.get(query, "", (err,resp,body) => {
-        var json = JSON.parse(resp.body.toString('utf8'))
-        var transcript = ""
-        var conversations = []
-        var wordswithoffsets = []
-        var blockTimeStamp = []
-        var sentencesForSentiment = []
-        for (var item of json.monologues){
-          var speakerSentence = {}
-          speakerSentence['sentence'] = []
-          speakerSentence['timestamp'] = []
-          speakerSentence['speakerId'] = item.speaker
-          var sentence = ""
-          for (var element of item.elements){
-            sentence += element.value
-            if (element.type == 'text'){
-              //var wordoffset = {}
-              //wordoffset['word'] = element.value
-              //wordoffset['offset'] = element.ts
-              //wordswithoffsets.push(wordoffset)
-              speakerSentence['timestamp'].push(element.ts)
-              //speakerSentence['sentence'].push(element.value)
-            }
-          }
-          sentence = sentence.trim()
-          transcript += sentence
-          var wordArr = sentence.split(" ")
-          speakerSentence['sentence'] = wordArr
-          //console.log("words #: " + wordArr.length)
-          //console.log("times #: " + speakerSentence.timestamp.length)
-          for (var i=0; i<speakerSentence.timestamp.length; i++){
-            var wordoffset = {}
-            if (i < wordArr.length)
-            wordoffset['word'] = wordArr[i]
-            wordoffset['offset'] = speakerSentence.timestamp[i]
-            wordswithoffsets.push(wordoffset)
-          }
-          conversations.push(speakerSentence)
-        }
-        console.log(transcript)
-        console.log(JSON.stringify(wordswithoffsets))
-        console.log(JSON.stringify(conversations))
-        var query = ''
-        if (body.type == 'VM')
-          query = "UPDATE " + table + " SET wordsandoffsets='" + escape(JSON.stringify(wordswithoffsets)) + "', transcript='" + escape(transcript) + "', conversations='" + escape(JSON.stringify(conversations))  + "' WHERE uid=" + thisId;
-        else
-          query = "UPDATE " + table + " SET wordsandoffsets='" + escape(JSON.stringify(wordswithoffsets)) + "', transcript='" + escape(transcript) + "', conversations='" + escape(JSON.stringify(conversations))  + "' WHERE uid=" + thisId;
-        pgdb.update(query, function(err, result) {
-          if (err){
-            console.error(err.message);
-          }else{
-            console.error("TRANSCRIPT UPDATE DB OK");
-          }
-        });
-        thisEngine.preAnalyzing(table, blockTimeStamp, conversations, transcript, thisId, thisRes)
-    })
   }
 }
 module.exports = RevAIEngine;

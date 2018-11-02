@@ -256,9 +256,9 @@ function transcribe(audioId, type, recordingUrl){
       alert("Please try again!")
     }else if (res.status == "empty") {
       $('#tt_' + audioId).html("Cannot recognize any text from this call.")
-    }else{
+    }else if (res.status == "ok"){
       var itemArr = JSON.parse(res.result.keywords)
-      //alert(JSON.stringify(itemArr))
+      alert(JSON.stringify(itemArr))
       var count = itemArr.length
       //alert(count)
       var keywords = ""
@@ -278,6 +278,8 @@ function transcribe(audioId, type, recordingUrl){
       $('#tt_' + audioId).html(keywords)
       $('#ts_' + audioId).html(res.result.subject)
       $('#ts_' + audioId).show()
+    } else if (res.status == "in_progress"){
+
     }
   });
   posting.fail(function(response){

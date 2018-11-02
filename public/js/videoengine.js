@@ -1,5 +1,5 @@
 window.onload = init;
-//var result
+const TRUNCATE_LEN = 25
 var aPlayer = null;
 var index = 0;
 var mIndex = 1;
@@ -194,9 +194,9 @@ function displayAnalytics(option){
 function truncateText(text){
   var wordsArr = text.split(" ");
   var ret = "";
-  if (wordsArr.length > 15){
+  if (wordsArr.length > TRUNCATE_LEN){
     for (var i=0; i<wordsArr.length; i++){
-      if (i == 15){
+      if (i == TRUNCATE_LEN){
         ret += wordsArr[i];
         break
       }
@@ -348,10 +348,8 @@ function jumpToSentiment(timeStamp, sentence, words){
       for (n=0; n<sentenceArr.length; n++){
         var matchArr = []
         for (var m=0; m<wordArr.length; m++){
-          var cleanWord = sentenceArr[n+m].word.replace(/\b[.,!']+\B|\B[.,!']+\b/g,"")
-          //alert(cleanWord)
+          var cleanWord = sentenceArr[n+m].replace(/\b[.,!']+\B|\B[.,!']+\b/g,"")
           matchArr.push(cleanWord.trim())
-          //matchArr.push(sentenceArr[n+m])
         }
         var match = matchArr.join(" ")
         if (match.indexOf(words) >= 0){

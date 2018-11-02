@@ -3,6 +3,7 @@ var fs = require('fs')
 var async = require("async");
 const pgdb = require('./db')
 const WatsonEngine = require('./watson.js');
+const RevAIEngine = require('./revai.js');
 const RCPlatform = require('./platform.js')
 require('dotenv').load()
 
@@ -1091,13 +1092,18 @@ User.prototype = {
           var body = {}
           body['type'] = type
           body['audioSrc'] = recordingId
-          console.log("CALL Watson?")
-          //watson.transcribe(null, body, bufferStream)
-          var table = thisUser.getUserTable()
           thisUser.setCategoryList([])
-          var watson = new WatsonEngine()
-          watson.transcribe(table, null, body, bufferStream)
-          //watson.transcribe(table, null, body, bufferStream)
+          var table = thisUser.getUserTable()
+          if (process.env.TRANSCRIPT_ENGINE == "WATSON"){
+            console.log("CALL Watson?")
+            var watson = new WatsonEngine()
+            watson.transcribe(table, null, body, bufferStream)
+            //watson.transcribe("demos", res, body, fs.createReadStream(audioSrc))
+          }else if (process.env.TRANSCRIPT_ENGINE == "REV-AI"){
+            console.log("CALL Rev AI?")
+            var revai = new RevAIEngine()
+            revai.transcribe(table, null, body, audioSrc, thisUser.getExtensionId())
+          }
         })
         .catch(function(e){
           console.log(e)
@@ -1251,21 +1257,49 @@ User.prototype = {
     transcriptCallRecording: function(req, res){
       console.log("transcriptCallRecording")
       var table = this.getUserTable()
+      this.categoryList = []
       if (req.body.type == "PR" || req.body.type == "VR"){
         var audioSrc = req.body.recordingUrl
         audioSrc = audioSrc.replace("http://www.qcalendar.com/audios", "./recordings")
         // reset category to force the app read new category form new content
-        this.categoryList = []
-        //watson.transcribe(table, res, body, fs.createReadStream(audioSrc))
-        var watson = new WatsonEngine()
-        watson.transcribe(table, res, body, fs.createReadStream(audioSrc))
+        if (process.env.TRANSCRIPT_ENGINE == "WATSON"){
+          var watson = new WatsonEngine()
+          watson.transcribe(table, res, req.body, fs.createReadStream(audioSrc))
+        }else if (process.env.TRANSCRIPT_ENGINE == "REV-AI"){
+          var revai = new RevAIEngine()
+          revai.transcribe(table, res, body, audioSrc, this.getExtensionId())
+        }
       }else {
         var p = this.getPlatform()
         //var obj = req.body
         var thisRes = res
         var thisUser = this
         var recordingUrl = p.createUrl(req.body.recordingUrl, {addToken: true});
-
+//
+        if (process.env.TRANSCRIPT_ENGINE == "WATSON"){
+          p.get(recordingUrl)
+            .then(function(res) {
+              //console.log("ok")
+              return res.response().buffer();
+            })
+            .then(function(buffer) {
+              var stream = require('stream');
+              var bufferStream = new stream.PassThrough();
+              bufferStream.end(buffer);
+              //watson.transcribe(table, thisRes, req.body, bufferStream)
+              var watson = new WatsonEngine()
+              watson.transcribe(table, thisRes, req.body, bufferStream)
+            })
+            .catch(function(e){
+              console.log(e)
+            })
+        }else if (process.env.TRANSCRIPT_ENGINE == "REV-AI"){
+          console.log("call revai")
+          var revai = new RevAIEngine()
+          revai.transcribe(table, thisRes, req.body, recordingUrl, this.getExtensionId())
+        }
+//
+/*
         p.get(recordingUrl)
           .then(function(res) {
             return res.response().buffer();
@@ -1283,6 +1317,7 @@ User.prototype = {
             console.log(e)
             throw e
           })
+*/
       }
     },
     analyzeContent: function(req, res){
@@ -2002,7 +2037,7 @@ function dropTable(table, callback){
 function createTable(table, callback) {
   console.log("CREATE TABLE: " + table)
   if (table.indexOf('user_') >= 0) {
-    var query = "SELECT subjectss FROM " + table;
+    var query = "SELECT subject FROM " + table;
     pgdb.read(query, (err, result) => {
       if(err != null){
         // not exist => drop old table

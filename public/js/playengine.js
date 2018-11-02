@@ -1,5 +1,6 @@
 window.onload = init;
 // var aPlayer = null;
+const TRUNCATE_LEN = 25
 var index = 0;
 var mIndex = 1;
 var wwoArr = []
@@ -319,13 +320,14 @@ function displayAnalytics(option){
         }
       }
 */
+      /*
       if (window.results.type == "VM"){
         var sentence = "<span class='sentiment_line'>" + window.results.transcript + "</span>"
         for (var item of itemArr){
           if (item.hasOwnProperty('positive')){
             for (var pos of item.positive){
               if (pos.score > positiveThreshold){
-                var fullStop = window.results.transcript + "."
+                var fullStop = window.results.transcript
                 if (pos.sentiment == null && pos.topic == null && fullStop == pos.text){
                   sentence = "<span class='sentiment_line positive_block'>" + sentence + "</span>"
                 }else{
@@ -361,6 +363,7 @@ function displayAnalytics(option){
         }
         text += sentence
       }else{ // call recording dialogue
+      */
         if (speakerSentiment == -1){
           var speakerCount = itemArr.length
           var speakersArr = []
@@ -386,7 +389,7 @@ function displayAnalytics(option){
             if (item.hasOwnProperty('positive')){
               for (var pos of item.positive){
                 if (pos.score > positiveThreshold){
-                  var tText = truncateText(pos.text)
+                  var tText = truncateText(pos.original_text)
                   sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
                   sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
                   sentence += "<span class=\"positive_block\">.." + tText + "..</span>"
@@ -411,7 +414,7 @@ function displayAnalytics(option){
             if (item.hasOwnProperty('negative')){
               for (var neg of item.negative){
                 if (neg.score < negativeThreshold){
-                  var tText = truncateText(neg.text)
+                  var tText = truncateText(neg.original_text)
                   sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
                   sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
                   sentence += "<span class=\"negative_block\">.. " + tText + " ..</span>"
@@ -456,7 +459,7 @@ function displayAnalytics(option){
               if (item.hasOwnProperty('positive')){
                 for (var pos of item.positive){
                   if (pos.score > positiveThreshold){
-                    var tText = truncateText(pos.text)
+                    var tText = truncateText(pos.original_text)
                     sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
                     sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
                     sentence += "<span class=\"positive_block\">.. " + tText + " ..</span>"
@@ -474,7 +477,7 @@ function displayAnalytics(option){
               if (item.hasOwnProperty('negative')){
                 for (var neg of item.negative){
                   if (neg.score < negativeThreshold){
-                    var tText = truncateText(neg.text)
+                    var tText = truncateText(neg.original_text)
                     sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
                     sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
                     sentence += "<span class=\"negative_block\">.. " + tText + " ..</span>"
@@ -497,7 +500,7 @@ function displayAnalytics(option){
           }
           text += "</div>"
         }
-      }
+      //} // same for VM and CR
       text += "</div>"
       //alert(text)
       $("#analyzed_content").html(text)
@@ -532,9 +535,9 @@ function displayAnalytics(option){
 function truncateText(text){
   var wordsArr = text.split(" ")
   var ret = ""
-  if (wordsArr.length > 15){
+  if (wordsArr.length > TRUNCATE_LEN){
     for (var i=0; i<wordsArr.length; i++){
-      if (i == 15){
+      if (i == TRUNCATE_LEN){
         ret += wordsArr[i]
         break
       }
@@ -670,10 +673,10 @@ function resetReadWords(value) {
 function jumpToSentiment(timeStamp, sentence, words){
   sentence = unescape(sentence)
   words = unescape(words)
-  //alert(sentence)
+  //alert(words)
+  //alert(timeStamp)
   var wordArr = words.split(" ")
   var sentenceArr = sentence.split(" ")
-  //alert(sentenceArr)
   for (var i=0; i<wwoArr.length; i++){
     var item = wwoArr[i]
     if (item.offset == timeStamp){
@@ -681,8 +684,7 @@ function jumpToSentiment(timeStamp, sentence, words){
       for (n=0; n<sentenceArr.length; n++){
         var matchArr = []
         for (var m=0; m<wordArr.length; m++){
-          var cleanWord = sentenceArr[n+m].word.replace(/\b[.,!']+\B|\B[.,!']+\b/g,"")
-          //alert(cleanWord)
+          var cleanWord = sentenceArr[n+m].replace(/\b[.,!']+\B|\B[.,!']+\b/g,"")
           matchArr.push(cleanWord.trim())
           //matchArr.push(sentenceArr[n+m])
         }
