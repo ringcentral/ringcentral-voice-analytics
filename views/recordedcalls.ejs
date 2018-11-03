@@ -290,6 +290,9 @@
               <td width="12%" class="td-active">
               <% if (calls[i]['processed'] == 1) { %>
                 <span><%= calls[i]['subject'] %></span>
+              <% } else if (calls[i]['processed'] == 2) { %>
+                <img class="call_icon" id="pi_<%= calls[i]['uid'] %>" src="./img/processing.gif"></img>
+                <div style="display: none;" class="transcript_brief" id="ts_<%= calls[i]['uid'] %>">--</div>
               <% } else { %>
                 <img style="display: none;" class="call_icon" id="pi_<%= calls[i]['uid'] %>" src="./img/processing.gif"></img>
                 <div class="transcript_brief" id="ts_<%= calls[i]['uid'] %>">--</div>

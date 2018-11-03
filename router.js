@@ -1,7 +1,7 @@
 const User = require('./usershandler.js')
 require('dotenv').load()
 const request = require('request');
-
+const pgdb = require('./db')
 var users = []
 
 function getUserIndex(id){
@@ -148,7 +148,7 @@ var router = module.exports = {
   },
   handleRevAIWebhookPost: function(req){
     //if (req.body.status == "transcribed")
-    const pgdb = require('./db')
+
     var query = "SELECT * FROM inprogressedtranscription WHERE transcript_id=" + req.body.id;
     pgdb.read(query, (err, result) => {
       console.log(result)
@@ -256,5 +256,21 @@ var router = module.exports = {
     if (index < 0)
       return this.forceLogin(req, res)
     users[index].loadReadLogPage(req, res)
+  },
+  checkTranscriptionResult: function(req, res){
+    var index = getUserIndex(req.session.userId)
+    if (index < 0)
+      return this.forceLogin(req, res)
+    var query = "SELECT processed FROM " + users[index].getUserTable() + " WHERE uid=" + req.query.uid;
+    //console.log(query)
+    pgdb.read(query, function (err, result) {
+      if (err){
+        res.send('{"status":"error"}')
+        return console.error(err.message);
+      }
+      console.log("RESULT: " + JSON.stringify(result))
+      console.log("PROCESS: " + result.rows[0].processed)
+      res.send('{"status":"ok","state":' + result.rows[0].processed + ',"uid":' + req.query.uid + '}')
+    });
   }
 }

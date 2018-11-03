@@ -2034,6 +2034,7 @@ function dropTable(table, callback){
     }
   })
 }
+/*
 function createTable(table, callback) {
   console.log("CREATE TABLE: " + table)
   if (table.indexOf('user_') >= 0) {
@@ -2108,6 +2109,43 @@ function createTable(table, callback) {
     })
   }
 }
+*/
+
+function createTable(table, callback) {
+  console.log("CREATE TABLE: " + table)
+  if (process.env.FORCETODELETEUSERTABLE == 1){
+    console.log("err: drop old table")
+    dropTable(table, (err, res) => {
+      //if (!err){
+        pgdb.create_table(table, (err, res) => {
+          if (err) {
+            console.log(err, res)
+            callback(err, err.message)
+            //copyTable(table)
+          }else{
+            console.log("DONE")
+            callback(null, "Ok")
+            if (table.indexOf('user_') >= 0)
+              copyTable(table)
+          }
+        })
+      //}
+    })
+  }else{
+    pgdb.create_table(table, (err, res) => {
+      if (err) {
+        console.log(err, res)
+        callback(err, err.message)
+        //copyTable(table)
+      }else{
+        console.log("DONE")
+        callback(null, "Ok")
+        if (table.indexOf('user_') >= 0)
+          copyTable(table)
+      }
+    })
+  }
+}
 
 const sqlite3 = require('sqlite3').verbose();
 var USERS_DATABASE = './db/users.db';
@@ -2132,32 +2170,6 @@ function copyTable(table){
           Object.keys(row).forEach((key) => {
             item[key] = row[key]
           })
-/*
-          var subject = item['subject']
-          console.log(subject)
-          if (subject.indexOf("http://www.qcalendar.com/audios/") >= 0){
-            //http://www.qcalendar.com/audios/
-
-            item['subject'] = subject.substring(32, subject.length)
-          }
-*/
-          /*
-          // dont need after adding from based app
-          var subject = ""
-          var keywords = JSON.parse(unescape(item['keywords']))
-          for (var nn=0; nn<keywords.length; nn++){
-            subject += keywords[nn].text
-            var subjectArr = subject.split(" ")
-            if (subjectArr.length > 1)
-              break
-            else
-              subject += " "
-          }
-          if (subject != "")
-            item['subject'] = subject
-          else
-            item['subject'] = "Not defined"
-          */
 
           var query = "INSERT INTO " + table
           query += "(uid, rec_id, call_date, call_type, extension_id, extension_num, full_name, from_number, from_name, to_number, to_name, recording_url, duration, direction, processed, wordsandoffsets, transcript, conversations, sentiments, sentiment_label, sentiment_score, sentiment_score_hi, sentiment_score_low, has_profanity, profanities, keywords, entities, concepts, categories, actions, subject)"
@@ -2171,7 +2183,26 @@ function copyTable(table){
           item['profanities'],item['keywords'],item['entities'],item['concepts'],item['categories'],
           item['actions'],item['subject']]
           query += " ON CONFLICT DO NOTHING"
-          //setTimeout(function(){
+          /*
+          query += " ON CONFLICT DO UPDATE SET"
+          query += ", wordsandoffsets='" + item['wordsandoffsets'] + "'"
+          query += ", transcript='" + item['transcript'] + "'"
+          query += ", conversations=" + item['conversations']
+          query += ", sentiments='" + item['sentiments'] + "'"
+          query += ", sentiment_label='" + item['sentiment_label'] + "'"
+          query += ", sentiment_score=" + item['sentiment_score']
+          query += ", sentiment_score_hi=" + item['sentiment_score_hi']
+          query += ", sentiment_score_low=" + item['sentiment_score_low']
+          query += ", has_profanity=" + item['has_profanity']
+          query += ", profanities='" + item['profanities'] + "'"
+          query += ", keywords='" + item['keywords'] + "'"
+          query += ", actions='" + item['actions'] + "'"
+          query += ", entities='" + item['entities'] + "'"
+          query += ", concepts='" + item['concepts'] + "'"
+          query += ", categories='" + item['categories'] + "'"
+          query += ", subject='" + item['subject'] + "'"
+          */
+
           pgdb.insert(query, values, (err, result) =>  {
             if (err){
               console.error(err.message);

@@ -74,7 +74,8 @@ RevAIEngine.prototype = {
         var timeOut = 0
         var response = {}
         response['status'] = "in_progress"
-        response['message'] = "Transcription is in progress."
+        response['message'] = "Transcribing ..."
+        response['uid'] = thisId
         var query = "UPDATE " + table + " SET processed=2 WHERE uid=" + thisId;
         pgdb.update(query, function(err, result) {
           if (err){

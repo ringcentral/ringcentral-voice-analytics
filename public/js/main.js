@@ -33,7 +33,11 @@ function initForRecordedCalls() {
         transcribe(window.calls[index].uid, window.calls[index].call_type, window.calls[index].recording_url)
       }
     }else{
-      alert("Analysis is not available.")
+      //alert("Analysis is not available.")
+      var r = confirm("This content has not been transcribed yet.Do you want to transcribe it now?");
+      if (r == true) {
+        transcribe(window.calls[index].uid, window.calls[index].call_type, window.calls[index].recording_url)
+      }
     }
   });
 
@@ -210,14 +214,40 @@ function transcribe(audioId, type, recordingUrl){
       $('#ts_' + audioId).show()
     } else if (res.status == "in_progress"){
       // should poll or ask user to mamually check?
-      $('#pi_' + audioId).hide()
       $('#tt_' + audioId).html(res.message)
+      startPolling(res.uid)
     }
   });
   posting.fail(function(response){
     disableAllInput(false)
     alert(response.statusText);
   });
+}
+function startPolling(uid){
+  var thisUID = uid
+  var thisText = "Transcribing ..."
+  var checkTimer = window.setInterval(function (){
+    var url = "checktranscription?uid="+thisUID
+    var getting = $.get( url );
+    getting.done(function( response ) {
+      var res = JSON.parse(response)
+      if (res.status != "ok") {
+        alert(res.calllog_error)
+      }else{
+        if (res.state == '1'){
+          clearInterval(checkTimer)
+          window.location = "recordedcalls"
+        }else{
+          thisText += "."
+          $('#tt_' + thisUID).html(thisText)
+        }
+      }
+    });
+    getting.fail(function(response){
+      clearInterval(checkTimer)
+      alert(response.statusText);
+    });
+  }, 5000)
 }
 
 function disableAllInput(disable){

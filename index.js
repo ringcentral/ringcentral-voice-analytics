@@ -102,6 +102,10 @@ app.get('/about', function (req, res) {
   res.render('about')
 })
 
+app.get('/checktranscription', function (req, res) {
+  console.log("checkTranscriptionResult")
+  router.checkTranscriptionResult(req, res)
+})
 
 app.post('/readlogs', function (req, res) {
   console.log("readCallRecordingsAsync")
