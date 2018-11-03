@@ -28,16 +28,16 @@ RevAIEngine.prototype = {
 /*
     // teemps delete till return
     console.log("Use id")
-    this.getTranscription(395251314, thisId, res, table, body)
+    this.getTranscription(505019916, thisId, res, table, body)
     return
     console.log("should not come here")
 */
     this.revAIClient.post('jobs', data, (err,resp,body) => {
-      console.log("RESPONSE: " + resp.body.toString('utf8'))
+      //console.log("RESPONSE: " + resp.body.toString('utf8'))
       //var json = JSON.parse(resp.body.toString('utf8'))
       console.log("BODY: " + JSON.stringify(body))
       var json = body.data //.toString('utf8') //.toString('utf8')
-      console.log("PASSED")
+      //console.log("PASSED")
       /* use webhook
       if (json.status == "in_progress"){
         var resp = {}
@@ -74,26 +74,20 @@ RevAIEngine.prototype = {
         var timeOut = 0
         var response = {}
         response['status'] = "in_progress"
-        response['result'] = "Transcribing... Please manually refresh frequenly to get the result."
+        response['message'] = "Transcription is in progress."
+        var query = "UPDATE " + table + " SET processed=2 WHERE uid=" + thisId;
+        pgdb.update(query, function(err, result) {
+          if (err){
+            console.error(err.message);
+          }else{
+            console.error("TRANSCRIPT IN-PROGRESS");
+          }
+        });
         if (thisRes != null){
           thisRes.send(JSON.stringify(response))
           thisRes = null
         }
         var interval = setInterval(function () {
-          /*
-          timeOut++
-          console.log("timeout: " + timeOut)
-          if (timeOut > 10){
-            console.log("return in_progress")
-            var response = {}
-            response['status'] = "in_progress"
-            response['result'] = "{}"
-            if (thisRes != null){
-              thisRes.send(JSON.stringify(response))
-              thisRes = null
-            }
-          }
-          */
           var query = 'jobs/' + jobId
           thisEngine.revAIClient.get(query, "", (err,resp,body) => {
             var json = body.data
@@ -112,7 +106,7 @@ RevAIEngine.prototype = {
       }else{
         var response = {}
         response['status'] = json.status
-        response['result'] = '{"error":"some error from rev ai"}'
+        response['message'] = 'some error from rev ai'
         if (thisRes != null){
           thisRes.send(JSON.stringify(response))
         }
@@ -174,6 +168,7 @@ RevAIEngine.prototype = {
         conversations.push(speakerSentence)
       }
       var query = "UPDATE " + table + " SET wordsandoffsets='" + escape(JSON.stringify(wordsandoffsets)) + "', transcript='" + escape(transcript) + "', conversations='" + escape(JSON.stringify(conversations))  + "' WHERE uid=" + thisId;
+      console.log(query)
       pgdb.update(query, function(err, result) {
         if (err){
           console.error(err.message);
@@ -187,55 +182,82 @@ RevAIEngine.prototype = {
   preAnalyzing: function(table, blockTimeStamp, conversations, thisId, res){
     var thisRes = res
     var transcript = ""
+    var wordCount = 0
     for (var item of conversations){
+      wordCount += item.sentence.length
       transcript += item.sentence.join("")
     }
     console.log("Watson data analysis")
     console.log("DATA: " + transcript)
-    var parameters = {
-      'text': transcript,
-      'features': {
-        'concepts': {},
-        'categories': {},
-        'entities': {
-          'emotion': false,
-          'sentiment': false
-        },
-        'keywords': {
-          'limit': 100
+    if (wordCount > 8){
+      var parameters = {
+        'text': transcript,
+        'features': {
+          'concepts': {},
+          'categories': {},
+          'entities': {
+            'emotion': false,
+            'sentiment': false
+          },
+          'keywords': {
+            'limit': 100
+          }
         }
       }
-    }
-    this.nlu.analyze(parameters, function(err, response) {
-      var resp = {}
-      if (err)
-        console.log('error:', err);
-        resp['status'] = "failed"
-        resp['result'] = err
-        if (thisRes != null){
-          thisRes.send(resp)
-        }
-      else{
-        console.log(JSON.stringify(response))
-        var haven = require('./hpe-ai');
-        console.log("load engine")
-        haven.haven_sentiment(table, blockTimeStamp, conversations, response, transcript, thisId, function(err, result){
-          console.log("TRANSCRIBE: " + result)
-
-          if (!err){
-            resp['status'] = "ok"
-            resp['result'] = result
-          }else{
-            resp['status'] = "failed"
-            resp['result'] = JSON.stringify(result)
-          }
+      this.nlu.analyze(parameters, function(err, response) {
+        var resp = {}
+        if (err)
+          console.log('error:', err);
+          resp['status'] = "failed"
+          resp['message'] = err
           if (thisRes != null){
-            console.log("final call back from hod: " + JSON.stringify(resp))
             thisRes.send(resp)
           }
-        })
-      }
-    });
+        else{
+          console.log(JSON.stringify(response))
+          var haven = require('./hpe-ai');
+          console.log("load engine")
+          haven.haven_sentiment(table, blockTimeStamp, conversations, response, transcript, thisId, function(err, result){
+            console.log("TRANSCRIBE: " + result)
+
+            if (!err){
+              resp['status'] = "ok"
+              resp['result'] = result
+            }else{
+              resp['status'] = "failed"
+              resp['message'] = JSON.stringify(result)
+            }
+            if (thisRes != null){
+              console.log("final call back from hod: " + JSON.stringify(resp))
+              thisRes.send(resp)
+            }
+          })
+        }
+      });
+    }else{
+      var query = "UPDATE " + table + " SET processed=1"
+      query += ", sentiments='" + escape("{}") + "'"
+      query += ", sentiment_label='neutral'"
+      query += ", sentiment_score=0"
+      query += ", sentiment_score_hi=0"
+      query += ", sentiment_score_low=0"
+      query += ", has_profanity=false"
+      query += ", profanities='" + escape("{}") + "'"
+      query += ", keywords='" + escape("[]") + "'"
+      query += ", actions='" + escape("[]") + "'"
+      query += ", entities='" + escape("[]") + "'"
+      query += ", concepts='" + escape("[]") + "'"
+      query += ", categories='" + escape("[]") + "'"
+      query += ", subject='" + transcript + "'"
+      query += " WHERE uid=" + thisId;
+      pgdb.update(query, function(err, result) {
+        if (err){
+          console.error(err.message);
+        }else{
+          console.error("TRANSCRIPT DONE. Not enough data for analytics");
+        }
+      });
+    }
   }
 }
 module.exports = RevAIEngine;

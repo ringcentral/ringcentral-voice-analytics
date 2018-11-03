@@ -278,27 +278,25 @@
               </td>
 
               <td width="8%" class="td-active">
-                <% if (calls[i]['processed'] == false) { %>
-                  <div id="st_<%= calls[i]['uid'] %>" >--</div>
-                <% } else { %>
+                <% if (calls[i]['processed'] == 1) { %>
                   <% var icon = 'img/' %>
                   <% icon += calls[i]['sentiment_label'] %>
                   <% icon += '.png' %>
                   <img id="st_<%= calls[i]['uid'] %>" src='<%= icon %>' class="sentiment_icon"></img>
+                <% } else { %>
+                  <div id="st_<%= calls[i]['uid'] %>" >--</div>
                 <% } %>
               </td>
               <td width="12%" class="td-active">
-              <% if (calls[i]['processed'] == false) { %>
+              <% if (calls[i]['processed'] == 1) { %>
+                <span><%= calls[i]['subject'] %></span>
+              <% } else { %>
                 <img style="display: none;" class="call_icon" id="pi_<%= calls[i]['uid'] %>" src="./img/processing.gif"></img>
                 <div class="transcript_brief" id="ts_<%= calls[i]['uid'] %>">--</div>
-              <% } else { %>
-                <span><%= calls[i]['subject'] %></span>
               <% } %>
               </td>
               <td width="41%" class="td-active">
-              <% if (calls[i]['processed'] == false) { %>
-                <div id="tt_<%= calls[i]['uid'] %>">--</div>
-              <% } else { %>
+              <% if (calls[i]['processed'] == 1) { %>
                 <span class="transcript_brief" id="tt_<%= calls[i]['uid'] %>">
                   <% var itemArr = JSON.parse(calls[i].keywords) %>
                   <% var count = itemArr.length %>
@@ -312,26 +310,11 @@
                   <% if (count > 5) { %>
                     ...
                   <% } %>
-                  <!--
-                  <% var itemArr = JSON.parse(calls[i].sentiments) %>
-                  <% for (var item of itemArr) { %>
-                    <% if (item.hasOwnProperty('positive')) { %>
-                      <% for (var pos of item.positive) { %>
-                        <% if (pos.topic != null) { %>
-                          <span class="positive-topic"><%- pos.topic %></span>
-                        <% } %>
-                      <% } %>
-                    <% } %>
-                    <% if (item.hasOwnProperty('negative')) { %>
-                      <% for (var neg of item.negative) { %>
-                        <% if (neg.topic != null) { %>
-                          <span class="negative-topic"><%- neg.topic %></span>
-                        <% } %>
-                      <% } %>
-                    <% } %>
-                  <% } %>
-                  -->
                 </span>
+              <% } else if (calls[i]['processed'] == 0) { %>
+                <div id="tt_<%= calls[i]['uid'] %>">--</div>
+              <% } else { %>
+                <div id="st_<%= calls[i]['uid'] %>">Transcription is in progress.</div>
               <% } %>
               </td>
             </tr>

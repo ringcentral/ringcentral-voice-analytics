@@ -2037,7 +2037,7 @@ function dropTable(table, callback){
 function createTable(table, callback) {
   console.log("CREATE TABLE: " + table)
   if (table.indexOf('user_') >= 0) {
-    var query = "SELECT subjects FROM " + table;
+    var query = "SELECT subject FROM " + table;
     pgdb.read(query, (err, result) => {
       if(err != null){
         // not exist => drop old table

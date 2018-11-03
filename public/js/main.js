@@ -23,30 +23,17 @@ function initForRecordedCalls() {
   var h = $(window).height() - (height + 90);
   $("#call_items").height(h)
 
-/*
-  var sliderPos = document.getElementById("positiveRange");
-  sliderPos.oninput = function() {
-    var positiveThreshold = this.value/1000;
-    $("#posval").html(positiveThreshold)
-  }
-
-  var sliderNeg = document.getElementById("negativeRange");
-  sliderNeg.oninput = function() {
-    var negativeThreshold = (this.value/1000) * -1;
-    $("#negval").html(negativeThreshold)
-  }
-*/
-  //enableSlider()
-
-  $('#call_items').find('tr').click( function(){
+  $('#call_items').find('tr').click( function() {
     var index = $(this).index()
-    if (window.calls[index].processed){
+    if (window.calls[index].processed == 1){
       openAnalyzed(window.calls[index].uid)
-    }else{
+    }else if (window.calls[index].processed == 0) {
       var r = confirm("This content has not been transcribed yet.Do you want to transcribe it now?");
       if (r == true) {
         transcribe(window.calls[index].uid, window.calls[index].call_type, window.calls[index].recording_url)
       }
+    }else{
+      alert("Analysis is not available.")
     }
   });
 
@@ -79,21 +66,7 @@ function logout(){
 function selectSelectText(){
   $("#search").select()
 }
-function playAudio(index){
-  if (window.calls[index].processed) {
-    var icon = 'img/'
-    icon += window.calls[index].sentiment_label
-    icon += '.png'
-    $("#playing_sentiment").prop('src', icon)
-  }
-  $("#playing_name").text("Name: " + window.userName)
-  $("#playing_from").text("From: " + window.calls[index].from_name)
-  aPlayer = document.getElementById("audio_player");
-  aSrc = document.getElementById("audio_src");
-  aSrc.src = window.calls[index].recording_url
-  aPlayer.load()
-  aPlayer.play();
-}
+
 function openAnalyzed(id){
   var search = $("#search").val()
   post_to_url('/analyze', {
@@ -191,47 +164,6 @@ function startSearch(){
   $("#searchForm").submit()
   this.event.preventDefault();
 }
-var fileName = ""
-function loadCRAudioFile(el) {
-  fileName = el.files[0].name
-}
-
-function loadPrerecordedAudioFile(el){
-  fileName = el.files[0].name
-}
-function processSelectedAudioFile(){
-  if (fileName.length == 0)
-    return
-  var configs = {}
-  configs['fname'] = fileName
-  var type = ''
-  if (fileName.indexOf('.mp3') > 0)
-    type = 'PR'
-  else if (fileName.indexOf('.mp4') > 0)
-    type = 'VR'
-  else {
-    return
-  }
-  configs['type'] = type
-  configs['fromRecipient'] = "Unknown #"
-  configs['toRecipient'] = "Unknown #"
-  configs['extensionNum'] = "103"
-  configs['fullName'] = "Paco Vu"
-  configs['date'] = new Date().getTime()
-  var url = "createrecord"
-  var posting = $.post( url, configs )
-  posting.done(function( response ) {
-    var res = JSON.parse(response)
-    if (res.status == "error") {
-      alert(res.calllog_error)
-    }else{
-        window.location = "recordedcalls"
-      }
-    });
-    posting.fail(function(response){
-      alert(response.statusText)
-    });
-}
 
 function transcribe(audioId, type, recordingUrl){
   $('#ts_' + audioId).hide()
@@ -248,21 +180,20 @@ function transcribe(audioId, type, recordingUrl){
   var url = "transcribe"
   disableAllInput(true)
   var posting = $.post( url, configs );
-  posting.done(function( res ) {
+  posting.done(function( response ) {
     //alert(res)
     disableAllInput(false)
-    //var res = JSON.parse(response)
+    var res = JSON.parse(response)
     if (res.status == "failed") {
-      alert("Please try again!")
+      alert(res.message + " Please try again!")
     }else if (res.status == "empty") {
       $('#tt_' + audioId).html("Cannot recognize any text from this call.")
     }else if (res.status == "ok"){
       var itemArr = JSON.parse(res.result.keywords)
-      alert(JSON.stringify(itemArr))
+      //alert(JSON.stringify(itemArr))
       var count = itemArr.length
-      //alert(count)
       var keywords = ""
-      for (var i=1; i < count; i++) {
+      for (var i=0; i < count; i++) {
         var item = itemArr[i]
         //alert(JSON.stringify(item))
         keywords += '<span class="keyword">' + item.text + '</span>'
@@ -272,14 +203,15 @@ function transcribe(audioId, type, recordingUrl){
       }
       var icon = 'img/'
       icon += res.result.sentiment + '.png'
-      //alert(icon)
       $('#pi_' + audioId).hide()
       $('#st_' + audioId).attr("src", icon);
       $('#tt_' + audioId).html(keywords)
       $('#ts_' + audioId).html(res.result.subject)
       $('#ts_' + audioId).show()
     } else if (res.status == "in_progress"){
-
+      // should poll or ask user to mamually check?
+      $('#pi_' + audioId).hide()
+      $('#tt_' + audioId).html(res.message)
     }
   });
   posting.fail(function(response){
