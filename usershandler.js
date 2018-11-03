@@ -125,13 +125,16 @@ User.prototype = {
     var query = "SELECT * FROM " + this.getSubscriptionIdTable() + " WHERE ext_id=" + this.getExtensionId();
     console.log(query)
     pgdb.read(query, (err, result) => {
-      //console.log(result)
+      console.log(result)
       var autoProcessing = false
       if(err != null){
         console.log(err);
       }
       if (result.rows.length == 0){
         console.log("no subId found. create one after")
+        //this.rc_platform.removeOrphanSubscription(subId, function(err, result){
+        //  console.log("OLD ORPHANED SUBSCRIPTION REMOVED")
+        //})
       }else{
         // found the subId, use it to check and renew
         var subId = result.rows[0].sub_id
@@ -749,7 +752,7 @@ User.prototype = {
       });
     },
     handleWebhooksPost: function(msg) {
-      console.log("CALLBACK FROM WebHook: " + JSON.stringify(msg))
+      //console.log("CALLBACK FROM WebHook: " + JSON.stringify(msg))
       //var extId = msg.body.extensionId
       var thisUser = this
       if (msg.event.indexOf('message-store') > 0){
@@ -966,7 +969,7 @@ User.prototype = {
       p.get(endpoint, params)
       .then(function(resp){
         var json = resp.json()
-        console.log("RESPONSE: " + JSON.stringify(json))
+        //console.log("RESPONSE: " + JSON.stringify(json))
         if (json.records.length == 0){
           return
         }
@@ -1081,34 +1084,35 @@ User.prototype = {
       console.log("saveVoiceFile")
       var p = this.getPlatform()
       var thisUser = this
-      p.get(contentUri)
-        .then(function(res) {
-          return res.response().buffer();
-        })
-        .then(function(buffer) {
-          var stream = require('stream');
-          var bufferStream = new stream.PassThrough();
-          bufferStream.end(buffer);
-          var body = {}
-          body['type'] = type
-          body['audioSrc'] = recordingId
-          thisUser.setCategoryList([])
-          var table = thisUser.getUserTable()
-          if (process.env.TRANSCRIPT_ENGINE == "WATSON"){
+      var recordingUrl = p.createUrl(contentUri, {addToken: true});
+      var body = {}
+      body['type'] = type
+      body['audioSrc'] = recordingId
+      this.setCategoryList([])
+      var table = this.getUserTable()
+      if (process.env.TRANSCRIPT_ENGINE == "WATSON"){
+        p.get(recordingUrl)
+          .then(function(res) {
+            return res.response().buffer();
+          })
+          .then(function(buffer) {
+            var stream = require('stream');
+            var bufferStream = new stream.PassThrough();
+            bufferStream.end(buffer);
             console.log("CALL Watson?")
             var watson = new WatsonEngine()
             watson.transcribe(table, null, body, bufferStream)
             //watson.transcribe("demos", res, body, fs.createReadStream(audioSrc))
-          }else if (process.env.TRANSCRIPT_ENGINE == "REV-AI"){
-            console.log("CALL Rev AI?")
-            var revai = new RevAIEngine()
-            revai.transcribe(table, null, body, audioSrc, thisUser.getExtensionId())
-          }
-        })
-        .catch(function(e){
-          console.log(e)
-          throw e
-        })
+          })
+          .catch(function(e){
+            console.log(e)
+            throw e
+          })
+        }else if (process.env.TRANSCRIPT_ENGINE == "REV-AI"){
+          console.log("CALL Rev AI?")
+          var revai = new RevAIEngine()
+          revai.transcribe(table, null, body, recordingUrl, thisUser.getExtensionId())
+        }
     },
     removeItemFromDB: function(req, res){
       var thisRes = res

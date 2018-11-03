@@ -247,9 +247,9 @@ RCPlatform.prototype = {
           for(var record of data.records) {
             // delete old subscription before creating a new one
             console.log("subId/record.id:" + subId + "/" + record.id)
-            if (subId == record.id){
+            //if (subId == record.id){
               console.log(record)
-              /*
+
               return thisPlatform.platform.delete('/subscription/' + record.id)
                 .then(function (response) {
                   console.log("deleted by subId: " + record.id)
@@ -262,11 +262,11 @@ RCPlatform.prototype = {
                   console.error(e);
                   thisCallback(e, record.id)
                 });
-              */
-            }
+
+            //}
           }
-          console.log("no matched subscription")
-          thisCallback(null, subId)
+          //console.log("no matched subscription")
+          //thisCallback(null, subId)
         }else{
           console.log("no existing subscription")
           thisCallback(null, subId)

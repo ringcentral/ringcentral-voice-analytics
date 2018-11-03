@@ -95,7 +95,7 @@ RevAIEngine.prototype = {
             if (json.status == "transcribed"){
               clearInterval(interval);
               console.log("read transcript")
-              var table = "user_" + extensionId
+              //var table = "user_" + extensionId
               thisEngine.getTranscription(json.id, thisId, thisRes, table, thisBody)
             }else if(json.status == "failed"){
               console.log("failed transcribe")

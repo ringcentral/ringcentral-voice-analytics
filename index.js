@@ -176,7 +176,7 @@ app.post('/findsimilar', function (req, res) {
 })
 
 app.post('/webhooks', function(req, res) {
-  console.log("webhook called: " + req)
+  console.log("webhook called")
   var headers = req.headers;
   var validationToken = headers['validation-token'];
   var body = [];
@@ -189,9 +189,9 @@ app.post('/webhooks', function(req, res) {
           body.push(chunk);
       }).on('end', function() {
           body = Buffer.concat(body).toString();
-          console.log(body)
+          //console.log(body)
           var jsonObj = JSON.parse(body)
-          router.handleWebhooksPost(jsonObj.body)
+          router.handleWebhooksPost(jsonObj)
           res.statusCode = 200;
           res.end();
       });

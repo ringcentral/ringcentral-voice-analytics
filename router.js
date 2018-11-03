@@ -143,8 +143,14 @@ var router = module.exports = {
     console.log(res)
     users[index].removeSubscription(res)
   },
-  handleWebhooksPost: function(body){
-    console.log(body)
+  handleWebhooksPost: function(jsonObj){
+    //console.log(jsonObj)
+    //console.log(jsonObj.body.extensionId)
+    var index = getUserIndexByExtensionId(json.ownerId)
+    if (index < 0)
+      return
+    users[index].handleWebhooksPost(jsonObj)
+
   },
   handleRevAIWebhookPost: function(req){
     //if (req.body.status == "transcribed")
