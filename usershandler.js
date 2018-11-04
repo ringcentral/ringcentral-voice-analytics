@@ -1485,7 +1485,7 @@ User.prototype = {
       //if (req.body.fields == "all" OR req.body.fields == "transcript" OR req.body.fields == "all")
       if (req.body.fields == "all"){
         if (searchArg != "*") {
-            //query += "processed=true AND ("
+            //query += "processed=1 AND ("
             searchQuery += "(transcript ILIKE '%" + searchArg + "%' OR "
             searchQuery += "keywords ILIKE '%" + searchArg + "%' OR "
             //searchQuery += "concepts ILIKE '%" + searchArg + "%' OR "
@@ -1497,17 +1497,17 @@ User.prototype = {
             //searchQuery += "categories ILIKE '%" + searchArg + "%')"
         }
       }else if (req.body.fields == "transcript"){
-        searchQuery += "processed=true"
+        searchQuery += "processed=1"
         if (searchArg != "*") {
           searchQuery += " AND transcript ILIKE '%" + searchArg + "%'";
         }
       }else if (req.body.fields == "keywords"){
-        searchQuery += "processed=true"
+        searchQuery += "processed=1"
         if (searchArg != "*") {
           searchQuery += " AND keywords ILIKE '%" + searchArg + "%'";
         }
       }else if (req.body.fields == "concepts"){
-        searchQuery += "processed=true"
+        searchQuery += "processed=1"
         if (searchArg != "*") {
           searchQuery += " AND concepts ILIKE '%" + searchArg + "%'";
         }
@@ -1581,7 +1581,7 @@ User.prototype = {
           }
         }else{
           if (req.body.sentiment == "all"){
-            query += "processed=true AND ("
+            query += "processed=1 AND ("
             query += "transcript ILIKE '%" + searchArg + "%' OR "
             query += "keywords ILIKE '%" + searchArg + "%' OR "
             query += "concepts ILIKE '%" + searchArg + "%' OR "
@@ -1592,7 +1592,7 @@ User.prototype = {
             query += "extension_num ILIKE '%" + searchArg + "%' OR "
             query += "categories ILIKE '%" + searchArg + "%')"
           }else{
-            query += "processed=true AND ("
+            query += "processed=1 AND ("
             query += "transcript ILIKE '%" + searchArg + "%' OR "
             query += "keywords ILIKE '%" + searchArg + "%' OR "
             query += "concepts ILIKE '%" + searchArg + "%' OR "
@@ -1606,7 +1606,7 @@ User.prototype = {
           }
         }
       }else if (req.body.fields == "transcript"){
-        query += "processed=true AND "
+        query += "processed=1 AND "
         if (searchArg == "*") {
           if (req.body.sentiment == "positive")
             query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
@@ -1639,7 +1639,7 @@ User.prototype = {
             query += "transcript ILIKE '%" + searchArg + "%' AND (sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
         }
       }else if (req.body.fields == "keywords"){
-        query += "processed=true AND "
+        query += "processed=1 AND "
         if (searchArg == "*") {
           if (req.body.sentiment == "positive")
             query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
@@ -1661,7 +1661,7 @@ User.prototype = {
             query += "keywords ILIKE '%" + searchArg + "%' " + " AND (sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
         }
       }else if (req.body.fields == "concepts"){
-        query += " processed=true AND "
+        query += " processed=1 AND "
         if (searchArg == "*") {
           if (req.body.sentiment == "positive")
             query += "sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
@@ -1747,7 +1747,7 @@ User.prototype = {
         }
       }else if (req.body.fields == "categories"){
         //console.log("SEARCH ARG: " + escape(req.body.categories))
-        query += "processed=true AND categories LIKE '%" + escape(req.body.categories) + "%'"
+        query += "processed=1 AND categories LIKE '%" + escape(req.body.categories) + "%'"
 
         if (req.body.sentiment == "positive")
           query += " AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
