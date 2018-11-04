@@ -33,11 +33,13 @@ function initForRecordedCalls() {
         transcribe(window.calls[index].uid, window.calls[index].call_type, window.calls[index].recording_url)
       }
     }else{
-      //alert("Analysis is not available.")
-      var r = confirm("This content has not been transcribed yet.Do you want to transcribe it now?");
-      if (r == true) {
-        transcribe(window.calls[index].uid, window.calls[index].call_type, window.calls[index].recording_url)
+      if (checkTimer == null)
+        startPolling(window.calls[index].uid)
+      else {
+        window.clearInterval(checkTimer)
+        checkTimer = null
       }
+      //alert("Analysis is not available.")
     }
   });
 
@@ -223,10 +225,11 @@ function transcribe(audioId, type, recordingUrl){
     alert(response.statusText);
   });
 }
+var checkTimer = null
 function startPolling(uid){
   var thisUID = uid
   var thisText = "Transcribing ..."
-  var checkTimer = window.setInterval(function (){
+  checkTimer = window.setInterval(function (){
     var url = "checktranscription?uid="+thisUID
     var getting = $.get( url );
     getting.done(function( response ) {
@@ -236,9 +239,12 @@ function startPolling(uid){
       }else{
         if (res.state == '1'){
           clearInterval(checkTimer)
+          checkTimer = null
           window.location = "recordedcalls"
         }else{
           thisText += "."
+          if (thisText.length > 30)
+            thisText = "Transcribing ..."
           $('#tt_' + thisUID).html(thisText)
         }
       }
@@ -350,6 +356,8 @@ function selectForDelete(elm, cid, type, rec_id){
       }
     }
   }
+  //this.event.preventDefault();
+  /*
   var rem = document.getElementById("rem_btn");
   var del = document.getElementById("del_btn");
   if (deleteArray.length > 0){
@@ -364,6 +372,7 @@ function selectForDelete(elm, cid, type, rec_id){
     $("#rem_btn").prop("disabled", true);
     $("#del_btn").prop("disabled", true);
   }
+  */
 }
 function confirmRemoveSelectedItemsFromDB(){
   var r = confirm("Do you really want to remove selected calls from local database?");

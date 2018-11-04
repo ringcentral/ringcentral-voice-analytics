@@ -13,7 +13,7 @@ var foundIndex = 0;
 var positiveThreshold = 0.5;
 var negativeThreshold = -0.5;
 var fixedSubstractedHeight = 0;
-
+var conversationLastLine = 0
 var wavesurfer;
 var audioPlayLine;
 
@@ -22,15 +22,11 @@ function init() {
   fixedSubstractedHeight = $("#menu_header").height()
   fixedSubstractedHeight += $("#search_bar").height()
   fixedSubstractedHeight += $("#subject_header").height()
-  fixedSubstractedHeight += $("#footer").height()
-  //alert($("#footer").height())
-  //upperBlockHeight = $("#upper_block").height()
+  //fixedSubstractedHeight += $("#footer").height()
   var h = $(window).height() - (fixedSubstractedHeight);
-
-//  var h = $(window).height() - (height + 190);
-
-  $("#conversations_block").height(h-210)
-  //$("#analyzed_content").height(h-125)
+  h -= 210
+  $("#conversations_block").height(h);
+  conversationLastLine = $("#conversations_block").position().top + (h - 20)
 
   var sliderPos = document.getElementById("positiveSentimentRange");
   sliderPos.oninput = function() {
@@ -68,258 +64,12 @@ function displayAnalytics(option){
     $("#sentiment_adjust").show()
     $("#sentiment-tab").addClass("tab-selected");
     $("#keyword-tab").removeClass("tab-selected");
-    var upperBlockHeight = $("#upper_block").height() + 130
+    var upperBlockHeight = $("#upper_block").height() + 150
     var h = $(window).height() - (fixedSubstractedHeight);
     $("#analyzed_content").height(h-upperBlockHeight)
     $("#analyzed_content").show();
     var itemArr = JSON.parse(window.results.sentiments)
     var text = "<div>"
-/*
-      // HPE sentiment analysis
-      if (window.results.type == "VM"){
-        var sentence = "<span class='sentiment_line'>" + window.results.transcript + "</span>"
-        for (var item of itemArr){
-          if (item.hasOwnProperty('positive')){
-            for (var pos of item.positive){
-              if (pos.score > positiveThreshold){
-                var fullStop = window.results.transcript + "."
-                if (pos.sentiment == null && pos.topic == null && fullStop == pos.text){
-                  sentence = "<span class='sentiment_line positive_block'>" + sentence + "</span>"
-                }else{
-                  var lowerCaseText = pos.text.toLowerCase()
-                  sentence = sentence.replace(lowerCaseText, "<span class='positive_block'>" + lowerCaseText + "</span>")
-                }
-                if (pos.topic != null){
-                  sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
-                }
-                if (pos.sentiment != null){
-                  sentence = sentence.replace(pos.sentiment, "<span class='sentiment'>" + pos.sentiment + "</span>")
-                }
-              }
-            }
-          }
-          if (item.hasOwnProperty('negative')){
-            for (var neg of item.negative){
-              if (neg.score < negativeThreshold){
-                var fullStop = window.results.transcript + "."
-                if (neg.sentiment == null && neg.topic == null && fullStop == neg.text){
-                  sentence = "<span class='sentiment_line negative_block'>" + sentence + "</span>"
-                }else{
-                  var lowerCaseText = neg.text.toLowerCase()
-                  sentence = sentence.replace(neg.text, "<span class='negative_block'>" + neg.text + "</span>")
-                }
-                if (neg.topic != null)
-                  sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
-                if (neg.sentiment != null)
-                  sentence = sentence.replace(neg.sentiment, "<span class='sentiment'>" + neg.sentiment + "</span>")
-              }
-            }
-          }
-        }
-        text += sentence
-      }else{ // call recording dialogue
-        for (var item of itemArr){
-            if (speakerSentiment == -1){
-              sentence = '' //item.sentence
-              if (item.hasOwnProperty('positive')){
-                for (var pos of item.positive){
-                  if (pos.score > positiveThreshold){
-                    if (sentence == ''){
-                      text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
-                      sentence = item.sentence
-                    }
-                    var fullStop = item.sentence + "."
-                    if (pos.sentiment == null && pos.topic == null && fullStop == pos.text){
-                      sentence = "<span class='positive_block'>" + sentence + "</span>"
-                    }else
-                      sentence = sentence.replace(pos.text, "<span class='positive_block'>" + pos.text + "</span>")
-                    if (pos.topic != null)
-                      sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
-                    if (pos.sentiment != null)
-                      sentence = sentence.replace(pos.sentiment, "<span class='sentiment'>" + pos.sentiment + "</span>")
-                  }
-                }
-              }
-              if (item.hasOwnProperty('negative')){
-                for (var neg of item.negative){
-                  if (neg.score < negativeThreshold){
-                    if (sentence == ''){
-                      text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
-                      sentence = item.sentence
-                    }
-                    var fullStop = item.sentence + "."
-                    if (neg.sentiment == null && neg.topic == null && fullStop == neg.text){
-                      sentence = "<span class='negative_block'>" + sentence + "</span>"
-                    }else
-                      sentence = sentence.replace(neg.text, "<span class='negative_block'>" + neg.text + "</span>")
-                    if (neg.topic != null)
-                      sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
-                    if (neg.sentiment != null)
-                      sentence = sentence.replace(neg.sentiment, "<span class='sentiment''>" + neg.sentiment + "</span>")
-                  }
-                }
-              }
-              if (sentence != '')
-                text += sentence + "</div>"
-            }else{ //if (speakerSentiment == 0){
-              if (item.speakerId == speakerSentiment){
-                sentence = '' //item.sentence
-                if (item.hasOwnProperty('positive')){
-                  for (var pos of item.positive){
-                    if (pos.score > positiveThreshold){
-                      if (sentence == ''){
-                        text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
-                        sentence = item.sentence
-                      }
-                      var fullStop = item.sentence + "."
-                      if (pos.sentiment == null && pos.topic == null && fullStop == pos.text){
-                        sentence = "<span class='positive_block'>" + sentence + "</span>"
-                      }else
-                        sentence = sentence.replace(pos.text, "<span class='positive_block'>" + pos.text + "</span>")
-                      if (pos.topic != null)
-                        sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
-                      if (pos.sentiment != null)
-                        sentence = sentence.replace(pos.sentiment, "<span class='sentiment'>" + pos.sentiment + "</span>")
-                    }
-                  }
-                }
-                if (item.hasOwnProperty('negative')){
-                  for (var neg of item.negative){
-                    if (neg.score < negativeThreshold){
-                      if (sentence == ''){
-                        text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ")'>Speaker "+ item.speakerId + ": Goto => </span>"
-                        sentence = item.sentence
-                      }
-                      var fullStop = item.sentence + "."
-                      if (neg.sentiment == null && neg.topic == null && fullStop == neg.text){
-                        sentence = "<span class='negative_block'>" + sentence + "</span>"
-                      }else
-                        sentence = sentence.replace(neg.text, "<span class='negative_block'>" + neg.text + "</span>")
-                      if (neg.topic != null)
-                        sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
-                      if (neg.sentiment != null)
-                        sentence = sentence.replace(neg.sentiment, "<span class='sentiment'>" + neg.sentiment + "</span>")
-                    }
-                  }
-                }
-                if (sentence != '')
-                  text += sentence + "</div>"
-              }
-            }
-        }
-      }
-*/
-/*
-      if (window.results.type == "VM"){
-        var sentence = "<span class='sentiment_line'>" + window.results.transcript + "</span>"
-        for (var item of itemArr){
-          if (item.hasOwnProperty('positive')){
-            for (var pos of item.positive){
-              if (pos.score > positiveThreshold){
-                var fullStop = window.results.transcript + "."
-                if (pos.sentiment == null && pos.topic == null && fullStop == pos.text){
-                  sentence = "<span class='sentiment_line positive_block'>" + sentence + "</span>"
-                }else{
-                  var lowerCaseText = pos.text.toLowerCase()
-                  sentence = sentence.replace(lowerCaseText, "<span class='positive_block'>" + lowerCaseText + "</span>")
-                }
-                if (pos.topic != null){
-                  sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
-                }
-                if (pos.sentiment != null){
-                  sentence = sentence.replace(pos.sentiment, "<span class='sentiment'>" + pos.sentiment + "</span>")
-                }
-              }
-            }
-          }
-          if (item.hasOwnProperty('negative')){
-            for (var neg of item.negative){
-              if (neg.score < negativeThreshold){
-                var fullStop = window.results.transcript + "."
-                if (neg.sentiment == null && neg.topic == null && fullStop == neg.text){
-                  sentence = "<span class='sentiment_line negative_block'>" + sentence + "</span>"
-                }else{
-                  var lowerCaseText = neg.text.toLowerCase()
-                  sentence = sentence.replace(neg.text, "<span class='negative_block'>" + neg.text + "</span>")
-                }
-                if (neg.topic != null)
-                  sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
-                if (neg.sentiment != null)
-                  sentence = sentence.replace(neg.sentiment, "<span class='sentiment'>" + neg.sentiment + "</span>")
-              }
-            }
-          }
-        }
-        text += sentence
-      }else{ // call recording dialogue
-        for (var item of itemArr){
-            if (speakerSentiment == -1){
-              sentence = '' //item.sentence
-              if (item.hasOwnProperty('positive')){
-                for (var pos of item.positive){
-                  if (pos.score > positiveThreshold){
-                    //if (sentence == ''){
-                      text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ", true)'>Speaker "+ item.speakerId + ": </span>"
-                      //sentence = item.sentence
-                    //}
-                    sentence = "<span class='positive_block'>" + pos.text + "</span>"
-                    if (pos.topic != null)
-                      sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
-                    if (pos.sentiment != null)
-                      sentence = sentence.replace(pos.sentiment, "<span class='sentiment'>" + pos.sentiment + "</span>")
-                    text += sentence + "</div>"
-                  }
-                }
-              }
-              if (item.hasOwnProperty('negative')){
-                for (var neg of item.negative){
-                  if (neg.score < negativeThreshold){
-                    text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ", true)'>Speaker "+ item.speakerId + ": </span>"
-                    sentence = "<span class='negative_block'>" + neg.text + "</span>"
-                    if (neg.topic != null)
-                      sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
-                    if (neg.sentiment != null)
-                      sentence = sentence.replace(neg.sentiment, "<span class='sentiment''>" + neg.sentiment + "</span>")
-                    text += sentence + "</div>"
-                  }
-                }
-              }
-              //if (sentence != '')
-              //  text += sentence + "</div>"
-            }else{ //if (speakerSentiment == 0){
-              if (item.speakerId == speakerSentiment){
-                sentence = '' //item.sentence
-                if (item.hasOwnProperty('positive')){
-                  for (var pos of item.positive){
-                    if (pos.score > positiveThreshold){
-                      text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ", true)'>Speaker "+ item.speakerId + ": </span>"
-                      sentence = "<span class='positive_block'>" + pos.text + "</span>"
-                      if (pos.topic != null)
-                        sentence = sentence.replace(pos.topic, "<b>" + pos.topic + "</b>")
-                      if (pos.sentiment != null)
-                        sentence = sentence.replace(pos.sentiment, "<span class='sentiment'>" + pos.sentiment + "</span>")
-                      text += sentence + "</div>"
-                    }
-                  }
-                }
-                if (item.hasOwnProperty('negative')){
-                  for (var neg of item.negative){
-                    if (neg.score < negativeThreshold){
-                      text += "<div class='sentiment_line'><span style='color:orange' onclick='jumpTo(" + item.timeStamp + ", true)'>Speaker "+ item.speakerId + ": </span>"
-                      sentence = "<span class='negative_block'>" + neg.text + "</span>"
-                      if (neg.topic != null)
-                        sentence = sentence.replace(neg.topic, "<b>" + neg.topic + "</b>")
-                      if (neg.sentiment != null)
-                        sentence = sentence.replace(neg.sentiment, "<span class='sentiment'>" + neg.sentiment + "</span>")
-                      text += sentence + "</div>"
-                    }
-                  }
-                }
-              }
-            }
-        }
-      }
-*/
       /*
       if (window.results.type == "VM"){
         var sentence = "<span class='sentiment_line'>" + window.results.transcript + "</span>"
@@ -670,6 +420,9 @@ function seektimeupdate() {
         while (check && pos >= check)
         {
             wordElm.setAttribute("class", "readtext");
+            var wordPos = $(wordElm).position().top
+            if (wordPos > conversationLastLine)
+              $(wordElm)[0].scrollIntoView();
             wordElm = document.getElementById("word"+mIndex);
             wordElm.setAttribute("class", "word");
             mIndex++;

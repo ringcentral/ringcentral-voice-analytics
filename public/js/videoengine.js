@@ -14,15 +14,18 @@ var positiveThreshold = 0.5;
 var negativeThreshold = -0.5;
 var fixedSubstractedHeight = 0
 //var upperBlockHeight = 0
+var conversationLastLine = 0
 function init() {
   initializeAudioPlayer()
   fixedSubstractedHeight = $("#menu_header").height()
   fixedSubstractedHeight += $("#search_bar").height()
   fixedSubstractedHeight += $("#subject_header").height()
-  fixedSubstractedHeight += $("#footer").height()
+  //fixedSubstractedHeight += $("#footer").height()
   //upperBlockHeight = $("#upper_block").height()
   var h = $(window).height() - (fixedSubstractedHeight);
-  $("#conversations_block").height(h - 150);
+  h -= 170
+  $("#conversations_block").height(h);
+  conversationLastLine = $("#conversations_block").position().top + (h - 20)
 
   var sliderPos = document.getElementById("positiveSentimentRange");
   sliderPos.oninput = function() {
@@ -56,9 +59,9 @@ function displayAnalytics(option){
     $("#sentiment_adjust").show()
     $("#sentiment-tab").addClass("tab-selected");
     $("#keyword-tab").removeClass("tab-selected");
-    var upperBlockHeight = $("#upper_block").height() + 130
+    var upperBlockHeight = $("#upper_block").height() + 150
     var h = $(window).height() - (fixedSubstractedHeight);
-    $("#analyzed_content").height(h-upperBlockHeight < 150 ? 150 : h-upperBlockHeight);
+    $("#analyzed_content").height(h-upperBlockHeight < 170 ? 170 : h-upperBlockHeight);
 
     var itemArr = JSON.parse(window.results.sentiments)
     var text = "<div>"
@@ -310,6 +313,9 @@ function seektimeupdate() {
         while (pos >= check)
         {
             wordElm.setAttribute("class", "readtext");
+            var wordPos = $(wordElm).position().top
+            if (wordPos > conversationLastLine)
+              $(wordElm)[0].scrollIntoView();
             wordElm = document.getElementById("word"+mIndex);
             wordElm.setAttribute("class", "word");
             mIndex++;
