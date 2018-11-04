@@ -19,17 +19,21 @@ RevAIEngine.prototype = {
     if (process.env.REVAI_CALLBACK == "WebHook"){
       data = {
         media_url: encodeURI(audioSrc),
+        skip_diarization: "false",
         metadata: "Expecting webhook callback",
+
         callback_url: process.env.REVAI_WEBHOOK_ADDRESS
       }
     }else{
       data = {
         media_url: encodeURI(audioSrc),
+        skip_diarization: "false",
         metadata: "Polling"
       }
     }
     var thisRes = res
     var thisId = body.audioSrc
+    console.log("thisId: " + thisId)
     var thisEngine = this
     var thisBody = body
     console.log(JSON.stringify(data))

@@ -146,7 +146,7 @@ var router = module.exports = {
   handleWebhooksPost: function(jsonObj){
     //console.log(jsonObj)
     //console.log(jsonObj.body.extensionId)
-    var index = getUserIndexByExtensionId(json.ownerId)
+    var index = getUserIndexByExtensionId(jsonObj.ownerId)
     if (index < 0)
       return
     users[index].handleWebhooksPost(jsonObj)
