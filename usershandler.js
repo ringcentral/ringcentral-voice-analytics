@@ -125,7 +125,7 @@ User.prototype = {
     var query = "SELECT * FROM " + this.getSubscriptionIdTable() + " WHERE ext_id=" + this.getExtensionId();
     console.log(query)
     pgdb.read(query, (err, result) => {
-      console.log(result)
+      //console.log(result)
       var autoProcessing = false
       if(err != null){
         console.log(err);

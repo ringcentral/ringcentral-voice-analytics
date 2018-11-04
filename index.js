@@ -1,4 +1,5 @@
 var path = require('path')
+var util = require('util')
 
 if('production' !== process.env.LOCAL_ENV )
   require('dotenv').load();
@@ -125,7 +126,6 @@ app.post('/enablenotification', function (req, res) {
 
 app.get('/disablenotification', function (req, res) {
   console.log("disable notification")
-  console.log(res)
   router.removeSubscription(req, res)
   //res.send('{"result":"ok"}')
 })
@@ -189,7 +189,6 @@ app.post('/webhooks', function(req, res) {
           body.push(chunk);
       }).on('end', function() {
           body = Buffer.concat(body).toString();
-          //console.log(body)
           var jsonObj = JSON.parse(body)
           router.handleWebhooksPost(jsonObj)
           res.statusCode = 200;
@@ -200,8 +199,7 @@ app.post('/webhooks', function(req, res) {
 
 app.post('/revaitranscriptcallback', function(req, res) {
   console.log("webhook post called: " + req)
-  console.log("webhook res: " + res)
-  //console.log(util.inspect(req))
+  console.log(util.inspect(req))
   //console.log(JSON.stringify(req.body))
   //router.handleRevAIWebhookPost(req)
   res.statusCode = 200;

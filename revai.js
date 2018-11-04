@@ -15,10 +15,18 @@ function RevAIEngine() {
   }
 RevAIEngine.prototype = {
   transcribe: function(table, res, body, audioSrc, extensionId) {
-    var data = {
-      media_url: encodeURI(audioSrc),
-      metadata: "This is a test call. Expecting webhook callback" //,
-      //callback_url: "https://8b8f7ae3.ngrok.io/revaitranscriptcallback"
+    var data = null
+    if (process.env.REVAI_CALLBACK == "WebHook"){
+      data = {
+        media_url: encodeURI(audioSrc),
+        metadata: "Expecting webhook callback",
+        callback_url: process.env.REVAI_WEBHOOK_ADDRESS
+      }
+    }else{
+      data = {
+        media_url: encodeURI(audioSrc),
+        metadata: "Polling"
+      }
     }
     var thisRes = res
     var thisId = body.audioSrc
@@ -28,22 +36,40 @@ RevAIEngine.prototype = {
 /*
     // teemps delete till return
     console.log("Use id")
-    this.getTranscription(505019916, thisId, res, table, body)
+    this.getTranscription(247067512, thisId, res, table, body)
     return
     console.log("should not come here")
 */
-    this.revAIClient.post('jobs', data, (err,resp,body) => {
+    this.revAIClient.post('jobs', data, (err, resp, body) => {
       //console.log("RESPONSE: " + resp.body.toString('utf8'))
       //var json = JSON.parse(resp.body.toString('utf8'))
+      if (err){
+        console.log("CANNOT POST TRANSCRIPT REQUEST")
+        var response = {}
+        response['status'] = "failed"
+        response['message'] = "Cannot call Rev AI transcript"
+        if (thisRes != null){
+          thisRes.send(JSON.stringify(response))
+        }
+        return
+      }
       console.log("BODY: " + JSON.stringify(body))
       var json = body.data //.toString('utf8') //.toString('utf8')
-      //console.log("PASSED")
-      /* use webhook
-      if (json.status == "in_progress"){
-        var resp = {}
-        if (!err){
-          resp['status'] = json.status
-          resp['result'] = json.id
+      // use webhook
+      if (process.env.REVAI_CALLBACK == "WebHook"){
+        var response = {}
+        if (json.status == "in_progress"){
+          response['status'] = "in_progress"
+          response['message'] = "Transcribing ..."
+          response['uid'] = thisId
+          var query = "UPDATE " + table + " SET processed=2 WHERE uid=" + thisId;
+          pgdb.update(query, function(err, result) {
+            if (err){
+              console.error(err.message);
+            }else{
+              console.error("TRANSCRIPT IN-PROGRESS");
+            }
+          });
           var query = "INSERT INTO inprogressedtranscription"
           query += "(transcript_id, item_id, ext_id) VALUES ($1, $2, $3)"
           var values = [json.id, thisId, extensionId]
@@ -56,60 +82,58 @@ RevAIEngine.prototype = {
             console.log("register transcript_id")
           })
         }else{
-          resp['status'] = json.status
-          resp['result'] = "some error"
+          response['status'] = "failed"
+          response['message'] = json.status
         }
-      }else{
-        resp['status'] = json.status
-        resp['result'] = "some error"
-      }
-      if (thisRes != null){
-        // return
-        thisRes.send(resp)
-      }
-      */
-      // use wait loop for testing: 498839493
-      var jobId = json.id
-      if (json.status == "in_progress"){
-        var timeOut = 0
-        var response = {}
-        response['status'] = "in_progress"
-        response['message'] = "Transcribing ..."
-        response['uid'] = thisId
-        var query = "UPDATE " + table + " SET processed=2 WHERE uid=" + thisId;
-        pgdb.update(query, function(err, result) {
-          if (err){
-            console.error(err.message);
-          }else{
-            console.error("TRANSCRIPT IN-PROGRESS");
-          }
-        });
         if (thisRes != null){
           thisRes.send(JSON.stringify(response))
           thisRes = null
         }
-        var interval = setInterval(function () {
-          var query = 'jobs/' + jobId
-          thisEngine.revAIClient.get(query, "", (err,resp,body) => {
-            var json = body.data
-            if (json.status == "transcribed"){
-              clearInterval(interval);
-              console.log("read transcript")
-              //var table = "user_" + extensionId
-              thisEngine.getTranscription(json.id, thisId, thisRes, table, thisBody)
-            }else if(json.status == "failed"){
-              console.log("failed transcribe")
-              clearInterval(interval);
-            }
-          })
-        }, 10000);
-
       }else{
-        var response = {}
-        response['status'] = json.status
-        response['message'] = 'some error from rev ai'
-        if (thisRes != null){
-          thisRes.send(JSON.stringify(response))
+      // use wait loop for testing: 498839493
+        var jobId = json.id
+        if (json.status == "in_progress"){
+          var timeOut = 0
+          var response = {}
+          response['status'] = "in_progress"
+          response['message'] = "Transcribing ..."
+          response['uid'] = thisId
+          var query = "UPDATE " + table + " SET processed=2 WHERE uid=" + thisId;
+          pgdb.update(query, function(err, result) {
+            if (err){
+              console.error(err.message);
+            }else{
+              console.error("TRANSCRIPT IN-PROGRESS");
+            }
+          });
+          if (thisRes != null){
+            thisRes.send(JSON.stringify(response))
+            thisRes = null
+          }
+          // polling
+          var interval = setInterval(function () {
+            var query = 'jobs/' + jobId
+            thisEngine.revAIClient.get(query, "", (err,resp,body) => {
+              var json = body.data
+              if (json.status == "transcribed"){
+                clearInterval(interval);
+                console.log("read transcript")
+                //var table = "user_" + extensionId
+                thisEngine.getTranscription(json.id, thisId, thisRes, table, thisBody)
+              }else if(json.status == "failed"){
+                console.log("failed transcribe")
+                clearInterval(interval);
+              }
+            })
+          }, 10000);
+
+        }else{
+          var response = {}
+          response['status'] = json.status
+          response['message'] = 'some error from rev ai'
+          if (thisRes != null){
+            thisRes.send(JSON.stringify(response))
+          }
         }
       }
     })
