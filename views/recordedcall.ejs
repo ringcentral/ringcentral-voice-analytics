@@ -228,7 +228,26 @@
               <% for (var i = 0; i < convs.length; i++) { %>
                 <tr class="conversation_block">
                   <td class="scol speaker_name speaker_name_<%= speakerIdMap[convs[i].speakerId] %>" data-original-speaker-id="<%= convs[i].speakerId %>">
+                    <!--
                     <b>Speaker <%= speakerIdMap[convs[i].speakerId] %>:</b>
+                    -->
+                    <% var timeStr = convs[i].timestamp[0].toFixed(2).toString() %>
+                    <% var timeArr = timeStr.split(".") %>
+                    <% var sec = parseInt(timeArr[0]) %>
+                    <% var min = 0 %>
+                    <% var tenth = parseInt(timeArr[1]) %>
+                    <% if (sec > 60) { %>
+                      <% min = parseInt(sec/60) %>
+                      <% sec = sec % 60 %>
+                    <% } %>
+                    <% if (min < 10) { %>
+                    <% min = "0" + min.toString() %>
+                    <% } %>
+                    <% if (sec < 10) { %>
+                    <% sec = "0" + sec.toString() %>
+                    <% } %>
+                    <% var timestamp = min + ":" + sec %>
+                    <b>Time: <%= timestamp %></b>
                   </td>
                   <td class="tcol conversation_text">
                 <% for (var n = 0; n < convs[i].sentence.length; n++) { %>
