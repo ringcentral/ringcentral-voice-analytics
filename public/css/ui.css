@@ -517,6 +517,9 @@ body {
 
 #conversations_block {
   padding: 0 15px;
+  font-size: 14px;
+  line-height: 18px;
+  width: 100%;
 }
 
 #conversations_block tr:hover {
@@ -532,8 +535,6 @@ body {
 }
 
 #conversations_block .conversation_text {
-  font-size: 14px;
-  line-height: 18px;
   padding-bottom: 20px;
   color: #4a4a4a;
 }
@@ -600,4 +601,24 @@ body {
   font-size: 18px;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.87);
+}
+
+.font-size-control {
+  float: right;
+  margin-right: 15px;
+}
+
+.font-size-control .decrease {
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  color: #666666;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.font-size-control .increase {
+  font-size: 20px;
+  letter-spacing: 0.5px;
+  color: #666666;
+  cursor: pointer;
 }

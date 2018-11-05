@@ -12,9 +12,11 @@ var speakerSentiment = -1
 var foundIndex = 0;
 var positiveThreshold = 0.5;
 var negativeThreshold = -0.5;
-var fixedSubstractedHeight = 0
+var fixedSubstractedHeight = 0;
 //var upperBlockHeight = 0
-var conversationLastLine = 0
+var conversationLastLine = 0;
+var transcriptFontSize = 14;
+
 function init() {
   initializeAudioPlayer()
   fixedSubstractedHeight = $("#menu_header").height()
@@ -23,9 +25,9 @@ function init() {
   //fixedSubstractedHeight += $("#footer").height()
   //upperBlockHeight = $("#upper_block").height()
   var h = $(window).height() - (fixedSubstractedHeight);
-  h -= 200
+  h -= 180;
   $("#conversations_block").height(h);
-  conversationLastLine = $("#conversations_block").position().top + (h - 20)
+  conversationLastLine = $("#conversations_block").position().top + (h - 20);
 
   var sliderPos = document.getElementById("positiveSentimentRange");
   sliderPos.oninput = function() {
@@ -48,6 +50,16 @@ function init() {
   }
   $("#search").focus()
   //displayAnalytics('keywords');
+  $("#font_size_increase").click(function() {
+    transcriptFontSize += 1;
+    $("#conversations_block").css('font-size', transcriptFontSize + 'px');
+    $("#conversations_block").css('line-height', (transcriptFontSize + 2) + 'px');
+  });
+  $("#font_size_decrease").click(function() {
+    transcriptFontSize -= 1;
+    $("#conversations_block").css('font-size', transcriptFontSize + 'px');
+    $("#conversations_block").css('line-height', (transcriptFontSize + 2) + 'px');
+  });
 }
 function setSpeakersWithSentiment(){
   speakerSentiment = $("#speakers").val()

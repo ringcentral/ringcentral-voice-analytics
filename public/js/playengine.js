@@ -16,16 +16,17 @@ var fixedSubstractedHeight = 0;
 var conversationLastLine = 0
 var wavesurfer;
 var audioPlayLine;
+var transcriptFontSize = 14;
 
 function init() {
   initializeAudioPlayer()
-  fixedSubstractedHeight = $("#menu_header").height()
-  fixedSubstractedHeight += $("#subject_header").height()
+  fixedSubstractedHeight = $("#menu_header").height();
+  fixedSubstractedHeight += $("#subject_header").height();
   //fixedSubstractedHeight += $("#footer").height()
   var h = $(window).height() - (fixedSubstractedHeight);
-  h -= 250
+  h -= 230;
   $("#conversations_block").height(h);
-  conversationLastLine = $("#conversations_block").position().top + (h - 20)
+  conversationLastLine = $("#conversations_block").position().top + (h - 20);
 
   var sliderPos = document.getElementById("positiveSentimentRange");
   sliderPos.oninput = function() {
@@ -48,6 +49,16 @@ function init() {
   }
   displayAnalytics('keywords')
   $("#search").focus()
+  $("#font_size_increase").click(function() {
+    transcriptFontSize += 1;
+    $("#conversations_block").css('font-size', transcriptFontSize + 'px');
+    $("#conversations_block").css('line-height', (transcriptFontSize + 2) + 'px');
+  });
+  $("#font_size_decrease").click(function() {
+    transcriptFontSize -= 1;
+    $("#conversations_block").css('font-size', transcriptFontSize + 'px');
+    $("#conversations_block").css('line-height', (transcriptFontSize + 2) + 'px');
+  });
 }
 
 function setSpeakersWithSentiment(){
