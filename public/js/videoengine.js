@@ -18,12 +18,12 @@ var conversationLastLine = 0
 function init() {
   initializeAudioPlayer()
   fixedSubstractedHeight = $("#menu_header").height()
-  fixedSubstractedHeight += $("#search_bar").height()
   fixedSubstractedHeight += $("#subject_header").height()
+  fixedSubstractedHeight += $("#record_info_line").height()
   //fixedSubstractedHeight += $("#footer").height()
   //upperBlockHeight = $("#upper_block").height()
   var h = $(window).height() - (fixedSubstractedHeight);
-  h -= 170
+  h -= 200
   $("#conversations_block").height(h);
   conversationLastLine = $("#conversations_block").position().top + (h - 20)
 
@@ -235,6 +235,7 @@ function initializeAudioPlayer(){
   aPlayer.addEventListener('loadedmetadata', function() {
     progress.setAttribute('max', aPlayer.duration);
     $('#video-duration').html(formatDuration(aPlayer.duration));
+    $('#audio_player').css('height', 'auto');
   });
   isPlaying = false;
   $('#video-play').show();

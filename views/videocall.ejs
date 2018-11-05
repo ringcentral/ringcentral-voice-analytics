@@ -22,30 +22,21 @@
   <nav id="menu_header" class="navbar navbar-default no-border">
     <span class="left-middle-align">
       <span class="rclogo"><a href="/"><img alt="Brand" src="img/ringcentral.png" height="40"></a></span>&nbsp;&nbsp;
-      <span class="title orange">Voice Analytics</span>
+      <span class="title">Voice Analytics</span>
     </span>
+    <ul class="nav navbar-nav navbar-left left-align-nav">
+      <li><a href="/readlog">Imports</a></li>
+      <li><a href="/recordedcalls">Data List</a></li>
+    </ul>
     <ul class="nav navbar-nav navbar-right middle-align">
       <li><span><b>&nbsp;&nbsp;<%- userName %>&nbsp;&nbsp;</b></span</li>
-      <li><a href="/recordedcalls">&nbsp;&nbsp;List</a></li>
-      <li><a href="/about">&nbsp;&nbsp;About</a></li>
+      <li><a href="/about">&nbsp;&nbsp;Help</a></li>
       <li><a href="/#">&nbsp;|&nbsp;</a</li>
       <li><a href="#" onclick="logout()">Logout</a></li>
     </ul>
   </nav>
 
-  <section id='content'>
-    <div id="search_bar" class="row">
-      <div class="col-xs-12 search-block">
-        <form class="form-inline" id="searchForm" onsubmit="searchForText(); event.preventDefault();">
-          <!--
-            <input type="text" class="form-control" placeholder="enter word to search" id="search" required>
-            <button class="btn btn-default" onclick="searchForText()">Search</button>
-          -->
-          <input type="text" class="form-control search-input search-transcript" placeholder="Search Transcript" id="search" onfocus="selectWord()" value="<%= searchWord === '*' ? '' : searchWord %>" required>
-          <button id="searchButton" class="btn btn-default btn-rc">Search</button>
-        </form>
-      </div>
-    </div>
+  <section id="content" class="record-info">
     <div id="subject_header" class="row">
       <div class="col-xs-12 subject-line">
         <% var icon = 'img/' + results['call_type'] + '.png' %>
@@ -60,60 +51,64 @@
         </span>
       </div>
     </div>
+    <div class="record-info-line" id="record_info_line">
+      <span class="record-info-title">
+        Meeting Info:
+      </span>
+      <span class="record-info-host">
+        <span class="bold">Employee: </span>
+        <% if (results['direction'] == "Out") { %>
+        <% if (results['from_number'] == "Unknown #") { %>
+          <span><b>Unknown</b></span>
+        <% } else { %>
+        <% if (results['from_name'] != "Unknown") { %>
+          <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
+        <% } else { %>
+          <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
+        <% } } %>
+        <% } else { %>
+        <% if (results['to_number'] == "Unknown #") { %>
+          <span>Unknown</span>
+        <% } else { %>
+        <% if (results['to_name'] != "Unknown") { %>
+          <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
+        <% } else { %>
+          <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
+        <% } } %>
+        <% } %>
+      </span>
+      <span class="record-info-customer">
+        <span class="bold">Customer: </span>
+        <% if (results['direction'] == "In") { %>
+        <% if (results['from_number'] == "Unknown #") { %>
+          <span>Unknown</span>
+        <% } else { %>
+        <% if (results['from_name'] != "Unknown") { %>
+          <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
+        <% } else { %>
+          <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
+        <% } } %>
+        <% } else { %>
+        <% if (results['to_number'] == "Unknown #") { %>
+          <span>Unknown</span>
+        <% } else { %>
+        <% if (results['to_name'] != "Unknown") { %>
+          <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
+        <% } else { %>
+          <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
+        <% } } %>
+        <% } %>
+      </span>
+      <span>
+        <% let options = {  month: 'short',day: 'numeric',year: 'numeric',hour: '2-digit',minute: '2-digit'}; %>
+        <% var d = new Date(parseInt(results['call_date'])).toLocaleDateString("en-US", options) %>
+        <%= d %>
+      </span>
+    </div>
     <div class="row">
       <div class="col-xs-12">
         <div class="column left left-block vr-left">
           <div id="upper_block">
-            <div class="block_header">Meeting info</div>
-            <div>
-              <span class="bold">Employee: </span>
-              <% if (results['direction'] == "Out") { %>
-              <% if (results['from_number'] == "Unknown #") { %>
-                <span><b>Unknown</b></span>
-              <% } else { %>
-              <% if (results['from_name'] != "Unknown") { %>
-                <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
-              <% } else { %>
-                <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
-              <% } } %>
-              <% } else { %>
-              <% if (results['to_number'] == "Unknown #") { %>
-                <span>Unknown</span>
-              <% } else { %>
-              <% if (results['to_name'] != "Unknown") { %>
-                <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
-              <% } else { %>
-                <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
-              <% } } %>
-              <% } %>
-            </div>
-            <div>
-              <span class="bold">Customer: </span>
-              <% if (results['direction'] == "In") { %>
-              <% if (results['from_number'] == "Unknown #") { %>
-                <span>Unknown</span>
-              <% } else { %>
-              <% if (results['from_name'] != "Unknown") { %>
-                <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
-              <% } else { %>
-                <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
-              <% } } %>
-              <% } else { %>
-              <% if (results['to_number'] == "Unknown #") { %>
-                <span>Unknown</span>
-              <% } else { %>
-              <% if (results['to_name'] != "Unknown") { %>
-                <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
-              <% } else { %>
-                <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
-              <% } } %>
-              <% } %>
-            </div>
-            <div>
-            <% let options = {  month: 'short',day: 'numeric',year: 'numeric',hour: '2-digit',minute: '2-digit'}; %>
-            <% var d = new Date(parseInt(results['call_date'])).toLocaleDateString("en-US", options) %>
-            <%= d %>
-            </div>
             <div class="video-wrapper">
               <div class="video-area">
                 <video id="audio_player" class="video_player">
@@ -178,7 +173,13 @@
         </div>
         <div class="column right vr-right with-border player-content">
           <div class="vr-transcript">
-            Meeting Transcript
+            <div class="vr-title">Meeting Transcript</div>
+            <div class="search-block search-block-right">
+              <form class="form-inline" id="searchForm" onsubmit="searchForText(); event.preventDefault();">
+                <input type="text" class="form-control search-input search-transcript" placeholder="Search Transcript" id="search" onfocus="selectWord()" value="<%= searchWord === '*' ? '' : searchWord %>" required>
+                <img src="./img/search.png" class="search-icon" />
+              </form>
+            </div>
           </div>
           <div id="conversations_block" class="video_container scrollable_container">
             <table>
