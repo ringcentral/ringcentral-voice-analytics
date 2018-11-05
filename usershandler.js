@@ -1453,7 +1453,7 @@ User.prototype = {
     },
     searchCallsFromDB: function(req, res){
       console.log(JSON.stringify(req.body))
-      var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, processed, from_number, from_name, to_number, to_name, sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, keywords, sentiments, direction, duration, subject, concepts FROM " + this.getUserTable()
+      var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, processed, from_number, from_name, to_number, to_name, sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, transcript, keywords, sentiments, direction, duration, subject, concepts FROM " + this.getUserTable()
       var filterQuery = "true"
       var searchQuery = ""
       if (req.body.types != undefined){
@@ -1786,6 +1786,11 @@ User.prototype = {
           rows[i].sentiments = unescape(r.sentiments)
           rows[i].keywords = unescape(r.keywords)
           rows[i].concepts = unescape(r.concepts)
+          // TBI
+          if (retObj.searchArg != "*"){
+
+          }
+
           //console.log(rows[i].concepts)
           //console.log(rows[i].keywords)
           if (field != null && field == 'keywords'){
