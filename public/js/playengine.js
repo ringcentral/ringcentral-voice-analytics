@@ -16,17 +16,17 @@ var fixedSubstractedHeight = 0;
 var conversationLastLine = 0
 var wavesurfer;
 var audioPlayLine;
+var transcriptFontSize = 14;
 
 function init() {
   initializeAudioPlayer()
-  fixedSubstractedHeight = $("#menu_header").height()
-  fixedSubstractedHeight += $("#search_bar").height()
-  fixedSubstractedHeight += $("#subject_header").height()
+  fixedSubstractedHeight = $("#menu_header").height();
+  fixedSubstractedHeight += $("#subject_header").height();
   //fixedSubstractedHeight += $("#footer").height()
   var h = $(window).height() - (fixedSubstractedHeight);
-  h -= 210
+  h -= 230;
   $("#conversations_block").height(h);
-  conversationLastLine = $("#conversations_block").position().top + (h - 20)
+  conversationLastLine = $("#conversations_block").position().top + (h - 20);
 
   var sliderPos = document.getElementById("positiveSentimentRange");
   sliderPos.oninput = function() {
@@ -49,6 +49,16 @@ function init() {
   }
   displayAnalytics('keywords')
   $("#search").focus()
+  $("#font_size_increase").click(function() {
+    transcriptFontSize += 1;
+    $("#conversations_block").css('font-size', transcriptFontSize + 'px');
+    $("#conversations_block").css('line-height', (transcriptFontSize + 2) + 'px');
+  });
+  $("#font_size_decrease").click(function() {
+    transcriptFontSize -= 1;
+    $("#conversations_block").css('font-size', transcriptFontSize + 'px');
+    $("#conversations_block").css('line-height', (transcriptFontSize + 2) + 'px');
+  });
 }
 
 function setSpeakersWithSentiment(){
@@ -64,7 +74,7 @@ function displayAnalytics(option){
     $("#sentiment_adjust").show()
     $("#sentiment-tab").addClass("tab-selected");
     $("#keyword-tab").removeClass("tab-selected");
-    var upperBlockHeight = $("#upper_block").height() + 150
+    var upperBlockHeight = $("#upper_block").height() + 180
     var h = $(window).height() - (fixedSubstractedHeight);
     $("#analyzed_content").height(h-upperBlockHeight)
     $("#analyzed_content").show();
@@ -121,14 +131,15 @@ function displayAnalytics(option){
             var newSpeaker = true
             for (var i=0; i<speakersArr.length; i++) {
               var sp = speakersArr[i]
-              if (sp.name == item.extra.speakerId.toString()){
+              var speakerId = item.extra && item.extra.speakerId.toString() || item.speakerId.toString();
+              if (sp.name == speakerId){
                 newSpeaker = false
                 break
               }
             }
             if (newSpeaker){
               var speaker = {}
-              speaker['name'] = item.extra.speakerId.toString()
+              speaker['name'] = item.extra && item.extra.speakerId.toString() || item.speakerId.toString();
               //alert(speaker.name)
               speaker['sentences'] = []
               speakersArr.push(speaker)
@@ -139,8 +150,9 @@ function displayAnalytics(option){
             if (item.hasOwnProperty('positive')){
               for (var pos of item.positive){
                 if (pos.score > positiveThreshold){
-                  var tText = truncateText(pos.original_text)
-                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
+                  var tText = truncateText(pos.original_text || pos.text);
+                  var timeStamp = item.extra && item.extra.timeStamp || item.timeStamp;
+                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + timeStamp + ",'" + escape(item.sentence || item.extra.sentence) + "','" + escape(tText) + "')\">"
                   sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
                   sentence += "<span class=\"positive_block\">.." + tText + "..</span>"
                   /*
@@ -153,7 +165,8 @@ function displayAnalytics(option){
                   sentence += "</div>"
                   for (var i=0; i<speakersArr.length; i++) {
                     var sp = speakersArr[i]
-                    if (sp.name == item.extra.speakerId){
+                    var speakerId = item.extra && item.extra.speakerId || item.speakerId;
+                    if (sp.name == speakerId){
                       sp.sentences.push(sentence)
                       break
                     }
@@ -164,8 +177,9 @@ function displayAnalytics(option){
             if (item.hasOwnProperty('negative')){
               for (var neg of item.negative){
                 if (neg.score < negativeThreshold){
-                  var tText = truncateText(neg.original_text)
-                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
+                  var tText = truncateText(neg.original_text || neg.text);
+                  var timeStamp = item.extra && item.extra.timeStamp || item.timeStamp;
+                  sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + timeStamp + ",'" + escape(item.sentence || item.extra.sentence) + "','" + escape(tText) + "')\">"
                   sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
                   sentence += "<span class=\"negative_block\">.. " + tText + " ..</span>"
                   /*
@@ -177,7 +191,8 @@ function displayAnalytics(option){
                   sentence += "</div>"
                   for (var i=0; i<speakersArr.length; i++) {
                     var sp = speakersArr[i]
-                    if (sp.name == item.extra.speakerId){
+                    var speakerId = item.extra && item.extra.speakerId || item.speakerId;
+                    if (sp.name == speakerId){
                       sp.sentences.push(sentence)
                       break
                     }
@@ -188,29 +203,32 @@ function displayAnalytics(option){
           }
           for (var i=0; i<speakersArr.length; i++) {
             var sp = speakersArr[i]
-            text += "<div class=\"sentiment_line speaker_name\">Speaker "+ sp.name + ": </div>"
+            text += "<div class=\"sentiment_line speaker_name speaker_name_" + window.results.speakerIdMap[sp.name] + "\">Speaker "+ window.results.speakerIdMap[sp.name] + ": </div>"
             for (var sent of sp.sentences){
               text += sent
             }
             text += "</div>"
           }
-        }else{ //if (speakerSentiment == 0){
+        } else { //if (speakerSentiment == 0){
           var speaker = {}
           for (var item of itemArr) {
-            if (item.extra.speakerId == speakerSentiment){
-              speaker['name'] = item.extra.speakerId.toString()
+            var speakerId = item.extra && item.extra.speakerId || item.speakerId;
+            if (parseInt(speakerId) == parseInt(speakerSentiment)){
+              speaker['name'] = speakerId.toString()
               speaker['sentences'] = []
               break
             }
           }
           for (var item of itemArr){
-            if (item.extra.speakerId == speakerSentiment){
+            var speakerId = item.extra && item.extra.speakerId || item.speakerId;
+            if (speakerId == speakerSentiment){
               sentence = '' //item.sentence
               if (item.hasOwnProperty('positive')){
                 for (var pos of item.positive){
                   if (pos.score > positiveThreshold){
-                    var tText = truncateText(pos.original_text)
-                    sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
+                    var tText = truncateText(pos.original_text || pos.text)
+                    var timeStamp = item.extra && item.extra.timeStamp || item.timeStamp;
+                    sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + timeStamp + ",'" + escape(item.sentence || item.extra.sentence) + "','" + escape(tText) + "')\">"
                     sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
                     sentence += "<span class=\"positive_block\">.. " + tText + " ..</span>"
                     /*
@@ -227,8 +245,9 @@ function displayAnalytics(option){
               if (item.hasOwnProperty('negative')){
                 for (var neg of item.negative){
                   if (neg.score < negativeThreshold){
-                    var tText = truncateText(neg.original_text)
-                    sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
+                    var tText = truncateText(neg.original_text || neg.text);
+                    var timeStamp = item.extra && item.extra.timeStamp || item.timeStamp;
+                    sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + timeStamp + ",'" + escape(item.sentence || item.extra.sentence) + "','" + escape(tText) + "')\">"
                     sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
                     sentence += "<span class=\"negative_block\">.. " + tText + " ..</span>"
                     /*
@@ -244,9 +263,11 @@ function displayAnalytics(option){
               }
             }
           }
-          text += "<div class=\"sentiment_line speaker_name\">Speaker "+ speaker.name + ": </div>"
-          for (var sent of speaker.sentences){
-            text += sent
+          text += "<div class=\"sentiment_line speaker_name\">Speaker "+ window.results.speakerIdMap[speaker.name || speakerSentiment] + ": </div>"
+          if (speaker.sentences) {
+            for (var sent of speaker.sentences){
+              text += sent
+            }
           }
           text += "</div>"
         }
@@ -257,12 +278,12 @@ function displayAnalytics(option){
     }else if (option == 'keywords'){
       $("#sentiment-tab").removeClass("tab-selected");
       $("#keyword-tab").addClass("tab-selected");
-      $("#sentiment_adjust").hide()
-      var upperBlockHeight = $("#upper_block").height() + 130
+      $("#sentiment_adjust").hide();
+      var upperBlockHeight = $("#upper_block").height() + 180;
       var h = $(window).height() - (fixedSubstractedHeight);
-      $("#analyzed_content").height(h-upperBlockHeight)
-      var text = "" // 942249526628
-      var itemArr = JSON.parse(window.results.keywords)
+      $("#analyzed_content").height(h-upperBlockHeight);
+      var text = ""; // 942249526628
+      var itemArr = JSON.parse(window.results.keywords);
       for (var item of itemArr){
         if (item.text != "class" && item.text != 'keywords'){
         text += "<span class='keyword' onclick='jumptToKeyword(\"" + item.text + "\")'>" + item.text + "</span>"

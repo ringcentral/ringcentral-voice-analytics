@@ -20,7 +20,7 @@ function initForRecordedCalls() {
   height += $("#call_list_header").height()
   height += $("#footer").height()
 
-  var h = $(window).height() - (height + 90);
+  var h = $(window).height() - (height + 125);
   $("#call_items").height(h)
 
   $('#call_items').find('tr').click( function() {
