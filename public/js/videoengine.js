@@ -82,33 +82,36 @@ function displayAnalytics(option){
       var speakersArr = []
       for (var item of itemArr) {
         var newSpeaker = true
+        var speakerId = item.extra && item.extra.speakerId || item.speakerId;
         for (var i=0; i<speakersArr.length; i++) {
           var sp = speakersArr[i]
-          if (sp.name == item.extra.speakerId.toString()){
+          if (sp.name == speakerId.toString()){
             newSpeaker = false
             break
           }
         }
         if (newSpeaker){
           var speaker = {}
-          speaker['name'] = item.extra.speakerId.toString()
+          speaker['name'] = speakerId.toString()
           speaker['sentences'] = []
           speakersArr.push(speaker)
         }
       }
       for (var item of itemArr){
         sentence = '' //item.sentence
+        var speakerId = item.extra && item.extra.speakerId || item.speakerId;
+        var timeStamp = item.extra && item.extra.timeStamp || item.timeStamp;
         if (item.hasOwnProperty('positive')){
           for (var pos of item.positive){
             if (pos.score > positiveThreshold){
               var tText = truncateText(pos.text || pos.normalized_text);
-              sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
+              sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + timeStamp + ",'" + escape(item.sentence || item.extra.sentence) + "','" + escape(tText) + "')\">"
               sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
               sentence += "<span class=\"positive_block\">.. " + tText + " ..</span>"
               sentence += "</div>"
               for (var i=0; i<speakersArr.length; i++) {
                 var sp = speakersArr[i]
-                if (sp.name == item.extra.speakerId){
+                if (sp.name == speakerId){
                   sp.sentences.push(sentence)
                   break
                 }
@@ -120,13 +123,13 @@ function displayAnalytics(option){
           for (var neg of item.negative){
             if (neg.score < negativeThreshold){
               var tText = truncateText(neg.text || neg.normalized_text);
-              sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
+              sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + timeStamp + ",'" + escape(item.sentence || item.extra.sentence) + "','" + escape(tText) + "')\">"
               sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
               sentence += "<span class=\"negative_block\">.. " + tText + " ..</span>"
               sentence += "</div>"
               for (var i=0; i<speakersArr.length; i++) {
                 var sp = speakersArr[i]
-                if (sp.name == item.extra.speakerId){
+                if (sp.name == speakerId){
                   sp.sentences.push(sentence)
                   break
                 }
@@ -146,20 +149,23 @@ function displayAnalytics(option){
     }else{ //if (speakerSentiment == 0){
       var speaker = {}
       for (var item of itemArr) {
-        if (item.extra.speakerId == speakerSentiment){
-          speaker['name'] = item.extra.speakerId.toString()
+        var speakerId = item.extra && item.extra.speakerId || item.speakerId;
+        if (speakerId == speakerSentiment){
+          speaker['name'] = speakerId.toString()
           speaker['sentences'] = []
           break
         }
       }
       for (var item of itemArr){
-        if (item.extra.speakerId == speakerSentiment){
+        var speakerId = item.extra && item.extra.speakerId || item.speakerId;
+        var timeStamp = item.extra && item.extra.timeStamp || item.timeStamp;
+        if (speakerId == speakerSentiment){
           sentence = ''
           if (item.hasOwnProperty('positive')){
             for (var pos of item.positive){
               if (pos.score > positiveThreshold){
                 var tText = truncateText(pos.text || pos.normalized_text);
-                sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
+                sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + timeStamp + ",'" + escape(item.sentence || item.extra.sentence) + "','" + escape(tText) + "')\">"
                 sentence += "<span class=\"sentiment_icon positive_icon\"></span>"
                 sentence += "<span class=\"positive_block\">.. " + tText + " ..</span>"
                 sentence += "</div>"
@@ -171,7 +177,7 @@ function displayAnalytics(option){
             for (var neg of item.negative){
               if (neg.score < negativeThreshold){
                 var tText = truncateText(neg.text || neg.normalized_text);
-                sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + item.extra.timeStamp + ",'" + escape(item.extra.sentence) + "','" + escape(tText) + "')\">"
+                sentence = "<div class=\"sentiment_line\" onclick=\"jumpToSentiment(" + timeStamp + ",'" + escape(item.sentence || item.extra.sentence) + "','" + escape(tText) + "')\">"
                 sentence += "<span class=\"sentiment_icon negative_icon\"></span>"
                 sentence += "<span class=\"negative_block\">.. " + tText + " ..</span>"
                 sentence += "</div>"
