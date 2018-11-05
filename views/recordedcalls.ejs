@@ -205,8 +205,17 @@
                 <% } %>
               </td-->
               <td width="5%" class="td-active">
-                <% var icon = 'img/' + calls[i]['call_type'] + '.png' %>
-                  <img src='<%= icon %>' ></img>
+                <% var icon = 'img/' %>
+                <% if (calls[i].call_type == "PR") { %>
+                  <% if (calls[i].direction == "Out") { %>
+                    <% var icon = 'img/CR_Out.png' %>
+                  <% } else { %>
+                    <% var icon = 'img/CR_In.png' %>
+                  <% } %>
+                <% } else { %>
+                  <% var icon = 'img/' + calls[i]['call_type'] + '.png' %>
+                <% } %>
+                <img src='<%= icon %>' ></img>
               </td>
               <td width="10%" class="td-active">
                 <!--div><%= calls[i]['full_name'] %></div-->
