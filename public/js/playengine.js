@@ -13,6 +13,8 @@ var foundIndex = 0;
 var positiveThreshold = 0.5;
 var negativeThreshold = -0.5;
 var fixedSubstractedHeight = 0;
+const RIGHT_BLOCK_OFFSET = 193 // 170
+const LEFT_BLOCK_OFFSET = 120 // 150
 var conversationLastLine = 0
 var wavesurfer;
 var audioPlayLine;
@@ -24,7 +26,7 @@ function init() {
   fixedSubstractedHeight += $("#subject_header").height();
   //fixedSubstractedHeight += $("#footer").height()
   var h = $(window).height() - (fixedSubstractedHeight);
-  h -= 230;
+  h -= RIGHT_BLOCK_OFFSET
   $("#conversations_block").height(h);
   conversationLastLine = $("#conversations_block").position().top + (h - 20);
 
@@ -74,9 +76,11 @@ function displayAnalytics(option){
     $("#sentiment_adjust").show()
     $("#sentiment-tab").addClass("tab-selected");
     $("#keyword-tab").removeClass("tab-selected");
-    var upperBlockHeight = $("#upper_block").height() + 180
+
+    var upperBlockHeight = $("#upper_block").height() + LEFT_BLOCK_OFFSET
     var h = $(window).height() - (fixedSubstractedHeight);
-    $("#analyzed_content").height(h-upperBlockHeight)
+    $("#analyzed_content").height(h-upperBlockHeight < LEFT_BLOCK_OFFSET ? LEFT_BLOCK_OFFSET : h-upperBlockHeight);
+
     $("#analyzed_content").show();
     var itemArr = JSON.parse(window.results.sentiments)
     var text = "<div>"
@@ -279,9 +283,15 @@ function displayAnalytics(option){
       $("#sentiment-tab").removeClass("tab-selected");
       $("#keyword-tab").addClass("tab-selected");
       $("#sentiment_adjust").hide();
+      /*
       var upperBlockHeight = $("#upper_block").height() + 180;
       var h = $(window).height() - (fixedSubstractedHeight);
       $("#analyzed_content").height(h-upperBlockHeight);
+      */
+      var upperBlockHeight = $("#upper_block").height() + LEFT_BLOCK_OFFSET
+      var h = $(window).height() - (fixedSubstractedHeight);
+      $("#analyzed_content").height(h-upperBlockHeight);
+      //$("#analyzed_content").height(h-upperBlockHeight < LEFT_BLOCK_OFFSET ? LEFT_BLOCK_OFFSET : h-upperBlockHeight);
       var text = ""; // 942249526628
       var itemArr = JSON.parse(window.results.keywords);
       for (var item of itemArr){

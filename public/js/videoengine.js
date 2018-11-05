@@ -13,7 +13,9 @@ var foundIndex = 0;
 var positiveThreshold = 0.5;
 var negativeThreshold = -0.5;
 var fixedSubstractedHeight = 0;
-//var upperBlockHeight = 0
+
+const RIGHT_BLOCK_OFFSET = 190 // 170
+const LEFT_BLOCK_OFFSET = 100 // 150
 var conversationLastLine = 0;
 var transcriptFontSize = 14;
 
@@ -25,7 +27,7 @@ function init() {
   //fixedSubstractedHeight += $("#footer").height()
   //upperBlockHeight = $("#upper_block").height()
   var h = $(window).height() - (fixedSubstractedHeight);
-  h -= 180;
+  h -= RIGHT_BLOCK_OFFSET
   $("#conversations_block").height(h);
   conversationLastLine = $("#conversations_block").position().top + (h - 20);
 
@@ -71,9 +73,9 @@ function displayAnalytics(option){
     $("#sentiment_adjust").show()
     $("#sentiment-tab").addClass("tab-selected");
     $("#keyword-tab").removeClass("tab-selected");
-    var upperBlockHeight = $("#upper_block").height() + 150
+    var upperBlockHeight = $("#upper_block").height() + LEFT_BLOCK_OFFSET
     var h = $(window).height() - (fixedSubstractedHeight);
-    $("#analyzed_content").height(h-upperBlockHeight < 170 ? 170 : h-upperBlockHeight);
+    $("#analyzed_content").height(h-upperBlockHeight < LEFT_BLOCK_OFFSET ? LEFT_BLOCK_OFFSET : h-upperBlockHeight);
 
     var itemArr = JSON.parse(window.results.sentiments)
     var text = "<div>"
@@ -199,9 +201,9 @@ function displayAnalytics(option){
     $("#sentiment-tab").removeClass("tab-selected");
     $("#keyword-tab").addClass("tab-selected");
     $("#sentiment_adjust").hide();
-    var upperBlockHeight = $("#upper_block").height() + 130
+    var upperBlockHeight = $("#upper_block").height() + LEFT_BLOCK_OFFSET
     var h = $(window).height() - (fixedSubstractedHeight);
-    $("#analyzed_content").height(h-upperBlockHeight < 150 ? 150 : h-upperBlockHeight);
+    $("#analyzed_content").height(h-upperBlockHeight < LEFT_BLOCK_OFFSET ? LEFT_BLOCK_OFFSET : h-upperBlockHeight);
     var text = "";
     var itemArr = JSON.parse(window.results.keywords);
     for (var item of itemArr){

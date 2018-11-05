@@ -1851,7 +1851,7 @@ User.prototype = {
     },
     loadCallsFromDB: function(req, res){
       //var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, transcript, processed, from_number, from_name, to_number, to_name,sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, sentiments FROM " + this.getUserTable();
-      var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, processed, from_number, from_name, to_number, to_name,sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, keywords, sentiments, direction, duration, subject, concepts FROM " + this.getUserTable();
+      var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, processed, from_number, from_name, to_number, to_name,sentiment_label, sentiment_score, sentiment_score_hi, sentiment_score_low, has_profanity, keywords, sentiments, direction, duration, subject, concepts FROM " + this.getUserTable();
       var retObj = {}
       retObj['catIndex'] = ''
       retObj['searchArg'] = "*"

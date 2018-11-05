@@ -280,11 +280,10 @@
               <td width="8%" class="td-active">
                 <% if (calls[i]['processed'] == 1) { %>
                   <% var icon = 'img/' %>
-                  <% icon += calls[i]['sentiment_label'] %>
-                  <% icon += '.png' %>
+                  <% icon += calls[i]['sentiment_label'] + '.png' %>
                   <img id="st_<%= calls[i]['uid'] %>" src='<%= icon %>' class="sentiment_icon"></img>
                 <% } else { %>
-                  <div id="st_<%= calls[i]['uid'] %>" >--</div>
+                  <div id="st_<%= calls[i]['uid'] %>">--</div>
                 <% } %>
               </td>
               <td width="12%" class="td-active">

@@ -23,7 +23,7 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
   else
     data['subject'] = "Not defined"
   //data['entities'] = escape(JSON.stringify(input.entities))
-  //data['concepts'] = escape(JSON.stringify(input.concepts))
+  data['concepts'] = escape(JSON.stringify(input.concepts))
 
   //"categories":[{"score":0.706865,"label":"/style and fashion/accessories/backpacks"},{"score":0.383294,"label":"/business and industrial/advertising and marketing/advertising"},{"score":0.347209,"label":"/shopping/retail"}]}
   var categories = []
@@ -96,9 +96,9 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
 
         var average = score/num
         //console.log("SCORE :" + average)
-        if (average > 0.4)
+        if (average > 0.0)
           data['sentiment_label'] = "positive"
-        else if (average < -0.4)
+        else if (average < 0.0)
           data['sentiment_label'] = "negative"
         else
           data['sentiment_label'] = "neutral"

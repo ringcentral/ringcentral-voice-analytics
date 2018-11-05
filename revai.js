@@ -197,7 +197,7 @@ RevAIEngine.prototype = {
         conversations.push(speakerSentence)
       }
       var query = "UPDATE " + table + " SET wordsandoffsets='" + escape(JSON.stringify(wordsandoffsets)) + "', transcript='" + escape(transcript) + "', conversations='" + escape(JSON.stringify(conversations))  + "' WHERE uid=" + thisId;
-      console.log(query)
+      //console.log(query)
       pgdb.update(query, function(err, result) {
         if (err){
           console.error(err.message);
