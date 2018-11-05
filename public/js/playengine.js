@@ -20,11 +20,10 @@ var audioPlayLine;
 function init() {
   initializeAudioPlayer()
   fixedSubstractedHeight = $("#menu_header").height()
-  fixedSubstractedHeight += $("#search_bar").height()
   fixedSubstractedHeight += $("#subject_header").height()
   //fixedSubstractedHeight += $("#footer").height()
   var h = $(window).height() - (fixedSubstractedHeight);
-  h -= 210
+  h -= 250
   $("#conversations_block").height(h);
   conversationLastLine = $("#conversations_block").position().top + (h - 20)
 
@@ -64,7 +63,7 @@ function displayAnalytics(option){
     $("#sentiment_adjust").show()
     $("#sentiment-tab").addClass("tab-selected");
     $("#keyword-tab").removeClass("tab-selected");
-    var upperBlockHeight = $("#upper_block").height() + 150
+    var upperBlockHeight = $("#upper_block").height() + 180
     var h = $(window).height() - (fixedSubstractedHeight);
     $("#analyzed_content").height(h-upperBlockHeight)
     $("#analyzed_content").show();
@@ -257,12 +256,12 @@ function displayAnalytics(option){
     }else if (option == 'keywords'){
       $("#sentiment-tab").removeClass("tab-selected");
       $("#keyword-tab").addClass("tab-selected");
-      $("#sentiment_adjust").hide()
-      var upperBlockHeight = $("#upper_block").height() + 130
+      $("#sentiment_adjust").hide();
+      var upperBlockHeight = $("#upper_block").height() + 180;
       var h = $(window).height() - (fixedSubstractedHeight);
-      $("#analyzed_content").height(h-upperBlockHeight)
-      var text = "" // 942249526628
-      var itemArr = JSON.parse(window.results.keywords)
+      $("#analyzed_content").height(h-upperBlockHeight);
+      var text = ""; // 942249526628
+      var itemArr = JSON.parse(window.results.keywords);
       for (var item of itemArr){
         if (item.text != "class" && item.text != 'keywords'){
         text += "<span class='keyword' onclick='jumptToKeyword(\"" + item.text + "\")'>" + item.text + "</span>"

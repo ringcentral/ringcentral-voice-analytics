@@ -21,6 +21,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="stylesheet" type="text/css" href="css/ui.css">
+    <link rel="stylesheet" type="text/css" href="css/audioplayer.css">
 </head>
 <body>
   <script>
@@ -29,25 +30,20 @@
   <nav id="menu_header" class="navbar navbar-default no-border">
     <span class="left-middle-align">
       <span class="rclogo"><a href="/"><img alt="Brand" src="img/ringcentral.png" height="40"></a></span>&nbsp;&nbsp;
-      <span class="title orange">Voice Analytics</span>
+      <span class="title">Voice Analytics</span>
     </span>
+    <ul class="nav navbar-nav navbar-left left-align-nav">
+      <li><a href="/readlog">Imports</a></li>
+      <li><a href="/recordedcalls">Data List</a></li>
+    </ul>
     <ul class="nav navbar-nav navbar-right middle-align">
       <li><span><b>&nbsp;&nbsp;<%- userName %>&nbsp;&nbsp;</b></span</li>
-      <li><a href="/recordedcalls">&nbsp;&nbsp;List</a></li>
-      <li><a href="/about">&nbsp;&nbsp;About</a></li>
+      <li><a href="/about">&nbsp;&nbsp;Help</a></li>
       <li><a href="/#">&nbsp;|&nbsp;</a</li>
       <li><a href="#" onclick="logout()">Logout</a></li>
     </ul>
   </nav>
   <section id='content'>
-    <div id="search_bar" class="row">
-      <div class="col-xs-12 search-block">
-        <form class="form-inline" id="searchForm" onsubmit="searchForText();">
-          <input type="text" class="form-control search-input search-transcript" id="search" placeholder="Search Transcript" onfocus="selectWord()" value="<%= searchWord === '*' ? '' : searchWord %>" required>
-          <button id="searchButton" class="btn btn-default btn-rc">Search</button>
-        </form>
-      </div>
-    </div>
     <div id="subject_header" class="row">
       <div class="col-xs-12 subject-line">
       <% if (results['call_type'] == "CR") { %>
@@ -75,64 +71,79 @@
       </span>
       </div>
     </div>
-  </br>
+    <div class="record-info-line" id="record_info_line">
+      <span class="record-info-title">
+        Call Info:
+      </span>
+      <span class="record-info-host">
+        <span class="bold">Employee: </span>
+          <% if (results['direction'] == "Out") { %>
+            <% if (results['from_number'] == "Unknown #") { %>
+              <span><b>Unknown</b></span>
+            <% } else { %>
+            <% if (results['from_name'] != "Unknown") { %>
+              <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
+            <% } else { %>
+              <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
+            <% } } %>
+          <% } else { %>
+            <% if (results['to_number'] == "Unknown #") { %>
+              <span>Unknown</span>
+            <% } else { %>
+            <% if (results['to_name'] != "Unknown") { %>
+              <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
+            <% } else { %>
+              <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
+            <% } } %>
+          <% } %>
+      </span>
+      <span class="record-info-customer">
+        <span class="bold">Customer: </span>
+          <% if (results['direction'] == "In") { %>
+            <% if (results['from_number'] == "Unknown #") { %>
+              <span>Unknown</span>
+            <% } else { %>
+            <% if (results['from_name'] != "Unknown") { %>
+              <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
+            <% } else { %>
+              <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
+            <% } } %>
+          <% } else { %>
+            <% if (results['to_number'] == "Unknown #") { %>
+              <span>Unknown</span>
+            <% } else { %>
+            <% if (results['to_name'] != "Unknown") { %>
+              <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
+            <% } else { %>
+              <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
+            <% } } %>
+          <% } %>
+      </span>
+      <% let dateformat = {  month: 'short',day: 'numeric',year: 'numeric',hour: '2-digit',minute: '2-digit'}; %>
+      <% var d = new Date(parseInt(results['call_date'])).toLocaleDateString("en-US", dateformat) %>
+      <span><%= d %></span>
+    </div>
     <div class="row">
       <div class="col-xs-12">
         <div class="column left left-block">
           <div id="upper_block">
-          <div class="with-border upper-block">
-            <div class="block_header">Call info</div>
-              <div>
-                <span class="bold">Employee: </span>
-                <% if (results['direction'] == "Out") { %>
-                  <% if (results['from_number'] == "Unknown #") { %>
-                    <span><b>Unknown</b></span>
-                  <% } else { %>
-                  <% if (results['from_name'] != "Unknown") { %>
-                    <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
-                  <% } else { %>
-                    <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
-                  <% } } %>
-                <% } else { %>
-                  <% if (results['to_number'] == "Unknown #") { %>
-                    <span>Unknown</span>
-                  <% } else { %>
-                  <% if (results['to_name'] != "Unknown") { %>
-                    <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
-                  <% } else { %>
-                    <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
-                  <% } } %>
-                <% } %>
-              </div>
-              <div>
-                <span class="bold">Customer: </span>
-                <% if (results['direction'] == "In") { %>
-                  <% if (results['from_number'] == "Unknown #") { %>
-                    <span>Unknown</span>
-                  <% } else { %>
-                  <% if (results['from_name'] != "Unknown") { %>
-                    <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
-                  <% } else { %>
-                    <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
-                  <% } } %>
-                <% } else { %>
-                  <% if (results['to_number'] == "Unknown #") { %>
-                    <span>Unknown</span>
-                  <% } else { %>
-                  <% if (results['to_name'] != "Unknown") { %>
-                    <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
-                  <% } else { %>
-                    <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
-                  <% } } %>
-                <% } %>
-              </div>
-              <div>
-                <% let dateformat = {  month: 'short',day: 'numeric',year: 'numeric',hour: '2-digit',minute: '2-digit'}; %>
-                <% var d = new Date(parseInt(results['call_date'])).toLocaleDateString("en-US", dateformat) %>
-                <span><%= d %></span>
-              </div>
+          <div class="audio-block">
+            <div class="audio-button" id="audio-button">
+              <div class="pause" style="display: none;" id="audio-pause"></div>
+              <div class="play" style="display: none;" id="audio-play"></div>
             </div>
-          </br>
+            <div class="audio_play_wrapper">
+              <div id="waveform"></div>
+              <div id="audio_play_line"></div>
+            </div>
+            <div class="audio-duration">
+              <span id="audio-play-time">00:00</span>/<span id="audio-duration">--:--</span>
+            </div>
+            <div class="audio-volume range-input">
+              <img src="./img/volume.png" class="volumn-icon" />
+              <input type="range" min="0" max="1000" value="500" class="sliderVolume" id="sliderVolumeRange"></input>
+            </div>
+          </div>
           <div class="with-border">
             <div style="width: 100%;">
               <ul id="tabs" class="nav nav-tabs nav-justified" data-tabs="tabs">
@@ -168,31 +179,20 @@
           </div>
           <div id="analyzed_content" class="scrollable_container"></div>
         </div>
-        <div class="column right with-border player-content">
-          <div style="margin-bottom:10px; width: 100%; background:#f2f4f7">
-            <div class="form-group audio-section">
+        <div class="column right right-block with-border audio-content">
+          <div class="audio-content-header">
+            <div class="audio-content-title">
               <% if (results['call_type'] == "PR" || results['call_type'] == "CR") { %>
-                <span class="bold title">Recorded call </span>
+                <span>Recorded call </span>
               <% } else if (results.call_type == 'VM') { %>
-                <span class="bold title">Voicemail </span>
+                <span>Voicemail </span>
               <% } %>
-              <div class="audio-block">
-                <div class="audio-button" id="audio-button">
-                  <div class="pause" style="display: none;" id="audio-pause"></div>
-                  <div class="play" style="display: none;" id="audio-play"></div>
-                </div>
-                <div class="audio_play_wrapper">
-                  <div id="waveform"></div>
-                  <div id="audio_play_line"></div>
-                </div>
-                <div class="audio-duration">
-                  <span id="audio-play-time">00:00</span>/<span id="audio-duration">--:--</span>
-                </div>
-                <div class="audio-volume range-input">
-                  <img src="./img/volume.png" class="volumn-icon" />
-                  <input type="range" min="0" max="1000" value="500" class="sliderVolume" id="sliderVolumeRange"></input>
-                </div>
-              </div>
+            </div>
+            <div class="search-block search-block-right">
+              <form class="form-inline" id="searchForm" onsubmit="searchForText(); event.preventDefault();">
+                <input type="text" class="form-control search-input search-transcript" placeholder="Search Transcript" id="search" onfocus="selectWord()" value="<%= searchWord === '*' ? '' : searchWord %>" required>
+                <img src="./img/search.png" class="search-icon" />
+              </form>
             </div>
           </div>
           <div id="analytics_block" class="scrollable_container analytics_block" style="display: none"></div>
