@@ -57,14 +57,17 @@
   <section id='content'>
     <div id="subject_header" class="row">
       <div class="col-xs-12 subject-line">
-      <% if (results['call_type'] == "CR") { %>
-      <% var icon = 'img/' + results['direction'] + '_' + results['call_type'] + '.png' %>
+        <% var icon = 'img/' %>
+        <% if (results.call_type == "PR") { %>
+          <% if (results.direction == "Out") { %>
+            <% var icon = 'img/CR_Out.png' %>
+          <% } else { %>
+            <% var icon = 'img/CR_In.png' %>
+          <% } %>
+        <% } else { %>
+          <% var icon = 'img/' + results.call_type + '.png' %>
+        <% } %>
         <img src='<%= icon %>' ></img>
-
-      <% } else { %>
-        <% var icon = 'img/' + results['call_type'] + '.png' %>
-          <img src='<%= icon %>' ></img>
-      <% } %>
       <!span><b>&nbsp;Subjects: </b></span>
       <span><%= results['subject'] %></span>
       <!--

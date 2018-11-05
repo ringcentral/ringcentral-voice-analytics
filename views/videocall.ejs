@@ -39,7 +39,16 @@
   <section id="content" class="record-info">
     <div id="subject_header" class="row">
       <div class="col-xs-12 subject-line">
-        <% var icon = 'img/' + results['call_type'] + '.png' %>
+        <% var icon = 'img/' %>
+        <% if (results.call_type == "PR") { %>
+          <% if (results.direction == "Out") { %>
+            <% var icon = 'img/CR_Out.png' %>
+          <% } else { %>
+            <% var icon = 'img/CR_In.png' %>
+          <% } %>
+        <% } else { %>
+          <% var icon = 'img/' + results.call_type + '.png' %>
+        <% } %>
         <img src='<%= icon %>' class='call_icon vr_icon'></img>
         <span><b>&nbsp;Subjects: </b></span>
         <span><%= results['subject'] %></span>
