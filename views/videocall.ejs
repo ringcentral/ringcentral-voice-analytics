@@ -191,7 +191,7 @@
               <% var index = 0 %>
               <% for (var i=0; i<conversations.length; i++) { %>
                 <tr class="conversation_block">
-                  <td class="scol speaker_name"><b>Speaker <%= conversations[i].speakerId %>:</b></td>
+                  <td class="scol speaker_name speaker_name_<%= conversations[i].speakerId %>"><b>Speaker <%= conversations[i].speakerId %>:</b></td>
                   <td class="tcol conversation_text">
                 <% for (var n=0; n<conversations[i].sentence.length; n++) { %>
                   <% var wId = "word" + index %>

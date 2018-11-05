@@ -25,7 +25,18 @@
 </head>
 <body>
   <script>
+    <% var conversations = JSON.parse(results.conversations) %>
+    <% var speakerMap = {} %>
+    <% for (var i = 0; i < conversations.length; i++) { %>
+      <% speakerMap[conversations[i].speakerId] = 1 %>
+    <% } %>
+    <% var speakerIds = Object.keys(speakerMap) %>
+    <% var speakerIdMap = {} %>
+    <% for (var i = 0; i < speakerIds.length; i++) { %>
+      <% speakerIdMap[speakerIds[i]] = i + 1 %>
+    <% } %>
     window.results = <%- JSON.stringify(results) %>;
+    window.results.speakerIdMap = <%- JSON.stringify(speakerIdMap) %>;
   </script>
   <nav id="menu_header" class="navbar navbar-default no-border">
     <span class="left-middle-align">
@@ -162,14 +173,13 @@
               <select id="speakers" onchange="setSpeakersWithSentiment()">
                 <option selected value=-1>All</option>
                 <% var arr = [] %>
-                <% var conversations = JSON.parse (results.conversations) %>
                 <% for (var i = 0; i < conversations.length; i++) { %>
                   <% var newSpeaker = true; for (var n = 0; n < arr.length; n++) { %>
                     <% if (arr[n] == conversations[i].speakerId) { %>
                       <% newSpeaker = false; break; } %>
                   <% } %>
                   <% if (newSpeaker == true) { arr.push(conversations[i].speakerId); %>
-                  <option value=<%= conversations[i].speakerId %> >Speaker <%= conversations[i].speakerId %></option>
+                  <option value=<%= conversations[i].speakerId %> >Speaker <%= speakerIdMap[conversations[i].speakerId] %></option>
                   <% } %>
                 <% } %>
               </select>
@@ -211,10 +221,12 @@
             <div id="conversations_block" class="scrollable_container">
               <table>
               <% var index = 0 %>
-              <% var convs = JSON.parse (results.conversations) %>
+              <% var convs = conversations %>
               <% for (var i = 0; i < convs.length; i++) { %>
                 <tr class="conversation_block">
-                  <td class="scol speaker_name"><b>Speaker <%= convs[i].speakerId %>:</b></td>
+                  <td class="scol speaker_name speaker_name_<%= speakerIdMap[convs[i].speakerId] %>" data-original-speaker-id="<%= convs[i].speakerId %>">
+                    <b>Speaker <%= speakerIdMap[convs[i].speakerId] %>:</b>
+                  </td>
                   <td class="tcol conversation_text">
                 <% for (var n = 0; n < convs[i].sentence.length; n++) { %>
                   <% var wId = "word" + index %>

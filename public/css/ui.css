@@ -510,6 +510,10 @@ body {
   padding-top: 12px;
 }
 
+#analyzed_content .sentiment_line.speaker_name_1 {
+  color: #0684bd;
+}
+
 .audio-content {
   border: solid 1px #e2e2e2;
   background-color: #ffffff;
@@ -532,6 +536,10 @@ body {
   font-weight: 500px;
   color: #000000;
   letter-spacing: 0.3px;
+}
+
+#conversations_block .speaker_name_1 {
+  color: #0684bd;
 }
 
 #conversations_block .conversation_text {
