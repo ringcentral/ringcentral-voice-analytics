@@ -181,7 +181,14 @@
               <th width="12%">Date/Time</th>
               <th width="8%">Sentiment</th>
               <th width="12%">Subject</th>
-              <th width="41%">Keywords</th>
+              <% if (searchArg != "*" && fieldArg == "keywords") { %>
+                <th width="41%">Keywords</th>
+              <% } else if (searchArg != "*") { %>
+                <th width="41%">Transcript</th>
+              <% } else { %>
+                <th width="41%">Keywords</th>
+              <% } %>
+
             </tr>
           </thead>
           <tbody id="call_items" class="scrollable_calllist call_list" style="height: 400px">
@@ -206,7 +213,7 @@
               </td-->
               <td width="5%" class="td-active">
                 <% var icon = 'img/' %>
-                <% if (calls[i].call_type == "PR") { %>
+                <% if (calls[i].call_type == "PR" || calls[i].call_type == "CR") { %>
                   <% if (calls[i].direction == "Out") { %>
                     <% var icon = 'img/CR_Out.png' %>
                   <% } else { %>
@@ -308,20 +315,39 @@
               </td>
               <td width="41%" class="td-active">
               <% if (calls[i]['processed'] == 1) { %>
-                <span class="transcript_brief" id="tt_<%= calls[i]['uid'] %>">
-                  <% var itemArr = JSON.parse(calls[i].keywords) %>
-                  <% var count = itemArr.length %>
-                  <% for (var ii=1; ii < count; ii++) { %>
-                    <% var item =itemArr[ii] %>
-                    <span class="keyword"><%= item.text %> </span>
-                    <% if (ii > 4) { %>
-                      <% break %>
+                <% if (searchArg != "*" && fieldArg == "keywords") { %>
+                  <span class="transcript_brief" id="tt_<%= calls[i]['uid'] %>">
+                    <% var itemArr = JSON.parse(calls[i].searchMatch) %>
+                    <% var count = itemArr.length %>
+                    <% for (var ii=0; ii < count; ii++) { %>
+                      <% var text =itemArr[ii] %>
+                      <span class="keyword"><%- unescape(text) %> </span>
                     <% } %>
-                  <% } %>
-                  <% if (count > 5) { %>
-                    ...
-                  <% } %>
-                </span>
+                    <% if (count > 5) { %>
+                      ...
+                    <% } %>
+                  </span>
+                <% } else if (searchArg != "*") { %>
+                  <div class="transcript_brief" id="tt_<%= calls[i]['uid'] %>">
+                    <!-- var text = calls[i].searchMatch.replace(searchArg, '<span class="keywords">' + searchArg + "</span>") -->
+                      <%- unescape(calls[i].searchMatch) %> ...
+                  </div>
+                <% } else { %>
+                  <span class="transcript_brief" id="tt_<%= calls[i]['uid'] %>">
+                    <% var itemArr = JSON.parse(calls[i].keywords) %>
+                    <% var count = itemArr.length %>
+                    <% for (var ii=1; ii < count; ii++) { %>
+                      <% var item =itemArr[ii] %>
+                      <span class="keyword"><%= item.text %> </span>
+                      <% if (ii > 4) { %>
+                        <% break %>
+                      <% } %>
+                    <% } %>
+                    <% if (count > 5) { %>
+                      ...
+                    <% } %>
+                  </span>
+                <% } %>
               <% } else if (calls[i]['processed'] == 0) { %>
                 <div id="tt_<%= calls[i]['uid'] %>">--</div>
               <% } else { %>

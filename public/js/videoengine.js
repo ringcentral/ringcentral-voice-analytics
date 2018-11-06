@@ -25,7 +25,7 @@ function init() {
   fixedSubstractedHeight += $("#subject_header").height()
   fixedSubstractedHeight += $("#record_info_line").height()
   //fixedSubstractedHeight += $("#footer").height()
-  //upperBlockHeight = $("#upper_block").height()
+
   var h = $(window).height() - (fixedSubstractedHeight);
   h -= RIGHT_BLOCK_OFFSET
   $("#conversations_block").height(h);
@@ -51,7 +51,7 @@ function init() {
       displayAnalytics('sentiment');
   }
   $("#search").focus()
-  //displayAnalytics('keywords');
+  displayAnalytics('keywords');
   $("#font_size_increase").click(function() {
     transcriptFontSize += 1;
     $("#conversations_block").css('font-size', transcriptFontSize + 'px');

@@ -1550,6 +1550,7 @@ User.prototype = {
         this.readFullData(query, retObj, res, req.body.fields, searchArg)
       }
     },
+/*
     searchCallsFromDB_SentimentScore: function(req, res){
       var posVal = req.body.positiveRange/1000
       var negVal = (req.body.negativeRange/1000) * -1
@@ -1618,17 +1619,6 @@ User.prototype = {
             query += "(sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
           }
         }else{
-          /*
-          if (req.body.sentiment == "positive")
-            query += "transcript LIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
-          else if (req.body.sentiment == "negative")
-            query += "transcript LIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_low <= " + negVal;
-          else if (req.body.sentiment == "neutral")
-            query += "transcript LIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "'";
-          else
-            query += "transcript LIKE '% " + searchArg + "%' AND (sentiment_score_low <= " + negVal + " OR sentiment_score_hi >= " + posVal + ")";
-          */
-          //var reg = " \b[" + searchArg + "\b]"
           if (req.body.sentiment == "positive")
             query += "transcript ILIKE '%" + searchArg + "%' AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
           else if (req.body.sentiment == "negative")
@@ -1774,6 +1764,7 @@ User.prototype = {
         this.readFullData(query, retObj, res, req.body.fields, searchArg)
       }
     },
+*/
     readFullData: function(query, retObj, res, field, keyword){
       pgdb.read(query, (err, result) =>  {
         if (err){
@@ -1787,12 +1778,68 @@ User.prototype = {
           rows[i].keywords = unescape(r.keywords)
           rows[i].concepts = unescape(r.concepts)
           // TBI
+          //var searchMatch = ""
+          rows[i]['searchMatch'] = ""
           if (retObj.searchArg != "*"){
-
+            if (field != null && field == 'keywords'){
+              var searchMatchArr = []
+              var keywordArr = JSON.parse(unescape(r.keywords))
+              for (var keyword of keywordArr){
+                if (keyword.text.indexOf(retObj.searchArg) >= 0 ){
+                  searchMatchArr.push('<span class="search-highlight">' + keyword.text + "</span>")
+                  if (searchMatchArr.length > 4 || searchMatchArr.length == keywordArr.length){
+                    rows[i]['searchMatch'] = JSON.stringify(searchMatchArr)
+                    break
+                  }
+                }else{
+                  if (searchMatchArr.length < 4)
+                    searchMatchArr.push(keyword.text)
+                  if (searchMatchArr.length > 4 || searchMatchArr.length == keywordArr.length){
+                    rows[i]['searchMatch'] = JSON.stringify(searchMatchArr)
+                    break
+                  }
+                }
+              }
+            }else{
+              var transcript = rows[i].transcript = unescape(r.transcript)
+              var sentenceArr = transcript.split(".")
+              for (var sentence of sentenceArr){
+                var index = sentence.indexOf(retObj.searchArg)
+                var length = sentence.length
+                if (index == 0){
+                  var end = (length > 100) ? 100 : length
+                  rows[i]['searchMatch'] = sentence.substring(index, end)
+                  break
+                }else if (index > 0){
+                  var matchEndPos = retObj.searchArg.length + index
+                  if (matchEndPos < 100){
+                    if (length <= 100){
+                      rows[i]['searchMatch'] = sentence.substring(0, length)
+                    }else{
+                      rows[i]['searchMatch'] = sentence.substring(0, 100)
+                    }
+                  }else if (matchEndPos >= 100){
+                    var leftOverLen = length - matchEndPos
+                    if (leftOverLen < 100){
+                      rows[i]['searchMatch'] = sentence.substring(length-100, length)
+                    }else  if (leftOverLen > 110 ){
+                      rows[i]['searchMatch'] = sentence.substr(index-10, 100)
+                    } else {
+                      rows[i]['searchMatch'] = sentence.substr(index, 100)
+                    }
+                  }
+                  break
+                }
+              }
+              rows[i]['searchMatch'] = rows[i]['searchMatch'].trim()
+              rows[i]['searchMatch'] = rows[i]['searchMatch'].replace(retObj.searchArg, '<span class="search-highlight">' + retObj.searchArg + "</span>")
+              console.log("SEARCH MATCH: " + rows[i]['searchMatch'])
+            }
           }
 
           //console.log(rows[i].concepts)
           //console.log(rows[i].keywords)
+          /*
           if (field != null && field == 'keywords'){
             var kwObj = JSON.parse(unescape(r.keywords))
             for (var kw of kwObj){
@@ -1802,6 +1849,7 @@ User.prototype = {
               }
             }
           }
+          */
         }
         /*
         if (field != null && field == 'keywords'){
@@ -2004,6 +2052,8 @@ User.prototype = {
                 pgdb.insert(query, values, (err, result) =>  {
                   if (err)
                     console.error("INSERT ERR: " + err.message);
+                  // create index
+                  var q = "CREATE INDEX " + table + "_fts_ind ON " + table + " USING gin (to_tsvector('simple', string))"
                   return callback0(null, result)
                 })
                 //}, 1000)
@@ -2220,6 +2270,20 @@ function copyTable(table){
             callback(null, result)
           })
 
+        },
+        function (err){
+          var q = "CREATE INDEX " + table + "_fts_ind ON " + table
+          q += " USING gin (to_tsvector('simple', transcript), to_tsvector('simple', keywords))"
+          console.log(q)
+          /*
+          pgdb.createIndex(q, (err, result) =>  {
+            if (err){
+              console.error(err.message);
+              //callback0(null, result)
+            }
+            console.log("index table created")
+          })
+          */
         })
     });
   });

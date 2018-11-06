@@ -200,7 +200,29 @@
               <% var index = 0 %>
               <% for (var i=0; i<conversations.length; i++) { %>
                 <tr class="conversation_block">
-                  <td class="scol speaker_name speaker_name_<%= conversations[i].speakerId %>"><b>Speaker <%= conversations[i].speakerId %>:</b></td>
+                  <td class="scol speaker_name speaker_name_<%= conversations[i].speakerId %>">
+                    <!-- b>Speaker <%= conversations[i].speakerId %>:</b -->
+                    <% var timeStamp = conversations[i].timestamp[0] %>
+                    <% if (timeStamp != undefined) { %>
+                    <% var timeStr = timeStamp.toFixed(2).toString() %>
+                    <% var timeArr = timeStr.split(".") %>
+                    <% var sec = parseInt(timeArr[0]) %>
+                    <% var min = 0 %>
+                    <% var tenth = parseInt(timeArr[1]) %>
+                    <% if (sec > 60) { %>
+                      <% min = parseInt(sec/60) %>
+                      <% sec = sec % 60 %>
+                    <% } %>
+                    <% if (min < 10) { %>
+                    <% min = "0" + min.toString() %>
+                    <% } %>
+                    <% if (sec < 10) { %>
+                    <% sec = "0" + sec.toString() %>
+                    <% } %>
+                    <% var timestamp = min + ":" + sec %>
+                    <b><%= timestamp %></b>
+                    <% } %>
+                  </td>
                   <td class="tcol conversation_text">
                 <% for (var n=0; n<conversations[i].sentence.length; n++) { %>
                   <% var wId = "word" + index %>

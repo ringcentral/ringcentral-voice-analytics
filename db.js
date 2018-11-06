@@ -42,6 +42,9 @@ module.exports = {
         'CREATE TABLE IF NOT EXISTS ' + table + '(transcript_id BIGINT PRIMARY KEY, item_id BIGINT NOT NULL, ext_id BIGINT NOT NULL)', callback);
     }
   },
+  createIndex: (query, callback) => {
+    return pool.query(query, callback);
+  },
   delete_table:(query, callback) => {
     return pool.query(query, callback)
   },

@@ -257,9 +257,9 @@ td{
   font-size: 1.6em;
   color: cyan;
 }
-.keywords {
-  font-size: 1.0em;
-  color: #fff624;
+.search-highlight {
+  font-size: 1.1em;
+  background: #fff624;
 }
 .keyword {
   font-size: 1.0em;

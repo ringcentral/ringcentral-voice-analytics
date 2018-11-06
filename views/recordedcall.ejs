@@ -58,7 +58,7 @@
     <div id="subject_header" class="row">
       <div class="col-xs-12 subject-line">
         <% var icon = 'img/' %>
-        <% if (results.call_type == "PR") { %>
+        <% if (results.call_type == "PR" || results.call_type == "CR") { %>
           <% if (results.direction == "Out") { %>
             <% var icon = 'img/CR_Out.png' %>
           <% } else { %>
@@ -231,7 +231,9 @@
                     <!--
                     <b>Speaker <%= speakerIdMap[convs[i].speakerId] %>:</b>
                     -->
-                    <% var timeStr = convs[i].timestamp[0].toFixed(2).toString() %>
+                    <% var timeStamp = convs[i].timestamp[0] %>
+                    <% if (timeStamp != undefined) { %>
+                    <% var timeStr = timeStamp.toFixed(2).toString() %>
                     <% var timeArr = timeStr.split(".") %>
                     <% var sec = parseInt(timeArr[0]) %>
                     <% var min = 0 %>
@@ -247,7 +249,8 @@
                     <% sec = "0" + sec.toString() %>
                     <% } %>
                     <% var timestamp = min + ":" + sec %>
-                    <b>Time - <%= timestamp %></b>
+                    <b><%= timestamp %></b>
+                    <% } %>
                   </td>
                   <td class="tcol conversation_text">
                 <% for (var n = 0; n < convs[i].sentence.length; n++) { %>
