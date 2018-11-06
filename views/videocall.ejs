@@ -65,7 +65,7 @@
         Meeting Info:
       </span>
       <span class="record-info-host">
-        <span class="bold">Employee: </span>
+        <span class="bold">User: </span>
         <% if (results['direction'] == "Out") { %>
         <% if (results['from_number'] == "Unknown #") { %>
           <span><b>Unknown</b></span>
@@ -87,7 +87,7 @@
         <% } %>
       </span>
       <span class="record-info-customer">
-        <span class="bold">Customer: </span>
+        <span class="bold">Participant: </span>
         <% if (results['direction'] == "In") { %>
         <% if (results['from_number'] == "Unknown #") { %>
           <span>Unknown</span>
