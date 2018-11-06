@@ -58,12 +58,10 @@ input, select {
   border: 1px solid #f7f7f9;
 }
 .td-active {
-  align: "left";
-  vertical-align: "middle";
-  font-size: 0.9em;
   border-bottom: 1px solid #f7f7f9;
   border-top: 0px !important;
 }
+
 .td-inactive {
   align: "left";
   vertical-align: "middle";

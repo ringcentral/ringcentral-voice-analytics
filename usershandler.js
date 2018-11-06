@@ -1816,16 +1816,19 @@ User.prototype = {
                     if (length <= 100){
                       rows[i]['searchMatch'] = sentence.substring(0, length)
                     }else{
-                      rows[i]['searchMatch'] = sentence.substring(0, 100)
+                      rows[i]['searchMatch'] = "... " + sentence.substring(0, 100) + " ..."
                     }
                   }else if (matchEndPos >= 100){
                     var leftOverLen = length - matchEndPos
                     if (leftOverLen < 100){
-                      rows[i]['searchMatch'] = sentence.substring(length-100, length)
+                      rows[i]['searchMatch'] = "... " + sentence.substring(length-100, length)
                     }else  if (leftOverLen > 110 ){
-                      rows[i]['searchMatch'] = sentence.substr(index-10, 100)
+                      for (var n=index; n>=0; n-- )
+                        if(sentence[n] == " ")
+                          break
+                      rows[i]['searchMatch'] = "... " + sentence.substr(n, 100) + " ..."
                     } else {
-                      rows[i]['searchMatch'] = sentence.substr(index, 100)
+                      rows[i]['searchMatch'] = "... " + sentence.substr(index, 100) + " ..."
                     }
                   }
                   break
