@@ -10,19 +10,11 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css" type="text/css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.3/css/bootstrap-select.min.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="stylesheet" type="text/css" href="css/ui.css">
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
-
-    <script>
-      $(function() {
-        $('#extensionids').multiselect({
-          includeSelectAllOption: true
-        });
-      });
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.3/js/bootstrap-select.min.js"></script>
 </head>
 <body onload="initForReadLog()">
   <nav class="navbar navbar-default no-border">
@@ -48,11 +40,11 @@
     <form class="form-inline">
       <div class="form-group">
         <label for="fromDate">From Date</label>
-          <input type="text" id="fromdatepicker"></input>&nbsp;&nbsp;
+          <input type="text" id="fromdatepicker" class="form-control text-input"></input>&nbsp;&nbsp;
         <label for="toDate">To Date</label>
-          <input type="text" id="todatepicker"></input>&nbsp;
+          <input type="text" id="todatepicker" class="form-control text-input"></input>&nbsp;
         <% if (userLevel == 'admin') { %>
-          <select class="selectpicker filter-select" multiple="multiple" id="extensionids" style="display: inline">
+          <select class="selectpicker filter-select" multiple="multiple" id="extensionids" style="display: inline" title="User">
           <% var extensionsArr = JSON.parse(extensionList) %>
           <% for (var i = 0; i < extensionsArr.length; i++) { %>
             <option value="<%= extensionsArr[i].id %>"><%= extensionsArr[i].fullName %></option>
