@@ -298,17 +298,17 @@ User.prototype = {
         // add the fake extension info
         var item = {}
         item['id'] = "9999999"
-        item['extNum'] = "1001"
+        item['extNum'] = "5000"
         item['fullName'] = "Max Ball"
         extensionList.push(item)
         var item2 = {}
         item2['id'] = "9999999"
-        item2['extNum'] = "1002"
+        item2['extNum'] = "5001"
         item2['fullName'] = "Joe Lee"
         extensionList.push(item2)
         var item3 = {}
         item3['id'] = "9999999"
-        item3['extNum'] = "1003"
+        item3['extNum'] = "5002"
         item3['fullName'] = "Susan Carr"
         extensionList.push(item3)
         thisUser.setUserExtensionList(extensionList)
@@ -1508,8 +1508,8 @@ User.prototype = {
             searchQuery += "from_number ILIKE '%" + searchArg + "%' OR "
             searchQuery += "from_name ILIKE '%" + searchArg + "%' OR "
             searchQuery += "to_number ILIKE '%" + searchArg + "%' OR "
-            searchQuery += "to_name ILIKE '%" + searchArg + "%' OR "
-            searchQuery += "extension_num ILIKE '%" + searchArg + "%')"
+            searchQuery += "to_name ILIKE '%" + searchArg + "%')"
+            //searchQuery += "extension_num ILIKE '%" + searchArg + "%')"
             //searchQuery += "categories ILIKE '%" + searchArg + "%')"
         }
       }else if (req.body.fields == "transcript"){
@@ -1522,11 +1522,6 @@ User.prototype = {
         if (searchArg != "*") {
           searchQuery += " AND keywords ILIKE '%" + searchArg + "%'";
         }
-      }else if (req.body.fields == "concepts"){
-        searchQuery += "processed=1"
-        if (searchArg != "*") {
-          searchQuery += " AND concepts ILIKE '%" + searchArg + "%'";
-        }
       }else if (req.body.fields == "from"){
         if (searchArg != "*") {
           searchQuery += "from_number ILIKE '%" + searchArg + "%' OR from_name ILIKE '%" + searchArg + "%'"
@@ -1535,20 +1530,30 @@ User.prototype = {
         if (searchArg != "*") {
           searchQuery += "to_number ILIKE '%" + searchArg + "%' OR to_name ILIKE '%" + searchArg + "%'"
         }
-      }else if (req.body.fields == "extension"){
+      }
+      /*
+      else if (req.body.fields == "extension"){
         if (searchArg != "*") {
           searchQuery += "extension_num='" + searchArg + "'";
         }
       }
+      */
       if (req.body.extensionnumbers != undefined){
         if (Array.isArray(req.body.extensionnumbers)){
           var count = req.body.extensionnumbers.length
-          searchQuery += "extension_num='" + req.body.extensionnumbers[0] + "'";
-          for (var n=1; n<count; n++){
+          if (searchQuery == "")
+            searchQuery += "(extension_num='" + req.body.extensionnumbers[0] + "'";
+          else
+            searchQuery += " AND (extension_num='" + req.body.extensionnumbers[0] + "'";
+          for (var n=1; n<count-1; n++){
             searchQuery += " OR extension_num='" + req.body.extensionnumbers[n] + "'";
           }
+          searchQuery += " OR extension_num='" + req.body.extensionnumbers[count-1] + "')";
         }else{
-          searchQuery += "extension_num='" + req.body.extensionnumbers + "'";
+          if (searchQuery == "")
+            searchQuery += "extension_num='" + req.body.extensionnumbers + "'";
+          else
+            searchQuery += " AND extension_num='" + req.body.extensionnumbers + "'";
         }
       }
       console.log("SEARCH QUERY: " + searchQuery)
