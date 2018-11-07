@@ -16,7 +16,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.3/css/bootstrap-select.min.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="stylesheet" type="text/css" href="./css/ui.css">
-    <script type="text/javascript">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css" type="text/css"/>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js"></script>
+    <script>
+      $(function() {
+        $('#extensionids').multiselect({
+          includeSelectAllOption: true
+        });
+      });
     </script>
 </head>
 <body  onload="initForRecordedCalls()">
@@ -65,13 +72,6 @@
                 <% } else { %>
                   <option value='keywords'>Keywords</option>
                 <% } %>
-              <!--
-                <% if (fieldArg == 'concepts') { %>
-                  <option selected value='concepts'>Concepts</option>
-                <% } else { %>
-                  <option value='concepts'>Concepts</option>
-                <% } %>
-              -->
                 <% if (fieldArg == 'from') { %>
                   <option selected value='from'>From</option>
                 <% } else { %>
@@ -82,11 +82,13 @@
                 <% } else { %>
                   <option value='to'>To</option>
                 <% } %>
+                <!--
                 <% if (fieldArg == 'extension') { %>
                   <option selected value='extension'>Extension</option>
                 <% } else { %>
                   <option value='extension'>Extension</option>
                 <% } %>
+                -->
               </select>
               <input type="text" class="form-control search-input" name="search" placeholder="Search Transcript" value="<%= searchArg === '*' ? '' : searchArg %>" id="search" required onfocus="selectSelectText()">
               <img src="./img/search.jpeg" class="search-icon" />
@@ -163,6 +165,14 @@
             <% } %>
           <% } %>
           </select>
+          <% if (userLevel == 'admin') { %>
+            <select class="selectpicker filter-select" multiple="multiple" id="extensionnumbers" name="extensionnumbers" style="display: inline">
+            <% var extensionsArr = JSON.parse(extensionList) %>
+            <% for (var i = 0; i < extensionsArr.length; i++) { %>
+              <option value="<%= extensionsArr[i].extNum %>"><%= extensionsArr[i].fullName %></option>
+            <% } %>
+            </select>
+          <% } %>
         </form>
       </div>
     </div>
@@ -179,8 +189,8 @@
               <th width="10%">User</th>
               <th width="10%">Participant</th>
               <th width="12%">Date/Time</th>
-              <th width="6%">Sentiment</th>
-              <th width="14%">Subject</th>
+              <th width="8%">Sentiment</th>
+              <th width="12%">Subject</th>
               <% if (searchArg != "*" && fieldArg == "keywords") { %>
                 <th width="41%">Keywords</th>
               <% } else if (searchArg != "*") { %>
@@ -293,7 +303,7 @@
               <div><%= d %></div>
               </td>
 
-              <td width="6%" class="td-active">
+              <td width="8%" class="td-active">
                 <% if (calls[i]['processed'] == 1) { %>
                   <% var icon = 'img/' %>
                   <% icon += calls[i]['sentiment_label'] + '.png' %>
@@ -302,7 +312,7 @@
                   <div id="st_<%= calls[i]['uid'] %>">--</div>
                 <% } %>
               </td>
-              <td width="14%" class="td-active">
+              <td width="12%" class="td-active">
               <% if (calls[i]['processed'] == 1) { %>
                 <span><%= calls[i]['subject'] %></span>
               <% } else if (calls[i]['processed'] == 2) { %>

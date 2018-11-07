@@ -292,10 +292,26 @@ User.prototype = {
           item['id'] = record.id
           item['extNum'] = record.extensionNumber.toString()
           item['fullName'] = record.contact.firstName + " " + record.contact.lastName
-          console.log(item.fullName)
+          //console.log(item.fullName)
           extensionList.push(item)
         }
-        thisUser.extensionList = extensionList
+        // add the fake extension info
+        var item = {}
+        item['id'] = "9999999"
+        item['extNum'] = "1001"
+        item['fullName'] = "Max Ball"
+        extensionList.push(item)
+        var item2 = {}
+        item2['id'] = "9999999"
+        item2['extNum'] = "1002"
+        item2['fullName'] = "Joe Lee"
+        extensionList.push(item2)
+        var item3 = {}
+        item3['id'] = "9999999"
+        item3['extNum'] = "1003"
+        item3['fullName'] = "Susan Carr"
+        extensionList.push(item3)
+        thisUser.setUserExtensionList(extensionList)
         thisUser.readPhoneNumber(p)
       })
       .catch(function(e){
@@ -1524,6 +1540,18 @@ User.prototype = {
           searchQuery += "extension_num='" + searchArg + "'";
         }
       }
+      if (req.body.extensionnumbers != undefined){
+        if (Array.isArray(req.body.extensionnumbers)){
+          var count = req.body.extensionnumbers.length
+          searchQuery += "extension_num='" + req.body.extensionnumbers[0] + "'";
+          for (var n=1; n<count; n++){
+            searchQuery += " OR extension_num='" + req.body.extensionnumbers[n] + "'";
+          }
+        }else{
+          searchQuery += "extension_num='" + req.body.extensionnumbers + "'";
+        }
+      }
+      console.log("SEARCH QUERY: " + searchQuery)
       if (filterQuery != "true")
         query +=  " WHERE " + filterQuery
       if (searchQuery != ""){
@@ -1836,6 +1864,7 @@ User.prototype = {
               }
               rows[i]['searchMatch'] = rows[i]['searchMatch'].trim()
               rows[i]['searchMatch'] = rows[i]['searchMatch'].replace(retObj.searchArg, '<span class="search-highlight">' + retObj.searchArg + "</span>")
+              rows[i].transcript = ""
               console.log("SEARCH MATCH: " + rows[i]['searchMatch'])
             }
           }
@@ -1901,7 +1930,8 @@ User.prototype = {
             typeArg: retObj.typeArg,
             itemCount: rows.length,
             userName: this.getUserName(),
-            userLevel: this.getUserLevel()
+            userLevel: this.getUserLevel(),
+            extensionList: JSON.stringify(this.extensionList)
           })
       });
     },

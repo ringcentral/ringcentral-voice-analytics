@@ -138,6 +138,7 @@ app.get('/recordedcalls', function (req, res) {
 app.post('/search', function (req, res) {
   console.log("searchCallsFromDB")
   console.log("SESSION:" + JSON.stringify(req.session))
+  console.log(req.body)
   router.searchCallsFromDB(req, res)
 })
 
