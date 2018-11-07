@@ -1550,7 +1550,7 @@ User.prototype = {
             searchQuery += " AND extension_num='" + req.body.extensionnumbers + "'";
         }
       }
-      console.log("SEARCH QUERY: " + searchQuery)
+      //console.log("SEARCH QUERY: " + searchQuery)
       if (filterQuery != "true")
         query +=  " WHERE " + filterQuery
       if (searchQuery != ""){
@@ -1559,9 +1559,9 @@ User.prototype = {
         else
           query +=  " AND " + searchQuery
       }
-      console.log(filterQuery)
-      console.log(searchQuery)
-      console.log(query)
+      //console.log(filterQuery)
+      //console.log(searchQuery)
+      //console.log(query)
       var retObj = {}
       retObj['catIndex'] = req.body.categories
       retObj['searchArg'] = searchArg
@@ -1830,60 +1830,72 @@ User.prototype = {
               const MAX_LENGTH = 90
               var transcript = rows[i].transcript = unescape(r.transcript)
               var sentenceArr = transcript.split(".")
+              var searchWord = retObj.searchArg.toLowerCase()
               for (var sentence of sentenceArr){
-                var index = sentence.indexOf(retObj.searchArg)
+                var index = sentence.toLowerCase().indexOf(searchWord)
                 var sentenceLen = sentence.length -1
                 var startPos = 0
                 var stopPos = 0
                 var searchWordLen = retObj.searchArg.length
                 if (index == 0){
-                  console.log("index: " + index)
+                  //console.log("SENTENCE START: " + sentence)
                   stopPos = (sentenceLen > MAX_LENGTH) ? MAX_LENGTH : sentenceLen
                   break
                 }else if (index > 0){
+                  //console.log("SENTENCE SOMEWHERE: " + sentence)
                   // set startPos
                   startPos = (index + searchWordLen) - MAX_LENGTH
                   if (startPos < 0){
                     startPos = 0
                   }
                   stopPos = startPos + MAX_LENGTH
-                  stopPos = (stopPos > sentenceLen) ? sentenceLen : stopPos
+                  stopPos = (stopPos > sentenceLen) ? sentenceLen + 1 : stopPos
                   // check and set beginning of the first word
                   if (startPos > 0){
                     for (startPos; startPos<index; startPos++){
-                      if (sentence[startPos] == " "){
+                      if (sentence[startPos] == " " || sentence[startPos] == "," || sentence[startPos] == "."){
                         startPos += 1
                         break
                       }
                     }
                   }
                   // check and set end of the last word
-                  if (stopPos <= sentenceLen){
-                    var lowBoundary = index + searchWordLen
-                    for (stopPos; stopPos>lowBoundary; stopPos--){
-                      if (sentence[stopPos] == " "){
-                        //stopPos -= 1
-                        break
+                  var searchWordEndPos = index + searchWordLen - 1
+                  //console.log("END SEARCH POS: " + searchWordEndPos)
+                  if (searchWordEndPos < stopPos){
+                    //console.log("cutting...")
+                    if (stopPos < sentenceLen){
+                      var lowBoundary = index + searchWordLen
+                      for (stopPos; stopPos>=lowBoundary; stopPos--){
+                        if (sentence[stopPos] == " " || sentence[stopPos] == "," || sentence[stopPos] == "."){
+                          //stopPos -= 1
+                          break
+                        }
                       }
                     }
                   }
                   break
                 }
               }
-              console.log(startPos + "/" + stopPos + " Len: " + (stopPos - startPos))
+              //console.log(startPos + "/" + stopPos + " Len: " + (stopPos - startPos))
               var truncatedText = ""
               if (startPos == 0){
                 truncatedText = sentence.substring(startPos, stopPos) + " ..."
               }else {
                 truncatedText = "... " + sentence.substring(startPos, stopPos) + " ..."
               }
+              //console.log("SEARCH MATCH: " + truncatedText)
+              var regEx = new RegExp(retObj.searchArg, "ig");
+              truncatedText = truncatedText.replace(regEx, '<span class="search-highlight">' + retObj.searchArg + "</span>")
+
+              //rows[i]['searchMatch'] = rows[i]['searchMatch'].trim()
+
               rows[i]['searchMatch'] = truncatedText
-              rows[i]['searchMatch'] = rows[i]['searchMatch'].trim()
-              rows[i]['searchMatch'] = rows[i]['searchMatch'].replace(retObj.searchArg, '<span class="search-highlight">' + retObj.searchArg + "</span>")
               rows[i].transcript = ""
-              //console.log("SEARCH MATCH: " + rows[i]['searchMatch'])
+
             }
           }
+//We have a, which is a service I call recording feature for salesforce
           //console.log(rows[i].concepts)
           //console.log(rows[i].keywords)
           /*
