@@ -120,6 +120,7 @@ app.post('/createrecord', function (req, res) {
 
 app.post('/enablenotification', function (req, res) {
   console.log("enable notification")
+  //console.log(req.body)
   router.subscribeForNotification(req, res)
   //res.send('{"result":"ok"}')
 })

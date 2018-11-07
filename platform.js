@@ -177,21 +177,29 @@ RCPlatform.prototype = {
         thisCallback(e, "record.id")
       });
   },
+  29a57435-535b-457b-a265-bb52311ac7da
+  eb709175-74a0-4099-883e-f7b93db872cd
   */
   // webhook
   subscribeForNotification: function(extensionList, isAdmin, callback){
     var eventFilters = []
-    eventFilters.push('/restapi/v1.0/account/~/extension/~/presence?detailedTelephonyState=true')
+
     if (isAdmin){
       console.log("ADMIN NOTIFICATION")
+      var fil = '/restapi/v1.0/account/~/presence?detailedTelephonyState=true'
+      console.log(fil)
+      eventFilters.push(fil)
       for (var ext of extensionList){
-        var fil = '/restapi/v1.0/account/~/extension/' + ext.id + '/message-store'
+        fil = '/restapi/v1.0/account/~/extension/' + ext.id + '/message-store'
         console.log(fil)
         eventFilters.push(fil)
       }
     }else{
       console.log("USER NOTIFICATION")
-      var fil = '/restapi/v1.0/account/~/extension/~/message-store'
+      var fil = '/restapi/v1.0/account/~/extension/~/presence?detailedTelephonyState=true'
+      console.log(fil)
+      eventFilters.push(fil)
+      fil = '/restapi/v1.0/account/~/extension/~/message-store'
       console.log(fil)
       eventFilters.push(fil)
     }

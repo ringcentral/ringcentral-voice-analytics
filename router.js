@@ -140,7 +140,6 @@ var router = module.exports = {
     var index = getUserIndex(req.session.userId)
     if (index < 0)
       return //this.forceLogin(req, res)
-    console.log(res)
     users[index].removeSubscription(res)
   },
   handleWebhooksPost: function(jsonObj){

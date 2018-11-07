@@ -88,9 +88,9 @@
             <label for="types" class="filter-label">Filter by</label>
             <select name='types' class="selectpicker filter-select" onchange="startSearch()" title="Call Type">
               <% if (typeArg == 'all') { %>
-                <option value='all' selected>All</option>
+                <option value='' selected>All</option>
               <% } else { %>
-                <option value='all'>All</option>
+                <option value=''>All</option>
               <% } %>
               <% if (typeArg == 'CR') { %>
                 <option selected value='CR'>Call recording</option>
@@ -115,9 +115,9 @@
             </select>
             <select id="sentiment-option" name='sentiment' class="selectpicker filter-select" onchange="startSearch()" title="Sentiment">
               <% if (sentimentArg == 'all') { %>
-                <option value='all' selected>All</option>
+                <option value='' selected>All</option>
               <% } else { %>
-                <option value='all'>All</option>
+                <option value=''>All</option>
               <% } %>
               <% if (sentimentArg == 'positive') { %>
                 <option selected value='positive'>Positive</option>
@@ -139,9 +139,9 @@
           <select name="categories" class="selectpicker filter-select" id="categoryField" onchange="startSearch()" title="Category">
           <% var categoryArr = JSON.parse(categories) %>
           <% if (catIndex == 'all') { %>
-            <option value='all' selected>All</option>
+            <option value='' selected>All</option>
           <% } else { %>
-            <option value='all'>All</option>
+            <option value=''>All</option>
           <% } %>
           <% for (var i = 0; i < categoryArr.length; i++) { %>
             <% if (catIndex == categoryArr[i]) { %>

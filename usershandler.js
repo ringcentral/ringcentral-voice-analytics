@@ -629,7 +629,7 @@ User.prototype = {
         }
         if (result.rows.length == 0){
           console.log("no subId found. create one after")
-          var extensionList = thisUser.getExtensionList()
+          //var extensionList = thisUser.getExtensionList()
           thisUser.rc_platform.subscribeForNotification(selectedExtensionList, thisUser.isAdmin(), function(err, subId){
             console.log("subscribed ID: " + subId)
             console.log("RETURNED EXT ID: " + thisUser.getExtensionId())
@@ -659,8 +659,8 @@ User.prototype = {
           console.log("subId :" + subId)
           if (subId == ''){
             console.log("empty subID")
-            var extensionList = thisUser.getExtensionList()
-            thisUser.rc_platform.subscribeForNotification(extensionList, thisUser.isAdmin(), function(err, subId){
+            //var extensionList = thisUser.getExtensionList()
+            thisUser.rc_platform.subscribeForNotification(selectedExtensionList, thisUser.isAdmin(), function(err, subId){
               console.log("RETURNED EXT ID: " + thisUser.getExtensionId())
               if (!err){
                 thisRes.send('{"result":"ok"}')
@@ -684,8 +684,8 @@ User.prototype = {
             thisUser.rc_platform.removeOrphanSubscription(subId, function(err, result){
               console.log("OLD ORPHANED SUBSCRIPTION REMOVED")
               if (!err){
-                var extensionList = thisUser.getExtensionList()
-                thisUser.rc_platform.subscribeForNotification(extensionList, thisUser.isAdmin(), function(err, subId){
+                //var extensionList = thisUser.getExtensionList()
+                thisUser.rc_platform.subscribeForNotification(selectedExtensionList, thisUser.isAdmin(), function(err, subId){
                   if (!err){
                     thisRes.send('{"result":"ok"}')
                     var extId = thisUser.getExtensionId()
@@ -772,6 +772,8 @@ User.prototype = {
       var thisUser = this
       if (msg.event.indexOf('message-store') > 0){
         console.log("message-store type: " + msg.body.changes[0].type)
+        console.log("BODY: " + JSON.stringify(msg.body))
+        //console.log("MSG: " + JSON.stringify(msg))
         if (msg.body.changes[0].type == "VoiceMail" && msg.body.changes[0].newCount > 0){
           return this.notificationUser.hasMissedCall = true
         }
@@ -796,7 +798,7 @@ User.prototype = {
             }, 5000)
           }
         }
-        console.log("BODY: " + JSON.stringify(msg.body))
+
       }else if (msg.event.indexOf('presence') > 0){
         this.notificationUser.extensionId = msg.body.extensionId
         var newTelephonyStatus = msg.body.telephonyStatus
@@ -1470,11 +1472,11 @@ User.prototype = {
       var filterQuery = "true"
       var searchQuery = ""
       if (req.body.types != undefined){
-        if (req.body.types != "all")
+        if (req.body.types != "")
           filterQuery = "call_type='" + req.body.types + "'"
       }
       if (req.body.sentiment != undefined){
-        if (req.body.sentiment != "all"){
+        if (req.body.sentiment != ""){
           if (filterQuery == "true")
             filterQuery = "sentiment_label='" + req.body.sentiment + "'";
           else
@@ -1482,7 +1484,7 @@ User.prototype = {
         }
       }
       if (req.body.categories != undefined){
-        if (req.body.categories != "all"){
+        if (req.body.categories != ""){
           if (filterQuery == "true")
             filterQuery = "categories LIKE '%" + escape(req.body.categories) + "%'"
           else
@@ -1830,46 +1832,124 @@ User.prototype = {
                 }
               }
             }else{
+              const MAX_LENGTH = 90
               var transcript = rows[i].transcript = unescape(r.transcript)
               var sentenceArr = transcript.split(".")
               for (var sentence of sentenceArr){
                 var index = sentence.indexOf(retObj.searchArg)
-                var length = sentence.length
+                var sentenceLen = sentence.length -1
+                var startPos = 0
+                var stopPos = 0
+                var searchWordLen = retObj.searchArg.length
                 if (index == 0){
-                  var end = (length > 100) ? 100 : length
-                  rows[i]['searchMatch'] = sentence.substring(index, end)
+                  console.log("index: " + index)
+                  stopPos = (sentenceLen > MAX_LENGTH) ? MAX_LENGTH : sentenceLen
                   break
                 }else if (index > 0){
-                  var matchEndPos = retObj.searchArg.length + index
-                  if (matchEndPos < 100){
-                    if (length <= 100){
-                      rows[i]['searchMatch'] = sentence.substring(0, length)
-                    }else{
-                      rows[i]['searchMatch'] = "... " + sentence.substring(0, 100) + " ..."
+                  // set startPos
+                  startPos = (index + searchWordLen) - MAX_LENGTH
+                  if (startPos < 0){
+                    startPos = 0
+                  }
+                  stopPos = startPos + MAX_LENGTH
+                  stopPos = (stopPos > sentenceLen) ? sentenceLen : stopPos
+                  // check and set beginning of the first word
+                  if (startPos > 0){
+                    for (startPos; startPos<index; startPos++){
+                      if (sentence[startPos] == " "){
+                        startPos += 1
+                        break
+                      }
                     }
-                  }else if (matchEndPos >= 100){
-                    var leftOverLen = length - matchEndPos
-                    if (leftOverLen < 100){
-                      rows[i]['searchMatch'] = "... " + sentence.substring(length-100, length)
-                    }else  if (leftOverLen > 110 ){
-                      for (var n=index; n>=0; n-- )
-                        if(sentence[n] == " ")
-                          break
-                      rows[i]['searchMatch'] = "... " + sentence.substr(n, 100) + " ..."
-                    } else {
-                      rows[i]['searchMatch'] = "... " + sentence.substr(index, 100) + " ..."
+                  }
+                  // check and set end of the last word
+                  if (stopPos <= sentenceLen){
+                    var lowBoundary = index + searchWordLen
+                    for (stopPos; stopPos>lowBoundary; stopPos--){
+                      if (sentence[stopPos] == " "){
+                        //stopPos -= 1
+                        break
+                      }
                     }
                   }
                   break
+                /*
+                  console.log("index: " + index)
+                  var check = index - MAX_LENGTH
+                  if (index > MAX_LENGTH){
+                    console.log("index > MAX_LENGTH")
+                    for (check; check<index; check++){
+                      if (sentence[check] == " "){
+                        startPos = check + 1
+                        break
+                      }
+                    }
+                  }
+                  check = index + searchWordLen
+                  if (check <= senenceLen){
+                    stopPos = senenceLen
+                    break
+                  }else{
+                    stopPos = startPos + MAX_LENGTH
+                    for (stopPos; stopPos>check; stopPos--){
+                      if (sentence[stopPos] == " "){
+                        stopPos -= 1
+                        break
+                      }
+                    }
+                  }
+                  break
+                  /restapi/v1.0/account/178009004/extension/178009004/presence?detailedTelephonyState=true
+                */
                 }
               }
+              console.log(startPos + "/" + stopPos + " Len: " + (stopPos - startPos))
+              rows[i]['searchMatch'] = "... " + sentence.substring(startPos, stopPos) + " ..."
               rows[i]['searchMatch'] = rows[i]['searchMatch'].trim()
               rows[i]['searchMatch'] = rows[i]['searchMatch'].replace(retObj.searchArg, '<span class="search-highlight">' + retObj.searchArg + "</span>")
               rows[i].transcript = ""
-              console.log("SEARCH MATCH: " + rows[i]['searchMatch'])
+              //console.log("SEARCH MATCH: " + rows[i]['searchMatch'])
             }
           }
-
+/*
+var transcript = rows[i].transcript = unescape(r.transcript)
+var sentenceArr = transcript.split(".")
+for (var sentence of sentenceArr){
+  var index = sentence.indexOf(retObj.searchArg)
+  var length = sentence.length
+  if (index == 0){
+    var end = (length > 100) ? 100 : length
+    rows[i]['searchMatch'] = sentence.substring(index, end)
+    break
+  }else if (index > 0){
+    var matchEndPos = retObj.searchArg.length + index
+    if (matchEndPos < 100){
+      if (length <= 100){
+        rows[i]['searchMatch'] = sentence.substring(0, length)
+      }else{
+        rows[i]['searchMatch'] = "... " + sentence.substring(0, 100) + " ..."
+      }
+    }else if (matchEndPos >= 100){
+      var leftOverLen = length - matchEndPos
+      if (leftOverLen < 100){
+        rows[i]['searchMatch'] = "... " + sentence.substring(length-100, length)
+      }else  if (leftOverLen > 110 ){
+        for (var n=index; n>=0; n-- )
+          if(sentence[n] == " ")
+            break
+        rows[i]['searchMatch'] = "... " + sentence.substr(n, 100) + " ..."
+      } else {
+        rows[i]['searchMatch'] = "... " + sentence.substr(index, 100) + " ..."
+      }
+    }
+    break
+  }
+}
+rows[i]['searchMatch'] = rows[i]['searchMatch'].trim()
+rows[i]['searchMatch'] = rows[i]['searchMatch'].replace(retObj.searchArg, '<span class="search-highlight">' + retObj.searchArg + "</span>")
+rows[i].transcript = ""
+console.log("SEARCH MATCH: " + rows[i]['searchMatch'])
+*/
           //console.log(rows[i].concepts)
           //console.log(rows[i].keywords)
           /*
