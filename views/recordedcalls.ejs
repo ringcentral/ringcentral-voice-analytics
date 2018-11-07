@@ -16,15 +16,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.3/css/bootstrap-select.min.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="stylesheet" type="text/css" href="./css/ui.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css" type="text/css"/>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js"></script>
-    <script>
-      $(function() {
-        $('#extensionids').multiselect({
-          includeSelectAllOption: true
-        });
-      });
-    </script>
 </head>
 <body  onload="initForRecordedCalls()">
   <nav id="menu_header" class="navbar navbar-default no-border">
@@ -95,12 +86,9 @@
             </div>
             &nbsp;
             <label for="types" class="filter-label">Filter by</label>
-            <select name='types' class="selectpicker filter-select" onchange="startSearch()">
-              <% if (typeArg == '') { %>
-                <option value="" disabled selected>Call Type</option>
-              <% } %>
+            <select name='types' class="selectpicker filter-select" onchange="startSearch()" title="Call Type">
               <% if (typeArg == 'all') { %>
-                <option value='all'>All</option>
+                <option value='all' selected>All</option>
               <% } else { %>
                 <option value='all'>All</option>
               <% } %>
@@ -125,12 +113,9 @@
                 <option value='PR'>Call Demo</option>
               <% } %>
             </select>
-            <select id="sentiment-option" name='sentiment' class="selectpicker filter-select" onchange="startSearch()">
-              <% if (sentimentArg == '') { %>
-                <option value="" disabled selected>Sentiment</option>
-              <% } %>
+            <select id="sentiment-option" name='sentiment' class="selectpicker filter-select" onchange="startSearch()" title="Sentiment">
               <% if (sentimentArg == 'all') { %>
-                <option value='all'>All</option>
+                <option value='all' selected>All</option>
               <% } else { %>
                 <option value='all'>All</option>
               <% } %>
@@ -151,25 +136,30 @@
               <% } %>
             </select>
           </div>
-          <select name="categories" class="selectpicker filter-select" id="categoryField" onchange="startSearch()">
+          <select name="categories" class="selectpicker filter-select" id="categoryField" onchange="startSearch()" title="Category">
           <% var categoryArr = JSON.parse(categories) %>
-          <% if (catIndex == '') { %>
-            <option value="" disabled selected>Category</option>
+          <% if (catIndex == 'all') { %>
+            <option value='all' selected>All</option>
+          <% } else { %>
+            <option value='all'>All</option>
           <% } %>
-            <option value="all">All</option>
           <% for (var i = 0; i < categoryArr.length; i++) { %>
             <% if (catIndex == categoryArr[i]) { %>
-            <option value="<%= categoryArr[i] %>"><%= categoryArr[i] %></option>
+            <option value="<%= categoryArr[i] %>" selected><%= categoryArr[i] %></option>
             <% } else { %>
             <option value="<%= categoryArr[i] %>"><%= categoryArr[i] %></option>
             <% } %>
           <% } %>
           </select>
           <% if (userLevel == 'admin') { %>
-            <select class="selectpicker filter-select" multiple="multiple" id="extensionnumbers" name="extensionnumbers" style="display: inline">
+            <select class="selectpicker filter-select" multiple="multiple" id="extensionnumbers" name="extensionnumbers" title="User" onchange="extensionsChanged()">
             <% var extensionsArr = JSON.parse(extensionList) %>
             <% for (var i = 0; i < extensionsArr.length; i++) { %>
-              <option value="<%= extensionsArr[i].extNum %>"><%= extensionsArr[i].fullName %></option>
+              <% if (extensionArgs.includes(extensionsArr[i].extNum)) { %>
+                <option value="<%= extensionsArr[i].extNum %>" selected><%= extensionsArr[i].fullName %></option>
+              <% } else { %>
+                <option value="<%= extensionsArr[i].extNum %>"><%= extensionsArr[i].fullName %></option>
+              <% } %>
             <% } %>
             </select>
           <% } %>

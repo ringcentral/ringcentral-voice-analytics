@@ -1,4 +1,5 @@
 var deleteArray = new Array()
+var isExtensionsChanged = false
 
 function initForReadLog() {
   $( "#fromdatepicker" ).datepicker({ dateFormat: "yy-mm-dd"});
@@ -45,6 +46,14 @@ function initForRecordedCalls() {
 
   $("#search").focus()
   $("#search").select()
+  $('#extensionnumbers').on('hidden.bs.select', function () {
+    if (window.location.pathname === '/readlog') {
+      return;
+    }
+    if (isExtensionsChanged) {
+      startSearch();
+    }
+  });
 }
 function selectionHandler(elm){
   if ($(elm).prop("checked")){
@@ -424,4 +433,8 @@ function deleteSelectedItemsFromCallLogDb(){
   posting.fail(function(response){
     alert(response.statusText)
   });
+}
+
+function extensionsChanged(e) {
+  isExtensionsChanged = true
 }

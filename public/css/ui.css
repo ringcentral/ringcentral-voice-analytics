@@ -630,3 +630,7 @@ body {
   color: #666666;
   cursor: pointer;
 }
+
+.text-input {
+  height: 32px!important;
+}

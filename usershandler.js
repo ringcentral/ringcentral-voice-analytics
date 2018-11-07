@@ -1574,6 +1574,7 @@ User.prototype = {
       retObj['sentimentArg'] = req.body.sentiment
       retObj['fieldArg'] = req.body.fields
       retObj['typeArg'] = req.body.types
+      retObj['extensionArgs'] = req.body.extensionnumbers || []
       //retObj['posVal'] = req.body.positiveRange
       //retObj['negVal'] = req.body.negativeRange
       if (this.categoryList.length == 0){
@@ -1934,6 +1935,7 @@ User.prototype = {
             fieldArg: retObj.fieldArg,
             typeArg: retObj.typeArg,
             itemCount: rows.length,
+            extensionArgs: retObj.extensionArgs,
             userName: this.getUserName(),
             userLevel: this.getUserLevel(),
             extensionList: JSON.stringify(this.extensionList)
@@ -1949,6 +1951,7 @@ User.prototype = {
       retObj['sentimentArg'] = ''
       retObj['fieldArg'] = 'all'
       retObj['typeArg'] = ''
+      retObj['extensionArgs'] = []
       //retObj['posVal'] = 0
       //retObj['negVal'] = 0
       if (this.categoryList.length == 0){
