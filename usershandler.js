@@ -1873,38 +1873,16 @@ User.prototype = {
                     }
                   }
                   break
-                /*
-                  console.log("index: " + index)
-                  var check = index - MAX_LENGTH
-                  if (index > MAX_LENGTH){
-                    console.log("index > MAX_LENGTH")
-                    for (check; check<index; check++){
-                      if (sentence[check] == " "){
-                        startPos = check + 1
-                        break
-                      }
-                    }
-                  }
-                  check = index + searchWordLen
-                  if (check <= senenceLen){
-                    stopPos = senenceLen
-                    break
-                  }else{
-                    stopPos = startPos + MAX_LENGTH
-                    for (stopPos; stopPos>check; stopPos--){
-                      if (sentence[stopPos] == " "){
-                        stopPos -= 1
-                        break
-                      }
-                    }
-                  }
-                  break
-                  /restapi/v1.0/account/178009004/extension/178009004/presence?detailedTelephonyState=true
-                */
                 }
               }
               console.log(startPos + "/" + stopPos + " Len: " + (stopPos - startPos))
-              rows[i]['searchMatch'] = "... " + sentence.substring(startPos, stopPos) + " ..."
+              var truncatedText = ""
+              if (startPos == 0){
+                truncatedText = sentence.substring(startPos, stopPos) + " ..."
+              }else {
+                truncatedText = "... " + sentence.substring(startPos, stopPos) + " ..."
+              }
+              rows[i]['searchMatch'] = truncatedText
               rows[i]['searchMatch'] = rows[i]['searchMatch'].trim()
               rows[i]['searchMatch'] = rows[i]['searchMatch'].replace(retObj.searchArg, '<span class="search-highlight">' + retObj.searchArg + "</span>")
               rows[i].transcript = ""
