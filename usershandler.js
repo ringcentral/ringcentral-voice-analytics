@@ -1,4 +1,3 @@
-Pull requests
 var RC = require('ringcentral')
 var fs = require('fs')
 var async = require("async");
