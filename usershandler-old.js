@@ -1,24 +1,3 @@
-Skip to content
-
-Search or jump to…
-Pull requests
-Issues
-Marketplace
-Explore
- @PacoVu Sign out
-10
-0 0 ringcentral/ringcentral-voice-analytics
- Code  Issues 0  Pull requests 0  Projects 0  Wiki  Insights  Settings
-ringcentral-voice-analytics/usershandler.js
-69d36da  9 hours ago
-@embbnux embbnux enhancement of extension selector
-@PacoVu @embbnux
-We found potential security vulnerabilities in your dependencies.
-You can see this message because you have been granted access to vulnerability alerts for this repository.
-Manage your notification settings or learn more about vulnerability alerts.
-
-
-Executable File  2341 lines (2303 sloc)  98.4 KB
 var RC = require('ringcentral')
 var fs = require('fs')
 var async = require("async");
@@ -579,6 +558,7 @@ User.prototype = {
           var from = new Date(lessXXSeconds)
           var dateFrom = from.toISOString()
           this.notificationUser.startTime = dateFrom.replace('/', ':')
+
           console.log("START TIME: " + this.notificationUser.startTime)
           console.log("this extensionId " + this.notificationUser.extensionId + " has an incoming call")
         }
@@ -905,6 +885,7 @@ User.prototype = {
               var from = new Date(lessXXSeconds)
               var dateFrom = from.toISOString()
               notificationUser.startTime = dateFrom.replace('/', ':')
+
               console.log("START TIME: " + notificationUser.startTime)
               console.log("this extensionId " + notificationUser.extensionId + " has an incoming call")
             }
@@ -1251,6 +1232,7 @@ User.prototype = {
               //engine.loadCallsFromDB(req, res)
               thisRes.send('{"status":"ok"}')
             });
+
           })
           .catch(function(e){
             console.log(e)
@@ -1592,7 +1574,6 @@ User.prototype = {
       retObj['sentimentArg'] = req.body.sentiment
       retObj['fieldArg'] = req.body.fields
       retObj['typeArg'] = req.body.types
-      retObj['extensionArgs'] = req.body.extensionnumbers || []
       //retObj['posVal'] = req.body.positiveRange
       //retObj['negVal'] = req.body.negativeRange
       if (this.categoryList.length == 0){
@@ -1606,6 +1587,7 @@ User.prototype = {
     searchCallsFromDB_SentimentScore: function(req, res){
       var posVal = req.body.positiveRange/1000
       var negVal = (req.body.negativeRange/1000) * -1
+
       //var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, transcript, processed, from_number, from_name, to_number, to_name, sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, keywords FROM " + this.getUserTable() + " WHERE "
       var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, processed, from_number, from_name, to_number, to_name, sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, keywords, sentiments, direction, concepts FROM " + this.getUserTable() + " WHERE "
       var typeQuery = ""
@@ -1789,6 +1771,7 @@ User.prototype = {
       }else if (req.body.fields == "categories"){
         //console.log("SEARCH ARG: " + escape(req.body.categories))
         query += "processed=1 AND categories LIKE '%" + escape(req.body.categories) + "%'"
+
         if (req.body.sentiment == "positive")
           query += " AND sentiment_label='" + req.body.sentiment + "' AND sentiment_score_hi >= " + posVal;
         else if (req.body.sentiment == "negative")
@@ -1851,45 +1834,71 @@ User.prototype = {
                 }
               }
             }else{
+              const maxLength = 90
               var transcript = rows[i].transcript = unescape(r.transcript)
               var sentenceArr = transcript.split(".")
               for (var sentence of sentenceArr){
                 var index = sentence.indexOf(retObj.searchArg)
                 var length = sentence.length
-                if (index == 0){
-                  var end = (length > 100) ? 100 : length
-                  rows[i]['searchMatch'] = sentence.substring(index, end)
-                  break
-                }else if (index > 0){
-                  var matchEndPos = retObj.searchArg.length + index
-                  if (matchEndPos < 100){
-                    if (length <= 100){
-                      rows[i]['searchMatch'] = sentence.substring(0, length)
-                    }else{
-                      rows[i]['searchMatch'] = "... " + sentence.substring(0, 100) + " ..."
-                    }
-                  }else if (matchEndPos >= 100){
-                    var leftOverLen = length - matchEndPos
-                    if (leftOverLen < 100){
-                      rows[i]['searchMatch'] = "... " + sentence.substring(length-100, length)
-                    }else  if (leftOverLen > 110 ){
-                      for (var n=index; n>=0; n-- )
-                        if(sentence[n] == " ")
-                          break
-                      rows[i]['searchMatch'] = "... " + sentence.substr(n, 100) + " ..."
-                    } else {
-                      rows[i]['searchMatch'] = "... " + sentence.substr(index, 100) + " ..."
-                    }
+                var matchEndPos = retObj.searchArg.length + index
+                if (matchEndPos < maxLength){
+                  if (length <= maxLength){
+                    rows[i]['searchMatch'] = sentence.substring(0, length)
+                    console.log("2: " + rows[i]['searchMatch'])
+                  }else{
+                    rows[i]['searchMatch'] = "... " + sentence.substr(0, maxLength) + " ..."
+                    console.log("3: " + rows[i]['searchMatch'])
                   }
-                  break
+                }else if (matchEndPos >= maxLength){
+                  var leftOverLen = length - matchEndPos
+                  if (leftOverLen < maxLength){
+                    rows[i]['searchMatch'] = "... " + sentence.substr(length-100, length)
+                    console.log("4: " + rows[i]['searchMatch'])
+                  }else  if (leftOverLen > maxLength + 10 ){
+                    for (var n=index; n>=0; n-- )
+                      if(sentence[n] == " ")
+                        break
+                    rows[i]['searchMatch'] = "... " + sentence.substr(n, maxLength) + " ..."
+                    console.log("5: " + rows[i]['searchMatch'])
+                  } else {
+                    rows[i]['searchMatch'] = "... " + sentence.substr(index, maxLength) + " ..."
+                    console.log("6: " + rows[i]['searchMatch'])
+                  }
                 }
               }
               rows[i]['searchMatch'] = rows[i]['searchMatch'].trim()
               rows[i]['searchMatch'] = rows[i]['searchMatch'].replace(retObj.searchArg, '<span class="search-highlight">' + retObj.searchArg + "</span>")
               rows[i].transcript = ""
-              console.log("SEARCH MATCH: " + rows[i]['searchMatch'])
+              break
             }
           }
+
+            /*
+            var matchEndPos = retObj.searchArg.length + index
+            if (matchEndPos < maxLength){
+              if (length <= maxLength){
+                rows[i]['searchMatch'] = sentence.substring(0, length)
+                console.log("2: " + rows[i]['searchMatch'])
+              }else{
+                rows[i]['searchMatch'] = "... " + sentence.substr(0, maxLength) + " ..."
+                console.log("3: " + rows[i]['searchMatch'])
+              }
+            }else if (matchEndPos >= maxLength){
+              var leftOverLen = length - matchEndPos
+              if (leftOverLen < maxLength){
+                rows[i]['searchMatch'] = "... " + sentence.substr(length-100, length)
+                console.log("4: " + rows[i]['searchMatch'])
+              }else  if (leftOverLen > maxLength + 10 ){
+                for (var n=index; n>=0; n-- )
+                  if(sentence[n] == " ")
+                    break
+                rows[i]['searchMatch'] = "... " + sentence.substr(n, maxLength) + " ..."
+                console.log("5: " + rows[i]['searchMatch'])
+              } else {
+                rows[i]['searchMatch'] = "... " + sentence.substr(index, maxLength) + " ..."
+                console.log("6: " + rows[i]['searchMatch'])
+              }
+              */
 
           //console.log(rows[i].concepts)
           //console.log(rows[i].keywords)
@@ -1951,7 +1960,6 @@ User.prototype = {
             fieldArg: retObj.fieldArg,
             typeArg: retObj.typeArg,
             itemCount: rows.length,
-            extensionArgs: retObj.extensionArgs,
             userName: this.getUserName(),
             userLevel: this.getUserLevel(),
             extensionList: JSON.stringify(this.extensionList)
@@ -1967,7 +1975,6 @@ User.prototype = {
       retObj['sentimentArg'] = ''
       retObj['fieldArg'] = 'all'
       retObj['typeArg'] = ''
-      retObj['extensionArgs'] = []
       //retObj['posVal'] = 0
       //retObj['negVal'] = 0
       if (this.categoryList.length == 0){
@@ -2208,6 +2215,7 @@ function createTable(table, callback) {
             }
           })
         }
+
     });
   }else{
     pgdb.create_table(table, (err, res) => {
