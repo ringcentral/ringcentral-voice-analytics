@@ -68,15 +68,12 @@
           <% var icon = 'img/' + results.call_type + '.png' %>
         <% } %>
         <img src='<%= icon %>' ></img>
-      <!span><b>&nbsp;Subjects: </b></span>
-      <span><%= results['subject'] %></span>
-      <!--
-      <div id"edit-box" class="edit-box">
-        <input id="subject" value="<%= results['subject'] %>" size=50></input></br>
-        <button onclick="setSubject(<%= results['uid'] %>)">Done</button>
-      </div>
-      <img id="edit-btn" src='img/edit.png' class="sentiment_icon" onclick="showEditSubjectBox()"></img>
-      -->
+      <span><b>&nbsp;Subjects: </b></span>
+      <!--span><%= results['subject'] %></span-->
+      <% var sLen = results['subject'].length %>
+      <input type="text" id="subject-field" disabled value="<%= results['subject'] %>" size="<%- sLen %>"></input>
+      <img id="edit-btn" src='img/edit.png' class="edit_icon" onclick="enableEditSubject()"></img>
+      &nbsp;&nbsp;&nbsp;
       <% var icon = 'img/' %>
       <% icon += results['sentiment_label'] %>
       <% icon += '.png' %>

@@ -299,11 +299,17 @@ td{
   width: 20px;
   height: 20px;
 }
+.edit_icon {
+  width: 15px;
+  height: 15px;
+}
 .call_icon {
   width: 20px;
   height: 20px;
 }
-
+#subject-field{
+  border: 0px
+}
 .sentiment_line{
   margin-top: 12px;
   margin-bottom: 10px;

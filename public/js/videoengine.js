@@ -67,7 +67,46 @@ function setSpeakersWithSentiment(){
   speakerSentiment = $("#speakers").val()
   displayAnalytics('sentiment')
 }
+var editting = false
+var oldSubject = ""
+function enableEditSubject(){
+  var elem = document.getElementById('subject-field');
+  if (editting){
+    editting = false
+    elem.disabled = true;
+    var newSubject = elem.value
+    if (oldSubject != newSubject){
+      setSubject(newSubject)
+      $("#subject-field").attr("size", newSubject.length);
+    }
+    $("#edit-btn").attr("src","img/edit.png");
+  }
+  else{
+    editting = true
+    elem.disabled = false;
+    elem.focus()
+    oldSubject = elem.value
+    $("#edit-btn").attr("src","img/accept.png");
+  }
+}
+function setSubject(newSubject){
+  var configs = {}
+  configs['uid'] = window.results.uid
+  configs['subject'] = newSubject
+  var url = "setsubject"
+  var posting = $.post( url, configs )
+  posting.done(function( response ) {
+    var res = JSON.parse(response)
+    if (res.status == "error") {
+      alert(res.calllog_error)
+    }else{
 
+    }
+  });
+    posting.fail(function(response){
+      alert(response.statusText)
+  });
+}
 function displayAnalytics(option){
   if (option == 'sentiment'){
     $("#sentiment_adjust").show()

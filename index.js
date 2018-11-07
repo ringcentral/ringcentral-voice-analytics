@@ -172,6 +172,12 @@ app.post('/delete', function (req, res) {
   router.deleteItemFromCallLogDb(req, res)
 })
 
+app.post('/setsubject', function (req, res) {
+  console.log("user clicks set subject")
+  console.log("SESSION:" + JSON.stringify(req.session))
+  router.saveNewSubject(req, res)
+})
+
 app.post('/findsimilar', function (req, res) {
   console.log("findSimilar")
   router.findSimilar(req, res)

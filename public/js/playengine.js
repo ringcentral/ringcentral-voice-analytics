@@ -329,18 +329,32 @@ function truncateText(text){
   }
   return ret
 }
-
-function showEditSubjectBox(){
-  $("#edit-box").show()
-  $("#edit-btn").hide()
+var editting = false
+var oldSubject = ""
+function enableEditSubject(){
+  var elem = document.getElementById('subject-field');
+  if (editting){
+    editting = false
+    elem.disabled = true;
+    var newSubject = elem.value
+    if (oldSubject != newSubject){
+      setSubject(newSubject)
+      $("#subject-field").attr("size", newSubject.length);
+    }
+    $("#edit-btn").attr("src","img/edit.png");
+  }
+  else{
+    editting = true
+    elem.disabled = false;
+    elem.focus()
+    oldSubject = elem.value
+    $("#edit-btn").attr("src","img/accept.png");
+  }
 }
-function setSubject(uid){
-  $("#edit-box").hide()
-  $("#edit-btn").show()
-  return
+function setSubject(newSubject){
   var configs = {}
-  configs['uid'] = uid
-  configs['subject'] = $("#subject").val()
+  configs['uid'] = window.results.uid
+  configs['subject'] = newSubject
   var url = "setsubject"
   var posting = $.post( url, configs )
   posting.done(function( response ) {
@@ -348,12 +362,12 @@ function setSubject(uid){
     if (res.status == "error") {
       alert(res.calllog_error)
     }else{
-        window.location = "recordedcalls"
-      }
-    });
+
+    }
+  });
     posting.fail(function(response){
       alert(response.statusText)
-    });
+  });
 }
 
 function initializeAudioPlayer(){

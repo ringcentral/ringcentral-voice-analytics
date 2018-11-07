@@ -1317,27 +1317,22 @@ User.prototype = {
           var revai = new RevAIEngine()
           revai.transcribe(table, thisRes, req.body, recordingUrl, this.getExtensionId())
         }
-//
-/*
-        p.get(recordingUrl)
-          .then(function(res) {
-            return res.response().buffer();
-          })
-          .then(function(buffer) {
-            var stream = require('stream');
-            var bufferStream = new stream.PassThrough();
-            bufferStream.end(buffer);
-            thisUser.categoryList = []
-            //watson.transcribe(table, thisRes, req.body, bufferStream)
-            var watson = new WatsonEngine()
-            watson.transcribe(table, thisRes, req.body, bufferStream)
-          })
-          .catch(function(e){
-            console.log(e)
-            throw e
-          })
-*/
       }
+    },
+    saveNewSubject: function(req, res){
+      var query = "UPDATE " + this.getUserTable() + " SET subject='" + req.body.subject + "'"
+      query += " WHERE uid=" + req.body.uid;
+      console.log("UPDATING SUB ID: " + query)
+      var thisRes = res
+      pgdb.update(query, (err, result) => {
+        if (err){
+          console.log("CANNOT UPDATE SUBJECT" + err.message);
+          thisRes.send('{"status":"failed","result":"' + err.message + '"}')
+        }else{
+          console.log("NEW SUBJECT SAVED")
+          thisRes.send('{"status":"ok","result":"Subject changed"}')
+        }
+      });
     },
     analyzeContent: function(req, res){
       var query = "SELECT * FROM " + this.getUserTable() + " WHERE uid=" + req.body.CallId;
@@ -1889,45 +1884,6 @@ User.prototype = {
               //console.log("SEARCH MATCH: " + rows[i]['searchMatch'])
             }
           }
-/*
-var transcript = rows[i].transcript = unescape(r.transcript)
-var sentenceArr = transcript.split(".")
-for (var sentence of sentenceArr){
-  var index = sentence.indexOf(retObj.searchArg)
-  var length = sentence.length
-  if (index == 0){
-    var end = (length > 100) ? 100 : length
-    rows[i]['searchMatch'] = sentence.substring(index, end)
-    break
-  }else if (index > 0){
-    var matchEndPos = retObj.searchArg.length + index
-    if (matchEndPos < 100){
-      if (length <= 100){
-        rows[i]['searchMatch'] = sentence.substring(0, length)
-      }else{
-        rows[i]['searchMatch'] = "... " + sentence.substring(0, 100) + " ..."
-      }
-    }else if (matchEndPos >= 100){
-      var leftOverLen = length - matchEndPos
-      if (leftOverLen < 100){
-        rows[i]['searchMatch'] = "... " + sentence.substring(length-100, length)
-      }else  if (leftOverLen > 110 ){
-        for (var n=index; n>=0; n-- )
-          if(sentence[n] == " ")
-            break
-        rows[i]['searchMatch'] = "... " + sentence.substr(n, 100) + " ..."
-      } else {
-        rows[i]['searchMatch'] = "... " + sentence.substr(index, 100) + " ..."
-      }
-    }
-    break
-  }
-}
-rows[i]['searchMatch'] = rows[i]['searchMatch'].trim()
-rows[i]['searchMatch'] = rows[i]['searchMatch'].replace(retObj.searchArg, '<span class="search-highlight">' + retObj.searchArg + "</span>")
-rows[i].transcript = ""
-console.log("SEARCH MATCH: " + rows[i]['searchMatch'])
-*/
           //console.log(rows[i].concepts)
           //console.log(rows[i].keywords)
           /*
@@ -2365,10 +2321,11 @@ function copyTable(table){
 
         },
         function (err){
+          /*
           var q = "CREATE INDEX " + table + "_fts_ind ON " + table
           q += " USING gin (to_tsvector('simple', transcript), to_tsvector('simple', keywords))"
           console.log(q)
-          /*
+
           pgdb.createIndex(q, (err, result) =>  {
             if (err){
               console.error(err.message);
