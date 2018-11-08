@@ -1811,9 +1811,10 @@ User.prototype = {
           rows[i].concepts = unescape(r.concepts)
           // TBI
           //var searchMatch = ""
-          rows[i]['searchMatch'] = ""
+
           if (retObj.searchArg != "*"){
             if (field != null && field == 'keywords'){
+              rows[i]['searchMatch'] = JSON.stringify([])
               var searchMatchArr = []
               var keywordArr = JSON.parse(unescape(r.keywords))
               for (var keyword of keywordArr){
@@ -1832,7 +1833,9 @@ User.prototype = {
                   }
                 }
               }
+              console.log(rows[i]['searchMatch'])
             }else{
+              rows[i]['searchMatch'] = ""
               const MAX_LENGTH = 90
               var transcript = rows[i].transcript = unescape(r.transcript)
               var sentenceArr = transcript.split(".")
