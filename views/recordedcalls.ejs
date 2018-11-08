@@ -329,8 +329,8 @@
                       ...
                     <% } %>
                   </span>
-                <% } else if (searchArg != "*") { %>
-                  <div class="transcript_brief" id="tt_<%= calls[i]['uid'] %>">
+                <% } else if (searchArg != "*" && (fieldArg == "transcript" || fieldArg == "all")) { %>
+                  <div class="transcript_brief" id="tt_<%= calls[i]['uid'] %>" data-original-text="<%= calls[i].searchMatchOriginal %>">
                     <!-- var text = calls[i].searchMatch.replace(searchArg, '<span class="keywords">' + searchArg + "</span>") -->
                       <%- unescape(calls[i].searchMatch) %>
                   </div>

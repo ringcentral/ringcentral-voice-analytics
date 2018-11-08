@@ -1469,7 +1469,7 @@ User.prototype = {
     },
     searchCallsFromDB: function(req, res){
       console.log(JSON.stringify(req.body))
-      var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, processed, from_number, from_name, to_number, to_name, sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, transcript, keywords, sentiments, direction, duration, subject, concepts FROM " + this.getUserTable()
+      var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, processed, from_number, from_name, to_number, to_name, sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, transcript, keywords, sentiments, direction, duration, subject, wordsandoffsets, concepts FROM " + this.getUserTable()
       var filterQuery = "true"
       var searchQuery = ""
       if (req.body.types != undefined){
@@ -1565,9 +1565,9 @@ User.prototype = {
         else
           query +=  " AND " + searchQuery
       }
-      //console.log(filterQuery)
-      //console.log(searchQuery)
-      //console.log(query)
+      // console.log(filterQuery)
+      // console.log(searchQuery)
+      // console.log(query)
       var retObj = {}
       retObj['catIndex'] = req.body.categories
       retObj['searchArg'] = searchArg
@@ -1837,7 +1837,11 @@ User.prototype = {
             }else{
               rows[i]['searchMatch'] = ""
               const MAX_LENGTH = 90
-              var transcript = rows[i].transcript = unescape(r.transcript)
+              var transcript = unescape(r.transcript)
+              if (r.wordsandoffsets) {
+                transcript = JSON.parse(unescape(r.wordsandoffsets)).map(w => w.word).join('')
+              }
+              rows[i].transcript = transcript
               var sentenceArr = transcript.split(".")
               var searchWord = retObj.searchArg.toLowerCase()
               for (var sentence of sentenceArr){
@@ -1895,11 +1899,12 @@ User.prototype = {
               }
               //console.log("SEARCH MATCH: " + truncatedText)
               var regEx = new RegExp(retObj.searchArg, "ig");
-              truncatedText = truncatedText.replace(regEx, '<span class="search-highlight">' + retObj.searchArg + "</span>")
+              var hightlightTruncatedText = truncatedText.replace(regEx, '<span class="search-highlight">' + retObj.searchArg + "</span>")
 
               //rows[i]['searchMatch'] = rows[i]['searchMatch'].trim()
 
-              rows[i]['searchMatch'] = truncatedText
+              rows[i]['searchMatch'] = hightlightTruncatedText
+              rows[i]['searchMatchOriginal'] = truncatedText
               rows[i].transcript = ""
 
             }

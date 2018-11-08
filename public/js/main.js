@@ -27,7 +27,12 @@ function initForRecordedCalls() {
   $('#call_items').find('tr').click( function() {
     var index = $(this).index()
     if (window.calls[index].processed == 1){
-      openAnalyzed(window.calls[index].uid)
+      var isKeyword = $(this).find('.transcript_brief').find('.keyword').length > 0;
+      var searchWord;
+      if (!isKeyword) {
+        searchWord = $(this).find('.transcript_brief').data('original-text').replace('...', '').trim();
+      }
+      openAnalyzed(window.calls[index].uid, searchWord)
     }else if (window.calls[index].processed == 0) {
       var r = confirm("This content has not been transcribed yet.Do you want to transcribe it now?");
       if (r == true) {
@@ -82,11 +87,11 @@ function selectSelectText(){
   $("#search").select()
 }
 
-function openAnalyzed(id){
+function openAnalyzed(id, searchWord){
   var search = $("#search").val()
   post_to_url('/analyze', {
     CallId: id,
-    searchWord: search
+    searchWord: searchWord ? searchWord : search
   }, 'post');
 }
 

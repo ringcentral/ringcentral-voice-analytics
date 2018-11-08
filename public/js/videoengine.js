@@ -437,7 +437,8 @@ function jumptToKeyword(keyword){
   var wordArr = keyword.split(" ")
   $("#search").val(keyword)
   $("#search").focus()
-  let regEx = new RegExp(`\\b${keyword}\\b`, 'i');
+  var cleanKeyword = keyword.replace(/\b[.,!'\?]+\B|\B[.,!'\?]+\b/g,"");
+  let regEx = new RegExp(`\\b${cleanKeyword}\\b`, 'i');
   for (var i=mIndex; i<wwoArr.length; i++){
     var matchArr = []
     for (n=0; n<wordArr.length; n++){
@@ -446,7 +447,7 @@ function jumptToKeyword(keyword){
         // replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"")
         // replace(/\b[-.,()&$#!\[\]{}"']+\B|\B[-.,()&$#!\[\]{}"']+\b/g, "");
         //alert(wwoArr[m].word)
-        var cleanWord = wwoArr[m].word.replace(/\b[.,!']+\B|\B[.,!']+\b/g,"")
+        var cleanWord = wwoArr[m].word.replace(/\b[.,!'\?]+\B|\B[.,!'\?]+\b/g,"")
         //alert(cleanWord)
         matchArr.push(cleanWord.trim())
       }else{
@@ -455,7 +456,7 @@ function jumptToKeyword(keyword){
     }
     var match = matchArr.join(" ")
     //alert("match: " + match)
-    if (regEx.test(match)){
+    if (regEx.test(match) || match.indexOf(cleanKeyword) == 0){
       var timeStamp = wwoArr[i].offset
       jumpTo(timeStamp, true)
       return
@@ -467,13 +468,13 @@ function jumptToKeyword(keyword){
       for (n=0; n<wordArr.length; n++){
         var m = i+n
         if (m < wwoArr.length - wordArr.length){
-          var cleanWord = wwoArr[m].word.replace(/\b[.,!']+\B|\B[.,!']+\b/g,"")
+          var cleanWord = wwoArr[m].word.replace(/\b[.,!'\?]+\B|\B[.,!'\?]+\b/g,"")
           matchArr.push(cleanWord.trim())
         }else
           break
       }
       var match = matchArr.join(" ")
-      if (regEx.test(match)){
+      if (regEx.test(match) || match.indexOf(cleanKeyword) == 0){
         var timeStamp = wwoArr[i].offset
         jumpTo(timeStamp, true)
         break
