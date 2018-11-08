@@ -207,11 +207,21 @@ app.post('/webhooks', function(req, res) {
 
 app.post('/revaitranscriptcallback', function(req, res) {
   console.log("webhook post called: " + req)
-  console.log(util.inspect(req))
+  //console.log(util.inspect(req))
+  //console.log(JSON.stringify(req.body, null, "\t"))
   //console.log(JSON.stringify(req.body))
   //router.handleRevAIWebhookPost(req)
-  res.statusCode = 200;
-  res.end();
+  var body = [];
+  req.on('data', function(chunk) {
+      body.push(chunk);
+  }).on('end', function() {
+      body = Buffer.concat(body).toString();
+      console.log("BODY: " + body)
+      router.handleRevAIWebhookPost(body)
+      //var jsonObj = JSON.parse(body)
+      res.statusCode = 200;
+      res.end();
+  });
 })
 
 app.post('/callback', function (req, res) {

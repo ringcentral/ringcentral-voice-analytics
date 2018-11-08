@@ -1319,6 +1319,12 @@ User.prototype = {
         }
       }
     },
+    handleRevAIWebhookPost: function(transcriptId, itemId){
+      var table = this.getUserTable()
+      this.categoryList = []
+      var revai = new RevAIEngine()
+      revai.getTranscription(transcriptId, itemId, null, table)
+    },
     saveNewSubject: function(req, res){
       var query = "UPDATE " + this.getUserTable() + " SET subject='" + req.body.subject + "'"
       query += " WHERE uid=" + req.body.uid;

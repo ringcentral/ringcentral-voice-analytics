@@ -40,7 +40,8 @@ RevAIEngine.prototype = {
 /*
     // teemps delete till return
     console.log("Use id")
-    this.getTranscription(247067512, thisId, res, table, body)
+    //this.getTranscription(247067512, thisId, res, table, body)
+    this.getTranscription(247067512, thisId, res, table)
     return
     console.log("should not come here")
 */
@@ -123,7 +124,8 @@ RevAIEngine.prototype = {
                 clearInterval(interval);
                 console.log("read transcript")
                 //var table = "user_" + extensionId
-                thisEngine.getTranscription(json.id, thisId, thisRes, table, thisBody)
+                //thisEngine.getTranscription(json.id, thisId, thisRes, table, thisBody)
+                thisEngine.getTranscription(json.id, thisId, thisRes, table)
               }else if(json.status == "failed"){
                 console.log("failed transcribe")
                 clearInterval(interval);
@@ -142,7 +144,8 @@ RevAIEngine.prototype = {
       }
     })
   },
-  getTranscription: function (transcriptId, id, res, table, body){
+  //getTranscription: function (transcriptId, id, res, table, body){
+  getTranscription: function (transcriptId, id, res, table){
     var thisEngine = this
     var thisRes = res
     console.log("get transcript and process data...")

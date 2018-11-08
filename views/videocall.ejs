@@ -18,6 +18,7 @@
 <body>
   <script>
     window.results = <%- JSON.stringify(results) %>;
+    window.searchWord = "<%= searchWord === '*' ? '' : searchWord %>"
   </script>
   <nav id="menu_header" class="navbar navbar-default no-border">
     <span class="left-middle-align">

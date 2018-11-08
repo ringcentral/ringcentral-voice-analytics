@@ -61,6 +61,11 @@ function init() {
     $("#conversations_block").css('font-size', transcriptFontSize + 'px');
     $("#conversations_block").css('line-height', (transcriptFontSize + 2) + 'px');
   });
+
+  // highlight search word
+  if (window.searchWord != "*" || window.searchWord != "")
+    jumptToKeyword (window.searchWord)
+
 }
 
 function setSpeakersWithSentiment(){

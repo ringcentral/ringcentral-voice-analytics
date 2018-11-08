@@ -151,10 +151,13 @@ var router = module.exports = {
     users[index].handleWebhooksPost(jsonObj)
 
   },
-  handleRevAIWebhookPost: function(req){
-    //if (req.body.status == "transcribed")
-
-    var query = "SELECT * FROM inprogressedtranscription WHERE transcript_id=" + req.body.id;
+  handleRevAIWebhookPost: function(body){
+    console.log("handleRevAIWebhookPost called")
+    var json = JSON.parse(body)
+    console.log(json.job.id)
+    console.log(json.job.created)
+    console.log(json.job.status)
+    var query = "SELECT * FROM inprogressedtranscription WHERE transcript_id=" + json.job.id;
     pgdb.read(query, (err, result) => {
       console.log(result)
       if (err){
@@ -168,12 +171,22 @@ var router = module.exports = {
         console.log(transcriptId)
         console.log(itemId)
         console.log(extensionId)
-        if (req.body.status == "transcribed") {
+        var query = "DELETE FROM inprogressedtranscription WHERE transcript_id=" + json.job.id;
+        //console.log(query)
+        pgdb.remove(query, function (err, result) {
+          if (err){
+            console.error(err.message);
+          }
+            console.error("DELETE transcriptionId item from inprogressedtranscription");
+        });
+        if (json.job.status == "transcribed") {
           // detect user then call to analyze transcript
-
+          var index = getUserIndexByExtensionId(extensionId)
+          if (index < 0)
+            return
+          users[index].handleRevAIWebhookPost(transcriptId, itemId)
         }else{
           // delete pending inprogress transcription
-
           // update calllist item with processed to 0
           var table = "user_" + extensionId
           var query = "UPDATE " + table + " SET processed=0"
