@@ -65,7 +65,7 @@ function init() {
 
   // highlight search word
   if (window.searchWord !== ""){
-    jumpToKeyword (window.searchWord)
+    findSearchSentenceAndHighlight(window.searchWord)
   }
 }
 function setSpeakersWithSentiment(){
