@@ -217,7 +217,7 @@ app.post('/webhooks', function(req, res) {
 })
 
 app.post('/revaitranscriptcallback', function(req, res) {
-  console.log("webhook post called: " + req)
+  console.log("webhook post called")
   //console.log(util.inspect(req))
   //console.log(JSON.stringify(req.body, null, "\t"))
   //console.log(JSON.stringify(req.body))
@@ -227,7 +227,7 @@ app.post('/revaitranscriptcallback', function(req, res) {
       body.push(chunk);
   }).on('end', function() {
       body = Buffer.concat(body).toString();
-      console.log("BODY: " + body)
+      //console.log("BODY: " + body)
       router.handleRevAIWebhookPost(body)
       //var jsonObj = JSON.parse(body)
       res.statusCode = 200;

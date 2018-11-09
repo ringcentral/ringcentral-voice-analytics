@@ -154,12 +154,12 @@ var router = module.exports = {
   handleRevAIWebhookPost: function(body){
     console.log("handleRevAIWebhookPost called")
     var json = JSON.parse(body)
-    console.log(json.job.id)
-    console.log(json.job.created)
-    console.log(json.job.status)
+    //console.log(json.job.id)
+    //console.log(json.job.created_on)
+    //console.log(json.job.status)
     var query = "SELECT * FROM inprogressedtranscription WHERE transcript_id=" + json.job.id;
     pgdb.read(query, (err, result) => {
-      console.log(result)
+      //console.log(result)
       if (err){
         // not found?
       }else if (result.rows.length == 1){
@@ -298,7 +298,7 @@ var router = module.exports = {
         res.send('{"status":"error"}')
         return console.error(err.message);
       }
-      console.log("RESULT: " + JSON.stringify(result))
+      //console.log("RESULT: " + JSON.stringify(result))
       console.log("PROCESS: " + result.rows[0].processed)
       res.send('{"status":"ok","state":' + result.rows[0].processed + ',"uid":' + req.query.uid + '}')
     });

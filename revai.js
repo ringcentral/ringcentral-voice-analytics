@@ -58,7 +58,7 @@ RevAIEngine.prototype = {
         }
         return
       }
-      console.log("BODY: " + JSON.stringify(body))
+      //console.log("BODY: " + JSON.stringify(body))
       var json = body.data //.toString('utf8') //.toString('utf8')
       // use webhook
       if (process.env.REVAI_CALLBACK == "WebHook"){
@@ -220,7 +220,7 @@ RevAIEngine.prototype = {
       transcript += item.sentence.join("")
     }
     console.log("Watson data analysis")
-    console.log("DATA: " + transcript)
+    //console.log("DATA: " + transcript)
     if (wordCount > 8){
       var parameters = {
         'text': transcript,
@@ -246,11 +246,11 @@ RevAIEngine.prototype = {
             thisRes.send(resp)
           }
         else{
-          console.log(JSON.stringify(response))
+          //console.log(JSON.stringify(response))
           var haven = require('./hpe-ai');
           console.log("load engine")
           haven.haven_sentiment(table, blockTimeStamp, conversations, response, transcript, thisId, function(err, result){
-            console.log("TRANSCRIBE: " + result)
+            //console.log("TRANSCRIBE: " + result)
 
             if (!err){
               resp['status'] = "ok"
