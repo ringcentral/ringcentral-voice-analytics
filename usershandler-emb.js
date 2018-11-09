@@ -1370,7 +1370,6 @@ User.prototype = {
           results: row,
           companyNumber: this.getMainCompanyNumber(),
           searchWord: req.body.searchWord,
-          searchArg: req.body.searchArg,
           userName: this.getUserName()
         })
       });
@@ -1470,7 +1469,7 @@ User.prototype = {
     },
     searchCallsFromDB: function(req, res){
       console.log(JSON.stringify(req.body))
-      var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, processed, from_number, from_name, to_number, to_name, sentiment_label, conversations, keywords, sentiments, direction, duration, subject FROM " + this.getUserTable()
+      var query = "SELECT uid, rec_id, call_date, call_type, extension_num, full_name, recording_url, processed, from_number, from_name, to_number, to_name, sentiment_label, sentiment_score_hi, sentiment_score_low, has_profanity, transcript, keywords, sentiments, direction, duration, subject, wordsandoffsets, concepts FROM " + this.getUserTable()
       var filterQuery = "true"
       var searchQuery = ""
       if (req.body.types != undefined){
@@ -1850,13 +1849,16 @@ User.prototype = {
             }else{
               rows[i]['searchMatch'] = ""
               const MAX_LENGTH = 90
-              var conversations = unescape(r.conversations)
-              var sentenceArr = JSON.parse(conversations)
+              var transcript = unescape(r.transcript)
+              if (r.wordsandoffsets) {
+                transcript = JSON.parse(unescape(r.wordsandoffsets)).map(w => w.word).join('')
+              }
+              rows[i].transcript = transcript
+              var sentenceArr = transcript.split(".")
               var searchWord = retObj.searchArg.toLowerCase()
               for (var sentence of sentenceArr){
-                var sent = sentence.sentence.join('')
-                var index = sent.toLowerCase().indexOf(searchWord)
-                var sentenceLen = sent.length -1
+                var index = sentence.toLowerCase().indexOf(searchWord)
+                var sentenceLen = sentence.length -1
                 var startPos = 0
                 var stopPos = 0
                 var searchWordLen = retObj.searchArg.length
@@ -1867,8 +1869,7 @@ User.prototype = {
                 }else if (index > 0){
                   //console.log("SENTENCE SOMEWHERE: " + sentence)
                   // set startPos
-                  //startPos = (index + searchWordLen) - MAX_LENGTH
-                  startPos = index - (MAX_LENGTH/2)
+                  startPos = (index + searchWordLen) - MAX_LENGTH
                   if (startPos < 0){
                     startPos = 0
                   }
@@ -1877,7 +1878,7 @@ User.prototype = {
                   // check and set beginning of the first word
                   if (startPos > 0){
                     for (startPos; startPos<index; startPos++){
-                      if (sent[startPos] == "." /*|| sent[startPos] == "," || sent[startPos] == "."*/){
+                      if (sentence[startPos] == " " || sentence[startPos] == "," || sentence[startPos] == "."){
                         startPos += 1
                         break
                       }
@@ -1891,7 +1892,7 @@ User.prototype = {
                     if (stopPos < sentenceLen){
                       var lowBoundary = index + searchWordLen
                       for (stopPos; stopPos>=lowBoundary; stopPos--){
-                        if (sent[stopPos] == " " || sent[stopPos] == "," || sent[stopPos] == "."){
+                        if (sentence[stopPos] == " " || sentence[stopPos] == "," || sentence[stopPos] == "."){
                           //stopPos -= 1
                           break
                         }
@@ -1902,7 +1903,7 @@ User.prototype = {
                 }
               }
               //console.log(startPos + "/" + stopPos + " Len: " + (stopPos - startPos))
-              var truncatedText = sent.substring(startPos, stopPos)
+              var truncatedText = sentence.substring(startPos, stopPos)
               rows[i]['searchMatchOriginal'] = truncatedText
               if (startPos == 0){
                 truncatedText += " ..."
@@ -1916,7 +1917,8 @@ User.prototype = {
               //rows[i]['searchMatch'] = rows[i]['searchMatch'].trim()
 
               rows[i]['searchMatch'] = hightlightTruncatedText
-              rows[i].conversations = "{}"
+              rows[i].transcript = ""
+
             }
           }
 

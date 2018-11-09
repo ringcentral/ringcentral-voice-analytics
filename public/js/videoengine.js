@@ -64,8 +64,9 @@ function init() {
   });
 
   // highlight search word
-  if (window.searchWord != "*" || window.searchWord != "")
-    jumptToKeyword (window.searchWord)
+  if (window.searchWord !== ""){
+    jumpToKeyword (window.searchWord)
+  }
 }
 function setSpeakersWithSentiment(){
   speakerSentiment = $("#speakers").val()
@@ -251,7 +252,7 @@ function displayAnalytics(option){
     var itemArr = JSON.parse(window.results.keywords);
     for (var item of itemArr){
       if (item.text != "class" && item.text != 'keywords'){
-        text += "<span class='keyword' onclick='jumptToKeyword(\"" + item.text + "\")'>" + item.text + "</span>"
+        text += "<span class='keyword' onclick='jumpToKeyword(\"" + item.text + "\")'>" + item.text + "</span>"
       }
     }
     $("#analyzed_content").html(text);
@@ -431,9 +432,51 @@ function jumpToSentiment(timeStamp, sentence, words){
     }
   }
 }
-
-function jumptToKeyword(keyword){
-  //alert(keyword)
+function findSearchSentenceAndHighlight(sentence){
+  var wordArr = sentence.split(" ")
+  var cleanKeyword = sentence.replace(/\b[.,!'\?]+\B|\B[.,!'\?]+\b/g,"");
+  let regEx = new RegExp(`\\b${cleanKeyword}\\b`, 'i');
+  for (var i=mIndex; i<wwoArr.length; i++){
+    var matchArr = []
+    for (n=0; n<wordArr.length; n++){
+      var m = i+n
+      if (m < wwoArr.length - wordArr.length){
+        var cleanWord = wwoArr[m].word.replace(/\b[.,!'\?]+\B|\B[.,!'\?]+\b/g,"")
+        matchArr.push(cleanWord.trim())
+      }else{
+        break
+      }
+    }
+    var match = matchArr.join(" ")
+    if (regEx.test(match) || match.indexOf(cleanKeyword) == 0){
+      var timeStamp = wwoArr[i].offset
+      aPlayer.currentTime = timeStamp;
+      aPlayer.pause()
+      return
+    }
+  }
+  if (i >= wwoArr.length){
+    for (var i=0; i<wwoArr.length; i++){
+      var matchArr = []
+      for (n=0; n<wordArr.length; n++){
+        var m = i+n
+        if (m < wwoArr.length - wordArr.length){
+          var cleanWord = wwoArr[m].word.replace(/\b[.,!'\?]+\B|\B[.,!'\?]+\b/g,"")
+          matchArr.push(cleanWord.trim())
+        }else
+          break
+      }
+      var match = matchArr.join(" ")
+      if (regEx.test(match) || match.indexOf(cleanKeyword) == 0){
+        var timeStamp = wwoArr[i].offset
+        aPlayer.currentTime = timeStamp;
+        aPlayer.pause()
+        break
+      }
+    }
+  }
+}
+function jumpToKeyword(keyword){
   var wordArr = keyword.split(" ")
   $("#search").val(keyword)
   $("#search").focus()
@@ -493,7 +536,7 @@ function searchForText(){
   if (searchWord == "*")
     return
   //$("#search").focus()
-  jumptToKeyword(searchWord)
+  jumpToKeyword(searchWord)
 }
 
 function jumpTo(timeStamp, scrollIntoView) {

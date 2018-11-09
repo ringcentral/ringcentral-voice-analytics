@@ -9,7 +9,8 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
   var thisId = id
   var thisCallback = callback
   var data = {}
-  data['keywords'] = escape(JSON.stringify(input.keywords))
+  var reExp = new RegExp("'","g")
+  data['keywords'] = JSON.stringify(input.keywords).replace(reExp, "''") //escape(JSON.stringify(input.keywords))
   var subject = ""
   for (var nn=0; nn<input.keywords.length; nn++){
     subject += input.keywords[nn].text
@@ -23,7 +24,7 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
   else
     data['subject'] = "Not defined"
   //data['entities'] = escape(JSON.stringify(input.entities))
-  data['concepts'] = escape(JSON.stringify(input.concepts))
+  data['concepts'] = JSON.stringify(input.concepts).replace(reExp, "''") //escape(JSON.stringify(input.concepts))
 
   //"categories":[{"score":0.706865,"label":"/style and fashion/accessories/backpacks"},{"score":0.383294,"label":"/business and industrial/advertising and marketing/advertising"},{"score":0.347209,"label":"/shopping/retail"}]}
   var categories = []
@@ -38,7 +39,7 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
     categories.push('Unclassified')
   input['categories'] = categories
 
-  data['categories'] = escape(JSON.stringify(categories))
+  data['categories'] = JSON.stringify(input.categories).replace(reExp, "''") //escape(JSON.stringify(categories))
 
   var textArr = []
   for (var i=0; i<conversations.length; i++){
@@ -82,11 +83,11 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
               score += neg.score
               num++
             }
-            console.log("SENTENCE: " + JSON.stringify(shortSentence))
+            //console.log("SENTENCE: " + JSON.stringify(shortSentence))
             var temp = sentence
             temp['extra'] = shortSentence
             //temp['']
-            console.log("SENTENCE: " + JSON.stringify(temp))
+            //console.log("SENTENCE: " + JSON.stringify(temp))
             results.push(temp)
           }else{
             console.log(textArr[count])
@@ -168,7 +169,7 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
             actions.push(actionTranscript)
             //console.log("action: " + transcript)
             var query = "UPDATE " + table + " SET processed=1"
-            query += ", sentiments='" + escape(JSON.stringify(results)) + "'"
+            query += ", sentiments='" + JSON.stringify(results).replace(reExp, "''") + "'" //  escape(JSON.stringify(results))
             query += ", sentiment_label='" + data.sentiment_label + "'"
             query += ", sentiment_score=" + data.sentiment_score
             query += ", sentiment_score_hi=" + data.sentiment_score_hi
@@ -176,8 +177,8 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
             query += ", has_profanity=" + hasBadWord
             query += ", profanities='" + escape(JSON.stringify(profanity)) + "'"
             query += ", keywords='" + data.keywords + "'"
-            query += ", actions='" + escape(JSON.stringify(actions)) + "'"
-            query += ", entities='" + escape(JSON.stringify(resp.body.entities)) + "'"
+            query += ", actions='" + JSON.stringify(actions).replace(reExp, "''") + "'" // escape(JSON.stringify(actions))
+            query += ", entities='" + JSON.stringify(resp.body.entities).replace(reExp, "''") + "'" // escape(JSON.stringify(resp.body.entities))
             query += ", concepts='" + data.concepts + "'"
             query += ", categories='" + data.categories + "'"
             query += ", subject='" + data.subject + "'"
@@ -185,9 +186,9 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
             //console.log(query)
             var ret = {}
             ret['sentiment'] = data.sentiment_label
-            ret['keywords'] = unescape(data.keywords)
+            ret['keywords'] = JSON.stringify(input.keywords)
             ret['subject'] = data.subject
-            console.log("KEYWORDS: " + unescape(data.keywords))
+            console.log("KEYWORDS: " + JSON.stringify(input.keywords))
             //thisCallback(null, ret)
             pgdb.update(query, (err, result) => {
               if (err){
@@ -201,9 +202,9 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
                 console.log("MUST CALLBACK to exit: " + result);
                 var ret = {}
                 ret['sentiment'] = data.sentiment_label
-                ret['keywords'] = unescape(data.keywords)
+                ret['keywords'] = input.keywords
                 ret['subject'] = data.subject
-                console.log("KEYWORDS: " + unescape(data.keywords))
+                console.log("KEYWORDS: " + input.keywords) // unescape(data.keywords)
                 thisCallback(null, ret)
               }
             });

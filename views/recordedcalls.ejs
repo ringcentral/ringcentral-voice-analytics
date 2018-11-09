@@ -323,7 +323,7 @@
                     <% var count = itemArr.length %>
                     <% for (var ii=0; ii < count; ii++) { %>
                       <% var text =itemArr[ii] %>
-                      <span class="keyword"><%- unescape(text) %> </span>
+                      <span class="keyword"><%- text %> </span>
                     <% } %>
                     <% if (moreThanFive > 5) { %>
                       ...
@@ -332,7 +332,7 @@
                 <% } else if (searchArg != "*" && (fieldArg == "transcript" || fieldArg == "all")) { %>
                   <div class="transcript_brief" id="tt_<%= calls[i]['uid'] %>" data-original-text="<%= calls[i].searchMatchOriginal %>">
                     <!-- var text = calls[i].searchMatch.replace(searchArg, '<span class="keywords">' + searchArg + "</span>") -->
-                      <%- unescape(calls[i].searchMatch) %>
+                      <%- calls[i].searchMatch %>
                   </div>
                 <% } else { %>
                   <span class="transcript_brief" id="tt_<%= calls[i]['uid'] %>">

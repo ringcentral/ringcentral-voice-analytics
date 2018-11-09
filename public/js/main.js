@@ -30,7 +30,8 @@ function initForRecordedCalls() {
       var isKeyword = $(this).find('.transcript_brief').find('.keyword').length > 0;
       var searchWord;
       if (!isKeyword) {
-        searchWord = $(this).find('.transcript_brief').data('original-text').replace('...', '').trim();
+        //searchWord = $(this).find('.transcript_brief').data('original-text').replace('...', '').trim();
+        searchWord = $(this).find('.transcript_brief').data('original-text').trim();
       }
       openAnalyzed(window.calls[index].uid, searchWord)
     }else if (window.calls[index].processed == 0) {
@@ -91,7 +92,8 @@ function openAnalyzed(id, searchWord){
   var search = $("#search").val()
   post_to_url('/analyze', {
     CallId: id,
-    searchWord: searchWord ? searchWord : search
+    searchWord: searchWord ? searchWord : search,
+    searchArg: search
   }, 'post');
 }
 
