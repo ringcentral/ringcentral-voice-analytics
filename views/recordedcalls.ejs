@@ -304,7 +304,13 @@
               </td>
               <td width="12%" class="td-active">
               <% if (calls[i]['processed'] == 1) { %>
-                <span><%= calls[i]['subject'] %></span>
+                <div class="subject-data">
+                  <img src='img/edit.png' class="subject_edit_icon" data-uid="<%= calls[i]['uid'] %>"></img>
+                  <span>
+                    <%= calls[i]['subject'] %>
+                  </span>
+                  <input type="text" class="subject_edit_input" value="<%= calls[i]['subject'] %>" style="display: none;"></input>
+                </div>
               <% } else if (calls[i]['processed'] == 2) { %>
                 <img class="call_icon" id="pi_<%= calls[i]['uid'] %>" src="./img/processing.gif"></img>
                 <div style="display: none;" class="transcript_brief" id="ts_<%= calls[i]['uid'] %>">--</div>

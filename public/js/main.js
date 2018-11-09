@@ -24,6 +24,46 @@ function initForRecordedCalls() {
   var h = $(window).height() - (height + 125);
   $("#call_items").height(h)
 
+  $('#call_items').find('.subject_edit_icon').click(function (e) {
+    e.stopPropagation();
+    var textElem = $(this).parent().find('span');
+    var inputElem = $(this).parent().find('input');
+    var uid = $(this).data('uid');
+    if ($(this).attr('src').indexOf('edit') > -1) {
+      textElem.hide();
+      inputElem.show();
+      $(this).attr("src", "img/accept.png");
+    } else {
+      textElem.show();
+      inputElem.hide();
+      if (inputElem.val() !== textElem.text()) {
+        textElem.html(inputElem.val());
+        var posting = $.post( "setsubject", {
+          uid: uid,
+          subject: inputElem.val()
+        });
+        posting.done(function( response ) {
+          var res = JSON.parse(response)
+          if (res.status == "error") {
+            alert(res.calllog_error)
+          }
+        });
+        posting.fail(function(response){
+          alert(response.statusText)
+        });
+      }
+      $(this).attr("src", "img/edit.png");
+    }
+  });
+
+  $('#call_items').find('.subject_edit_input').click(function(e) {
+    e.stopPropagation();
+  });
+
+  $('#call_items').find('.subject_edit_input').click(function(e) {
+    e.stopPropagation();
+  });
+
   $('#call_items').find('tr').click( function() {
     var index = $(this).index()
     if (window.calls[index].processed == 1){
