@@ -80,11 +80,16 @@ function initForRecordedCalls() {
         transcribe(window.calls[index].uid, window.calls[index].call_type, window.calls[index].recording_url)
       }
     }else{
-      if (checkTimer == null)
-        startPolling(window.calls[index].uid)
-      else {
-        window.clearInterval(checkTimer)
-        checkTimer = null
+      var r = confirm("Transcribing is in progress. Do you want to cancel the transcribing process?");
+      if (r == true) {
+        cancelTranscribe(window.calls[index].uid)
+      }else{
+        if (checkTimer == null)
+          startPolling(window.calls[index].uid)
+        else {
+          window.clearInterval(checkTimer)
+          checkTimer = null
+        }
       }
       //alert("Analysis is not available.")
     }
@@ -291,7 +296,7 @@ function startPolling(uid){
     getting.done(function( response ) {
       var res = JSON.parse(response)
       if (res.status != "ok") {
-        alert(res.calllog_error)
+        alert(res.status)
       }else{
         if (res.state == '1'){
           clearInterval(checkTimer)
@@ -310,6 +315,21 @@ function startPolling(uid){
       alert(response.statusText);
     });
   }, 5000)
+}
+function cancelTranscribe(uid){
+  var url = "canceltranscription?uid="+uid
+  var getting = $.get( url );
+  getting.done(function( response ) {
+    var res = JSON.parse(response)
+    if (res.status != "ok") {
+      alert(res.status)
+    }else{
+      window.location = "recordedcalls"
+    }
+  });
+  getting.fail(function(response){
+    alert(response.statusText);
+  });
 }
 
 function disableAllInput(disable){

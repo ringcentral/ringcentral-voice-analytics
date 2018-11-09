@@ -302,5 +302,20 @@ var router = module.exports = {
       console.log("PROCESS: " + result.rows[0].processed)
       res.send('{"status":"ok","state":' + result.rows[0].processed + ',"uid":' + req.query.uid + '}')
     });
+  },
+  cancelTranscriptionProcess: function(req, res){
+    var index = getUserIndex(req.session.userId)
+    if (index < 0)
+      return this.forceLogin(req, res)
+    var query = "UPDATE " + users[index].getUserTable() + " SET processed=0 WHERE uid=" + req.query.uid;
+    //console.log(query)
+    pgdb.update(query, function (err, result) {
+      if (err){
+        res.send('{"status":"error"}')
+        return console.error(err.message);
+      }
+      console.log("RESULT: " + JSON.stringify(result))
+      res.send('{"status":"ok","state":0,"uid":' + req.query.uid + '}')
+    });
   }
 }

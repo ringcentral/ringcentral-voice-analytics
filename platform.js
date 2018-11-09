@@ -256,7 +256,7 @@ RCPlatform.prototype = {
             // delete old subscription before creating a new one
             console.log("subId/record.id:" + subId + "/" + record.id)
             //if (subId == record.id){
-              console.log(record)
+              //console.log(record)
 
               return thisPlatform.platform.delete('/subscription/' + record.id)
                 .then(function (response) {

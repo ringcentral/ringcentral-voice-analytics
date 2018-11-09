@@ -104,8 +104,13 @@ app.get('/about', function (req, res) {
 })
 
 app.get('/checktranscription', function (req, res) {
-  console.log("checkTranscriptionResult")
+  console.log("checkTranscription clicked")
   router.checkTranscriptionResult(req, res)
+})
+
+app.get('/canceltranscription', function (req, res) {
+  console.log("cancelTranscription clicked")
+  router.cancelTranscriptionProcess(req, res)
 })
 
 app.post('/readlogs', function (req, res) {
