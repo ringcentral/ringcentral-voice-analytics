@@ -1,5 +1,5 @@
 /*!
- * wavesurfer.js 2.1.0 (2018-10-30)
+ * wavesurfer.js 2.1.0 (2018-11-09)
  * https://github.com/katspaugh/wavesurfer.js
  * @license BSD-3-Clause
  */
@@ -1010,7 +1010,7 @@ function (_Drawer) {
           var peak = peaks[Math.floor(i * scale * peakIndexScale)] || 0;
           var h = Math.round(peak / absmax * halfH);
 
-          if (h < 0.8) {
+          if (h < 0.8 && h > -0.8) {
             h = 0.8;
           }
 
@@ -3300,7 +3300,9 @@ function (_util$Observer) {
       this.backend.init();
       this.fireEvent('backend-created', this.backend);
       this.backend.on('finish', function () {
-        return _this6.fireEvent('finish');
+        _this6.drawer.progress(_this6.backend.getPlayedPercents());
+
+        _this6.fireEvent('finish');
       });
       this.backend.on('play', function () {
         return _this6.fireEvent('play');
