@@ -111,26 +111,36 @@
       </span>
       <span class="record-info-customer">
         <span class="bold">Participant: </span>
+        <% var participantName %>
           <% if (results['direction'] == "In") { %>
             <% if (results['from_number'] == "Unknown #") { %>
-              <span>Unknown</span>
+              <% participantName = "Unknown" %>
             <% } else { %>
             <% if (results['from_name'] != "Unknown") { %>
-              <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
+              <% participantName = results['from_name'] %>
+              <!-- span><a href="rcmobile://call?number=<%= results['from_number'] %>">< results['from_name'] ></a></span -->
             <% } else { %>
-              <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
+              <% participantName = results['from_number'] %>
+              <!-- span><a href="rcmobile://call?number=<%= results['from_number'] %>">< results['from_number'] ></a></span -->
             <% } } %>
           <% } else { %>
             <% if (results['to_number'] == "Unknown #") { %>
-              <span>Unknown</span>
+              <% participantName = results['from_number'] %>
+              <!-- span>Unknown</span -->
             <% } else { %>
             <% if (results['to_name'] != "Unknown") { %>
-              <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
+              <% participantName = results['to_name'] %>
+              <!-- span><a href="rcmobile://call?number=<%= results['to_number'] %>">< results['to_name'] ></a></span -->
             <% } else { %>
-              <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
+              <% participantName = results['to_number'] %>
+              <!-- span><a href="rcmobile://call?number=<%= results['to_number'] %>">< results['to_number'] ></a></span -->
             <% } } %>
           <% } %>
+          <input type="text" id="participant-field" disabled value="<%- participantName %>" size="<%- participantName.length %>"></input>
+          <img id="edit-part-btn" src='img/edit.png' class="small_edit_icon" onclick="enableEditParticipant()"></img>
       </span>
+
+      &nbsp;&nbsp;&nbsp;
       <% let dateformat = {  month: 'short',day: 'numeric',year: 'numeric',hour: '2-digit',minute: '2-digit'}; %>
       <% var d = new Date(parseInt(results['call_date'])).toLocaleDateString("en-US", dateformat) %>
       <span><%= d %></span>

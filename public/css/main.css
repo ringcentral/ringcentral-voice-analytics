@@ -310,6 +310,13 @@ td{
 #subject-field{
   border: 0px
 }
+#participant-field{
+  border: 0px
+}
+.small_edit_icon {
+  width: 10px;
+  height: 10px;
+}
 .sentiment_line{
   margin-top: 12px;
   margin-bottom: 10px;

@@ -93,31 +93,38 @@
       </span>
       <span class="record-info-customer">
         <span class="bold">Participant: </span>
-        <% if (results['direction'] == "In") { %>
-        <% if (results['from_number'] == "Unknown #") { %>
-          <span>Unknown</span>
-        <% } else { %>
-        <% if (results['from_name'] != "Unknown") { %>
-          <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_name'] %></a></span>
-        <% } else { %>
-          <span><a href="rcmobile://call?number=<%= results['from_number'] %>"><%= results['from_number'] %></a></span>
-        <% } } %>
-        <% } else { %>
-        <% if (results['to_number'] == "Unknown #") { %>
-          <span>Unknown</span>
-        <% } else { %>
-        <% if (results['to_name'] != "Unknown") { %>
-          <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_name'] %></a></span>
-        <% } else { %>
-          <span><a href="rcmobile://call?number=<%= results['to_number'] %>"><%= results['to_number'] %></a></span>
-        <% } } %>
-        <% } %>
+        <% var participantName %>
+          <% if (results['direction'] == "In") { %>
+            <% if (results['from_number'] == "Unknown #") { %>
+              <% participantName = "Unknown" %>
+            <% } else { %>
+            <% if (results['from_name'] != "Unknown") { %>
+              <% participantName = results['from_name'] %>
+              <!-- span><a href="rcmobile://call?number=<%= results['from_number'] %>">< results['from_name'] ></a></span -->
+            <% } else { %>
+              <% participantName = results['from_number'] %>
+              <!-- span><a href="rcmobile://call?number=<%= results['from_number'] %>">< results['from_number'] ></a></span -->
+            <% } } %>
+          <% } else { %>
+            <% if (results['to_number'] == "Unknown #") { %>
+              <% participantName = results['from_number'] %>
+              <!-- span>Unknown</span -->
+            <% } else { %>
+            <% if (results['to_name'] != "Unknown") { %>
+              <% participantName = results['to_name'] %>
+              <!-- span><a href="rcmobile://call?number=<%= results['to_number'] %>">< results['to_name'] ></a></span -->
+            <% } else { %>
+              <% participantName = results['to_number'] %>
+              <!-- span><a href="rcmobile://call?number=<%= results['to_number'] %>">< results['to_number'] ></a></span -->
+            <% } } %>
+          <% } %>
+          <input type="text" id="participant-field" disabled value="<%- participantName %>" size="<%- participantName.length %>"></input>
+          <img id="edit-part-btn" src='img/edit.png' class="small_edit_icon" onclick="enableEditParticipant()"></img>
       </span>
-      <span>
-        <% let options = {  month: 'short',day: 'numeric',year: 'numeric',hour: '2-digit',minute: '2-digit'}; %>
-        <% var d = new Date(parseInt(results['call_date'])).toLocaleDateString("en-US", options) %>
-        <%= d %>
-      </span>
+      &nbsp;&nbsp;&nbsp;
+      <% let options = {  month: 'short',day: 'numeric',year: 'numeric',hour: '2-digit',minute: '2-digit'}; %>
+      <% var d = new Date(parseInt(results['call_date'])).toLocaleDateString("en-US", options) %>
+      <span><%= d %></span>
     </div>
     <div class="row">
       <div class="col-xs-12">

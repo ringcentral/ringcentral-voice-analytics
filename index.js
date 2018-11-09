@@ -178,6 +178,12 @@ app.post('/setsubject', function (req, res) {
   router.saveNewSubject(req, res)
 })
 
+app.post('/setfullname', function (req, res) {
+  console.log("user clicks set fullname")
+  console.log("SESSION:" + JSON.stringify(req.session))
+  router.saveFullName(req, res)
+})
+
 app.post('/findsimilar', function (req, res) {
   console.log("findSimilar")
   router.findSimilar(req, res)

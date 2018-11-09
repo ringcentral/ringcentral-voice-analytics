@@ -232,6 +232,12 @@ var router = module.exports = {
       return this.forceLogin(req, res)
     users[index].saveNewSubject(req, res)
   },
+  saveFullName: function(req, res){
+    var index = getUserIndex(req.session.userId)
+    if (index < 0)
+      return this.forceLogin(req, res)
+    users[index].saveNewFullName(req, res)
+  },
   analyzeContent: function(req, res){
     var index = getUserIndex(req.session.userId)
     if (index < 0)

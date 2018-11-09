@@ -335,6 +335,52 @@ function truncateText(text){
   return ret
 }
 var editting = false
+var edittingName = false
+var oldParticipantName = ""
+function enableEditParticipant(){
+  var elem = document.getElementById('participant-field');
+  if (edittingName){
+    edittingName = false
+    elem.disabled = true;
+    var newName = elem.value
+    if (oldParticipantName != newName){
+      var field
+      if (window.results.direction == "In")
+        field = "from_name"
+      else
+        field = "to_name"
+      setParticipantName(newName, field)
+      $("#participant-field").attr("size", newName.length);
+    }
+    $("#edit-part-btn").attr("src","img/edit.png");
+  }
+  else{
+    edittingName = true
+    elem.disabled = false;
+    elem.focus()
+    oldParticipantName = elem.value
+    $("#edit-part-btn").attr("src","img/accept.png");
+  }
+}
+function setParticipantName(newName, field){
+  var configs = {}
+  configs['uid'] = window.results.uid
+  configs['full_name'] = newName
+  configs['field'] = field
+  var url = "setfullname"
+  var posting = $.post( url, configs )
+  posting.done(function( response ) {
+    var res = JSON.parse(response)
+    if (res.status == "error") {
+      alert(res.calllog_error)
+    }else{
+
+    }
+  });
+    posting.fail(function(response){
+      alert(response.statusText)
+  });
+}
 var oldSubject = ""
 function enableEditSubject(){
   var elem = document.getElementById('subject-field');

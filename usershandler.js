@@ -1340,6 +1340,21 @@ User.prototype = {
         }
       });
     },
+    saveNewFullName: function(req, res){
+      var query = "UPDATE " + this.getUserTable() + " SET "+ req.body.field + "='" + req.body.full_name + "'"
+      query += " WHERE uid=" + req.body.uid;
+      console.log("UPDATING SUB ID: " + query)
+      var thisRes = res
+      pgdb.update(query, (err, result) => {
+        if (err){
+          console.log("CANNOT UPDATE FULLNAME" + err.message);
+          thisRes.send('{"status":"failed","result":"' + err.message + '"}')
+        }else{
+          console.log("NEW SUBJECT SAVED")
+          thisRes.send('{"status":"ok","result":"Full name changed"}')
+        }
+      });
+    },
     analyzeContent: function(req, res){
       var query = "SELECT * FROM " + this.getUserTable() + " WHERE uid=" + req.body.CallId;
       pgdb.read(query, (err, result) => {
