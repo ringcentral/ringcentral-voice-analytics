@@ -179,7 +179,6 @@
               <th width="10%">User</th>
               <th width="10%">Participant</th>
               <th width="12%">Date/Time</th>
-              <th width="8%">Sentiment</th>
               <th width="12%">Subject</th>
               <% if (searchArg != "*" && fieldArg == "keywords") { %>
                 <th width="41%">Keywords</th>
@@ -188,7 +187,7 @@
               <% } else { %>
                 <th width="41%">Keywords</th>
               <% } %>
-
+              <th width="8%">Sentiment</th>
             </tr>
           </thead>
           <tbody id="call_items" class="scrollable_calllist call_list" style="height: 400px">
@@ -292,16 +291,6 @@
               <% var d = new Date(parseInt(calls[i]['call_date'])).toLocaleDateString("en-US", options) %>
               <div><%= d %></div>
               </td>
-
-              <td width="8%" class="td-active">
-                <% if (calls[i]['processed'] == 1) { %>
-                  <% var icon = 'img/' %>
-                  <% icon += calls[i]['sentiment_label'] + '.png' %>
-                  <img id="st_<%= calls[i]['uid'] %>" src='<%= icon %>' class="sentiment_icon"></img>
-                <% } else { %>
-                  <div id="st_<%= calls[i]['uid'] %>">--</div>
-                <% } %>
-              </td>
               <td width="12%" class="td-active">
               <% if (calls[i]['processed'] == 1) { %>
                 <div class="subject-data">
@@ -361,6 +350,15 @@
               <% } else { %>
                 <div id="tt_<%= calls[i]['uid'] %>">Transcription is in progress.</div>
               <% } %>
+              </td>
+              <td width="8%" class="td-active">
+                <% if (calls[i]['processed'] == 1) { %>
+                  <% var icon = 'img/' %>
+                  <% icon += calls[i]['sentiment_label'] + '.png' %>
+                  <img id="st_<%= calls[i]['uid'] %>" src='<%= icon %>' class="sentiment_icon sentiment_icon_in_list"></img>
+                <% } else { %>
+                  <div id="st_<%= calls[i]['uid'] %>">--</div>
+                <% } %>
               </td>
             </tr>
             <% } %>

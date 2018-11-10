@@ -659,3 +659,8 @@ tr:hover .subject_edit_icon {
   width: 100%;
   height: 30px;
 }
+
+.sentiment_icon_in_list {
+  width: 18px;
+  height: auto;
+}
