@@ -14,6 +14,19 @@ body {
   /*padding-bottom: 100px;*/
 }
 
+table {
+  display: table;
+  border-collapse: separate;
+  border-spacing: 2px;
+  border-color: grey;
+}
+
+thead {
+  display: table-header-group;
+  vertical-align: middle;
+  border-color: inherit;
+}
+
 .left-middle-align {
   margin: 0;
   height: 50px;
@@ -163,6 +176,7 @@ body {
 
 #content .table-content table {
   border: none;
+  overflow: hidden;
 }
 
 #content .table-content table th {
@@ -174,7 +188,8 @@ body {
 
 #content .table-content table tbody {
   display: block;
-  overflow-y: scroll;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 #content .table-content table tr {

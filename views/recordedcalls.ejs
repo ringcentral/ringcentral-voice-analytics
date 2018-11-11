@@ -181,11 +181,11 @@
               <th width="12%">Date/Time</th>
               <th width="12%">Subject</th>
               <% if (searchArg != "*" && fieldArg == "keywords") { %>
-                <th width="41%">Keywords</th>
+                <th width="40%">Keywords</th>
               <% } else if (searchArg != "*") { %>
-                <th width="41%">Transcript</th>
+                <th width="40%">Transcript</th>
               <% } else { %>
-                <th width="41%">Keywords</th>
+                <th width="40%">Keywords</th>
               <% } %>
               <th width="8%">Sentiment</th>
             </tr>
@@ -308,7 +308,7 @@
                 <div class="transcript_brief" id="ts_<%= calls[i]['uid'] %>">--</div>
               <% } %>
               </td>
-              <td width="41%" class="td-active">
+              <td width="40%" class="td-active">
               <% if (calls[i]['processed'] == 1) { %>
                 <% if (searchArg != "*" && fieldArg == "keywords") { %>
                   <span class="transcript_brief" id="tt_<%= calls[i]['uid'] %>">
