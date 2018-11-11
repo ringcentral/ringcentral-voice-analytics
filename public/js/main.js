@@ -24,6 +24,16 @@ function initForRecordedCalls() {
   var h = $(window).height() - (height + 125);
   $("#call_items").height(h)
 
+  window.onresize = function() {
+    var height = $("#menu_header").height()
+    height += $("#search_bar").height()
+    height += $("#call_list_header").height()
+    height += $("#footer").height()
+
+    var h = $(window).height() - (height + 125);
+    $("#call_items").height(h)
+  }
+
   $('#call_items').find('.subject_edit_icon').click(function (e) {
     e.stopPropagation();
     var textElem = $(this).parent().find('span');

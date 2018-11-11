@@ -209,6 +209,13 @@ body {
   font-weight: bold;
 }
 
+#content .table-content table tr.header th {
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 #content .table-content table td a {
   color: #000000;
 }
