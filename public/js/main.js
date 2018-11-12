@@ -178,6 +178,9 @@ function readCallLogs(){
   $("#logginIcon").css('display', 'inline');
   var configs = {}
   configs['dateFrom'] = $("#fromdatepicker").val() + "T00:00:00.001Z"
+  var gmtTime = $("#todatepicker").val()
+  //alert(gmtTime)
+  //return
   configs['dateTo'] = $("#todatepicker").val() + "T23:59:59.999Z"
   if ($('#extensionids') != undefined) {
     configs['extensionList'] = JSON.stringify($('#extensionids').val());

@@ -2126,7 +2126,7 @@ User.prototype = {
                   item['from_number'] = "Unknown #"
                   item['from_name'] = "Unknown"
                 }
-                item['call_date'] = new Date(record.startTime).getTime()
+                item['call_date'] = new Date(record.startTime).getTime() - (8*3600)
                 item['processed'] = false
                 item['rec_id'] = record.id
                 item['duration'] = record.duration
