@@ -686,3 +686,36 @@ tr:hover .subject_edit_icon {
   width: 18px;
   height: auto;
 }
+
+.edit_icon {
+  display: none;
+}
+
+.subject-line #subject-field {
+  margin-right: 21px;
+}
+
+.subject-line:hover #subject-field {
+  margin-right: 0;
+}
+
+.subject-line:hover .edit_icon {
+  display: inline;
+}
+
+.record-info-customer {
+  position: relative;
+  padding-right: 10px;
+}
+
+.record-info-customer .small_edit_icon {
+  display: none;
+  position: absolute;
+  top: 3px;
+  right: 0;
+  height: auto;
+}
+
+.record-info-customer:hover .small_edit_icon {
+  display: block;
+}
