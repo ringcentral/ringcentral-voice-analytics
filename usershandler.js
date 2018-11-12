@@ -2126,9 +2126,9 @@ User.prototype = {
                   item['from_number'] = "Unknown #"
                   item['from_name'] = "Unknown"
                 }
-                console.log("DATE: " + new Date(record.startTime).getTime())
+                //console.log("DATE: " + new Date(record.startTime).getTime())
                 item['call_date'] = new Date(record.startTime).getTime() - (8*3600*1000)
-                console.log("Converted DATE: " + item['call_date'])
+                //console.log("Converted DATE: " + item['call_date'])
                 item['processed'] = false
                 item['rec_id'] = record.id
                 item['duration'] = record.duration
