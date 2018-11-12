@@ -235,6 +235,10 @@ app.post('/revaitranscriptcallback', function(req, res) {
   });
 })
 
+app.get('/readmeetings', function(req, res){
+    router.readMeetings(req, res)
+})
+
 app.post('/callback', function (req, res) {
   console.log("transcript callback")
 

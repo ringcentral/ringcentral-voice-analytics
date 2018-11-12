@@ -189,6 +189,23 @@ function readCallLogs(){
     alert(response.statusText);
   });
 }
+
+function readMeetings(){
+  var url = "readmeetings"
+  var getting = $.get( url );
+  getting.done(function( response ) {
+    var res = JSON.parse(response)
+    if (res.status != "ok") {
+      alert(res.calllog_error)
+    }else{
+      alert(res.result)
+    }
+  });
+  getting.fail(function(response){
+    alert(response.statusText);
+  });
+}
+
 function enableNotification(){
   if ($('#notification_btn').text() == "Disable Auto Processing"){
     var url = "disablenotification"

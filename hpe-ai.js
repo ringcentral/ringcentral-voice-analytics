@@ -32,8 +32,8 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
   input.categories.forEach(category => {
     if (category.score > 0.2)
       categories.push(category.label)
-    console.log("CAT Label: " + category.label)
-    console.log(`Label: ${category.label}, Score: ${category.score}`);
+    //console.log("CAT Label: " + category.label)
+    //console.log(`Label: ${category.label}, Score: ${category.score}`);
   });
   if (categories.length == 0)
     categories.push('Unclassified')
@@ -188,7 +188,7 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
             ret['sentiment'] = data.sentiment_label
             ret['keywords'] = JSON.stringify(input.keywords)
             ret['subject'] = data.subject
-            console.log("KEYWORDS: " + JSON.stringify(input.keywords))
+            //console.log("KEYWORDS: " + JSON.stringify(input.keywords))
             //thisCallback(null, ret)
             pgdb.update(query, (err, result) => {
               if (err){
@@ -204,7 +204,7 @@ module.exports.haven_sentiment = function(table, blockTimeStamp, conversations, 
                 ret['sentiment'] = data.sentiment_label
                 ret['keywords'] = input.keywords
                 ret['subject'] = data.subject
-                console.log("KEYWORDS: " + input.keywords) // unescape(data.keywords)
+                //console.log("KEYWORDS: " + input.keywords) // unescape(data.keywords)
                 thisCallback(null, ret)
               }
             });

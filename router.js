@@ -317,5 +317,41 @@ var router = module.exports = {
       console.log("RESULT: " + JSON.stringify(result))
       res.send('{"status":"ok","state":0,"uid":' + req.query.uid + '}')
     });
+  },
+  readMeetings: function(req, res){
+    var index = getUserIndex(req.session.userId)
+    if (index < 0)
+      return this.forceLogin(req, res)
+    var token = users[index].getToken()
+    var thisRes = res
+    let url = "https://api.ringcentral.com/rcvideo/v1/history/meetings?type=All&perPage=18&text=&pageToken=&requuid=70017325"
+
+    request({
+        headers: {
+          'Accept': '*/*',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Authorization': "Bearer " + token,
+          'Access-Control-Request-Headers': 'authorization,client-id,content-type,x-user-agent',
+          'Access-Control-Request-Method': 'GET',
+          'Connection': 'keep-alive',
+          'Host': 'api.ringcentral.com',
+          'Origin': 'https://v.ringcentral.com'
+        },
+        uri: url,
+        method: 'GET'
+      }, function (err, res, body) {
+        //it works!
+        console.log('body:', body);
+        thisRes.send('{"status":"ok","result":"' + body +'"}')
+      });
+/*
+    request(url, function (error, response, body) {
+      console.log('error:', error); // Print the error if one occurred
+      console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+      console.log('body:', body); // Print the HTML for the Google homepage.
+      thisRes.send('{"status":"ok","result":"' + body +'"}')
+    });
+*/
   }
 }
