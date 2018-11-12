@@ -135,6 +135,20 @@
                 <video id="audio_player" class="video_player">
                   <source id='mp4Source' src='<%= results['recording_url'] %>' />
                 </video>
+                <div id="close-caption" class="overlay">
+                  <div id="transcript-line">
+                    <span id="w0"></span>
+                    <span id="w1"></span>
+                    <span id="w2"></span>
+                    <span id="w3"></span>
+                    <span id="w4"></span>
+                    <span id="w5"></span>
+                    <span id="w6"></span>
+                    <span id="w7"></span>
+                    <span id="w8"></span>
+                    <span id="w9"></span>
+                  </div>
+                </div>
               </div>
               <div class="video-progress">
                 <progress id="video-progress" value="0" min="0">
@@ -158,6 +172,7 @@
                 </div>
               </div>
             </div>
+
             <div class="with-border">
               <div style="width: 100%;">
                 <ul id="tabs" class="nav nav-tabs nav-justified" data-tabs="tabs">

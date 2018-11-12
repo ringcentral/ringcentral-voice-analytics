@@ -2,10 +2,28 @@
   width: 100%;
   background: #000000;
   padding: 4px;
+  position:relative;
+}
+.containerss { position:relative; }
+.containerss video {
+    position:relative;
+
+}
+.overlay {
+    position:absolute;
+    bottom: 100px;
+    left: 20px;
+    padding: 20px 10px;
+    z-index: 2147483647 !important;
+    color: white;
+    opacity: 0.5;
+    font-size: 1.6em;
+    background-color: black;
 }
 
 .video-area {
   padding: 0 15%;
+  z-index:0;
 }
 
 .video-area video {
@@ -39,11 +57,11 @@
 
 progress::-webkit-progress-bar {
   background: #999999;
-}  
+}
 
-progress::-webkit-progress-value {  
+progress::-webkit-progress-value {
   background: #0095dd;
-} 
+}
 
 #video-progress span {
   width: 0%;

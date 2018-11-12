@@ -1,10 +1,10 @@
 //var revai = require('rev_ai')
-var rev_ai = require('./rev-ai/revaineedle.js')
+var rev_ai = require('rev_ai')
 var watson = require('watson-developer-cloud');
 const pgdb = require('./db')
 
 function RevAIEngine() {
-  this.revAIClient = new rev_ai.REVAIClient(process.env.REVAI_APIKEY, "v1beta", null)
+  this.revAIClient = new rev_ai.REVAIClient(process.env.REVAI_APIKEY)
   this.nlu = new watson.NaturalLanguageUnderstandingV1({
       "url": "https://gateway.watsonplatform.net/natural-language-understanding/api",
       "username": process.env.WATSON_ANALYTIC_USERNAME,
@@ -45,7 +45,7 @@ RevAIEngine.prototype = {
     return
     console.log("should not come here")
 */
-    this.revAIClient.post('jobs', data, (err, resp, body) => {
+    this.revAIClient.transcribe(data, (err, resp, body) => {
       //console.log("RESPONSE: " + resp.body.toString('utf8'))
       //var json = JSON.parse(resp.body.toString('utf8'))
       if (err){
@@ -59,11 +59,11 @@ RevAIEngine.prototype = {
         return
       }
       //console.log("BODY: " + JSON.stringify(body))
-      var json = body.data //.toString('utf8') //.toString('utf8')
+      //var json = body.data //.toString('utf8') //.toString('utf8')
       // use webhook
       if (process.env.REVAI_CALLBACK == "WebHook"){
         var response = {}
-        if (json.status == "in_progress"){
+        if (body.status == "in_progress"){
           response['status'] = "in_progress"
           response['message'] = "Transcribing ..."
           response['uid'] = thisId
@@ -77,7 +77,7 @@ RevAIEngine.prototype = {
           });
           var query = "INSERT INTO inprogressedtranscription"
           query += "(transcript_id, item_id, ext_id) VALUES ($1, $2, $3)"
-          var values = [json.id, thisId, extensionId]
+          var values = [body.id, thisId, extensionId]
           query += " ON CONFLICT DO NOTHING"
           console.log("SUBS: " + query)
           pgdb.insert(query, values, (err, result) =>  {
@@ -88,7 +88,7 @@ RevAIEngine.prototype = {
           })
         }else{
           response['status'] = "failed"
-          response['message'] = json.status
+          response['message'] = body.status
         }
         if (thisRes != null){
           thisRes.send(JSON.stringify(response))
@@ -96,8 +96,8 @@ RevAIEngine.prototype = {
         }
       }else{
       // use wait loop for testing: 498839493
-        var jobId = json.id
-        if (json.status == "in_progress"){
+        var jobId = body.id
+        if (body.status == "in_progress"){
           var timeOut = 0
           var response = {}
           response['status'] = "in_progress"
@@ -117,16 +117,15 @@ RevAIEngine.prototype = {
           }
           // polling
           var interval = setInterval(function () {
-            var query = 'jobs/' + jobId
-            thisEngine.revAIClient.get(query, "", (err,resp,body) => {
-              var json = body.data
-              if (json.status == "transcribed"){
+            thisEngine.revAIClient.getJobById(jobId, (err,resp,body) => {
+              //var json = body.data
+              if (body.status == "transcribed"){
                 clearInterval(interval);
                 console.log("read transcript")
                 //var table = "user_" + extensionId
                 //thisEngine.getTranscription(json.id, thisId, thisRes, table, thisBody)
-                thisEngine.getTranscription(json.id, thisId, thisRes, table)
-              }else if(json.status == "failed"){
+                thisEngine.getTranscription(body.id, thisId, thisRes, table)
+              }else if(body.status == "failed"){
                 console.log("failed transcribe")
                 clearInterval(interval);
               }
@@ -135,7 +134,7 @@ RevAIEngine.prototype = {
 
         }else{
           var response = {}
-          response['status'] = json.status
+          response['status'] = body.status
           response['message'] = 'some error from rev ai'
           if (thisRes != null){
             thisRes.send(JSON.stringify(response))
@@ -150,9 +149,9 @@ RevAIEngine.prototype = {
     var thisRes = res
     console.log("get transcript and process data...")
     var thisId = id //body.audioSrc
-    var query = 'jobs/' + transcriptId + "/transcript"
-    this.revAIClient.get(query, "", (err,resp,body) => {
-      var json = JSON.parse(resp.body.toString('utf8'))
+    //var query = 'jobs/' + transcriptId + "/transcript"
+    this.revAIClient.getTranscription(transcriptId, (err,resp,body) => {
+      var json = JSON.parse(body)
       var transcript = ""
       var conversations = []
       var wordsandoffsets = []

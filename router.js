@@ -322,9 +322,11 @@ var router = module.exports = {
     var index = getUserIndex(req.session.userId)
     if (index < 0)
       return this.forceLogin(req, res)
+    //var token = "QUpkS0J6SExSa2llOXBldURhWkxMdzpOREJWODdkblJ2R2Jnek9IaENsSEtBcUNZRGd0YmZSZ3V3Sk9ISktvblBHZw==" //users[index].getToken()
     var token = users[index].getToken()
+
     var thisRes = res
-    let url = "https://api.ringcentral.com/rcvideo/v1/history/meetings?type=All&perPage=18&text=&pageToken=&requuid=70017325"
+    let url = "https://api.ringcentral.com/rcvideo/v1/history/meetings?type=All&perPage=18"
 
     request({
         headers: {
@@ -335,14 +337,14 @@ var router = module.exports = {
           'Access-Control-Request-Headers': 'authorization,client-id,content-type,x-user-agent',
           'Access-Control-Request-Method': 'GET',
           'Connection': 'keep-alive',
-          'Host': 'api.ringcentral.com',
-          'Origin': 'https://v.ringcentral.com'
+          'Host': 'api.ringcentral.com'
         },
         uri: url,
         method: 'GET'
       }, function (err, res, body) {
         //it works!
         console.log('body:', body);
+        console.log('res:', res);
         thisRes.send('{"status":"ok","result":"' + body +'"}')
       });
 /*

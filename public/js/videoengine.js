@@ -31,6 +31,8 @@ function init() {
   $("#conversations_block").height(h);
   conversationLastLine = $("#conversations_block").position().top + (h - 20);
 
+  //$("#close-caption").offset({top: $(window).height() - 100});
+
   var sliderPos = document.getElementById("positiveSentimentRange");
   sliderPos.oninput = function() {
     positiveThreshold = this.value/1000;
@@ -403,6 +405,47 @@ function initializeAudioPlayer(){
       aPlayer.webkitRequestFullScreen();
     }
   });
+
+  // detect full screen mode
+  /*
+  aPlayer.bind('webkitfullscreenchange mozfullscreenchange fullscreenchange', function(e) {
+    var state = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+    var event = state ? 'FullscreenOn' : 'FullscreenOff';
+
+    // Now do something interesting
+    alert('Event: ' + event);
+  });
+  */
+  document.getElementById("audio_player").addEventListener('webkitfullscreenchange', onFullScreen)
+}
+
+function onFullScreen(e) {
+  //var isFullscreenNow = document.webkitFullscreenElement !== null
+  //alert('Fullscreen ' + e)// + isFullscreenNow)
+  enableCC = !enableCC
+  if (enableCC){
+    $("#close-caption").show()
+    getTranscriptLine()
+  }else{
+    $("#close-caption").hide()
+  }
+  //enableCC = true
+}
+
+
+var updateLine = 10
+var enableCC = false
+function getTranscriptLine(){
+  var startPos = mIndex
+  var stopPos = (mIndex >= (wwoArr.length - 10)) ? mIndex : mIndex + 10
+  var transcriptLine = ""
+  updateLine = 0
+  for (var i=0; i<10; i++){
+    //transcriptLine += wwoArr[startPos].word + " "
+    if ((mIndex + i) < wwoArr.length)
+      $("#w" + i).html(wwoArr[mIndex+i].word)
+  }
+  //$("#transcript-line").html(transcriptLine)
 }
 
 function audioLoaded() {
@@ -416,6 +459,28 @@ function seekEnded() {
     var id = "word" + mIndex;
     wordElm = document.getElementById(id);
 }
+function seektimeupdate() {
+  var pos = aPlayer.currentTime;
+  if (mIndex < wwoArr.length){
+    var check = wwoArr[mIndex].offset;
+    while (pos >= check){
+      wordElm.setAttribute("class", "readtext");
+      var wordPos = $(wordElm).position().top
+      if (wordPos > conversationLastLine)
+        $(wordElm)[0].scrollIntoView();
+      wordElm = document.getElementById("word"+mIndex);
+      wordElm.setAttribute("class", "word");
+      mIndex++;
+      check = wwoArr[mIndex].offset;
+      if (enableCC){
+        updateLine++
+        if (updateLine >= 10)
+          getTranscriptLine()
+      }
+    }
+  }
+}
+/*
 function seektimeupdate() {
     var pos = aPlayer.currentTime;
     if (mIndex < wwoArr.length)
@@ -434,7 +499,7 @@ function seektimeupdate() {
         }
     }
 }
-
+*/
 function resetReadWords(value) {
     var elm;
     for (var i=0; i<mIndex; i++) {
