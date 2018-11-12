@@ -34,6 +34,13 @@ function initForRecordedCalls() {
     $("#call_items").height(h)
   }
 
+  if (window.navigator.userAgent.indexOf('Win') > -1) {
+    var list = window.document.getElementById('call_items');
+    if (list.scrollHeight > list.offsetHeight) {
+      $('.sentiment_icon_td').css('padding-left', '23px');
+    }
+  }
+
   $('#call_items').find('.subject_edit_icon').click(function (e) {
     e.stopPropagation();
     var textElem = $(this).parent().find('span');
