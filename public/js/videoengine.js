@@ -403,6 +403,40 @@ function initializeAudioPlayer(){
       aPlayer.webkitRequestFullScreen();
     }
   });
+
+  document.getElementById("audio_player").addEventListener('webkitfullscreenchange', onFullScreen)
+}
+
+function onFullScreen(e) {
+  enableCC = !enableCC
+  if (enableCC){
+    $("#close-caption").show()
+    getTranscriptLine()
+  }else{
+    $("#close-caption").hide()
+    seekEnded()
+  }
+}
+
+const MAX_WORDS_LENGTH = 15
+var updateLine = MAX_WORDS_LENGTH
+var enableCC = false
+var ccWord = document.getElementById("w0");
+function getTranscriptLine(){
+  var startPos = mIndex
+  var stopPos = (mIndex >= (wwoArr.length - MAX_WORDS_LENGTH)) ? mIndex : mIndex + MAX_WORDS_LENGTH
+  var transcriptLine = ""
+  updateLine = 0
+  for (var i=0; i<MAX_WORDS_LENGTH; i++){
+    //transcriptLine += wwoArr[startPos].word + " "
+    if ((mIndex + i) < wwoArr.length)
+      $("#w" + i).html(wwoArr[mIndex+i].word)
+    else
+      $("#w" + i).html("")
+    //ccWord = document.getElementById("w"+i);
+    //ccWord.setAttribute("class", "");
+  }
+  //ccWord = document.getElementById("w0");
 }
 
 function audioLoaded() {
@@ -416,6 +450,75 @@ function seekEnded() {
     var id = "word" + mIndex;
     wordElm = document.getElementById(id);
 }
+
+// CC w/o highlight text
+function seektimeupdate() {
+  var pos = aPlayer.currentTime;
+  if (enableCC){
+    if (mIndex < wwoArr.length){
+      var check = wwoArr[mIndex].offset;
+      if (pos >= check){
+        mIndex++;
+        check = wwoArr[mIndex].offset;
+        updateLine++
+        if (updateLine >= MAX_WORDS_LENGTH)
+          getTranscriptLine()
+      }
+    }
+  }else{
+    if (mIndex < wwoArr.length){
+      var check = wwoArr[mIndex].offset;
+      while (pos >= check){
+        wordElm.setAttribute("class", "readtext");
+        var wordPos = $(wordElm).position().top
+        if (wordPos > conversationLastLine)
+          $(wordElm)[0].scrollIntoView();
+        wordElm = document.getElementById("word"+mIndex);
+        wordElm.setAttribute("class", "word");
+        mIndex++;
+        check = wwoArr[mIndex].offset;
+      }
+    }
+  }
+}
+/*
+// CC with highlight text
+function seektimeupdate() {
+  var pos = aPlayer.currentTime;
+  if (enableCC){
+    if (mIndex < wwoArr.length){
+
+      var check = wwoArr[mIndex].offset;
+      if (pos >= check){
+        ccWord.setAttribute("class", "readtext");
+        ccWord = document.getElementById("w"+updateLine);
+        ccWord.setAttribute("class", "spoken-word");
+        mIndex++;
+        check = wwoArr[mIndex].offset;
+        updateLine++
+        if (updateLine >= MAX_WORDS_LENGTH)
+          getTranscriptLine()
+      }
+    }
+  }else{
+    if (mIndex < wwoArr.length){
+      var check = wwoArr[mIndex].offset;
+      while (pos >= check){
+        wordElm.setAttribute("class", "readtext");
+        var wordPos = $(wordElm).position().top
+        if (wordPos > conversationLastLine)
+          $(wordElm)[0].scrollIntoView();
+        wordElm = document.getElementById("word"+mIndex);
+        wordElm.setAttribute("class", "word");
+        mIndex++;
+        check = wwoArr[mIndex].offset;
+      }
+    }
+  }
+}
+*/
+/*
+// no CC
 function seektimeupdate() {
     var pos = aPlayer.currentTime;
     if (mIndex < wwoArr.length)
@@ -434,6 +537,7 @@ function seektimeupdate() {
         }
     }
 }
+*/
 
 function resetReadWords(value) {
     var elm;
