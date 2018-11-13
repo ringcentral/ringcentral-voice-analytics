@@ -240,6 +240,9 @@ td{
 .word {
   color: blue; /*#AC291F;*/
 }
+.spoken-word {
+  color: red; /*#AC291F;*/
+}
 .unreadtext {
   color: gray;
 }

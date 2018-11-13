@@ -11,14 +11,19 @@
 }
 .overlay {
     position:absolute;
-    bottom: 100px;
+    bottom: 60px;
     left: 20px;
-    padding: 20px 10px;
+    padding: 5px 15px;
     z-index: 2147483647 !important;
     color: white;
     opacity: 0.5;
     font-size: 1.6em;
     background-color: black;
+    -moz-box-shadow: 2px 2px 4px 0px #006773;
+    -webkit-box-shadow: 2px 2px 4px 0px #006773;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+
 }
 
 .video-area {

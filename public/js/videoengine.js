@@ -428,29 +428,34 @@ function onFullScreen(e) {
     getTranscriptLine()
   }else{
     $("#close-caption").hide()
+    seekEnded()
   }
   //enableCC = true
 }
 
 
-var updateLine = 10
+var updateLine = 15
 var enableCC = false
+var ccWord = document.getElementById("w0");
 function getTranscriptLine(){
   var startPos = mIndex
-  var stopPos = (mIndex >= (wwoArr.length - 10)) ? mIndex : mIndex + 10
+  var stopPos = (mIndex >= (wwoArr.length - 15)) ? mIndex : mIndex + 15
   var transcriptLine = ""
   updateLine = 0
-  for (var i=0; i<10; i++){
+  for (var i=0; i<15; i++){
     //transcriptLine += wwoArr[startPos].word + " "
     if ((mIndex + i) < wwoArr.length)
       $("#w" + i).html(wwoArr[mIndex+i].word)
+    else
+      $("#w" + i).html("")
+    //ccWord = document.getElementById("w"+i);
+    //ccWord.setAttribute("class", "");
   }
-  //$("#transcript-line").html(transcriptLine)
+  //ccWord = document.getElementById("w0");
 }
 
 function audioLoaded() {
     mIndex = 0;
-    //upperBlockHeight = $("#upper_block").height()
     displayAnalytics('keywords');
 }
 function seekEnded() {
@@ -459,28 +464,74 @@ function seekEnded() {
     var id = "word" + mIndex;
     wordElm = document.getElementById(id);
 }
+// CC w/o highlight text
 function seektimeupdate() {
   var pos = aPlayer.currentTime;
-  if (mIndex < wwoArr.length){
-    var check = wwoArr[mIndex].offset;
-    while (pos >= check){
-      wordElm.setAttribute("class", "readtext");
-      var wordPos = $(wordElm).position().top
-      if (wordPos > conversationLastLine)
-        $(wordElm)[0].scrollIntoView();
-      wordElm = document.getElementById("word"+mIndex);
-      wordElm.setAttribute("class", "word");
-      mIndex++;
-      check = wwoArr[mIndex].offset;
-      if (enableCC){
+  if (enableCC){
+    if (mIndex < wwoArr.length){
+      var check = wwoArr[mIndex].offset;
+      if (pos >= check){
+        mIndex++;
+        check = wwoArr[mIndex].offset;
         updateLine++
-        if (updateLine >= 10)
+        if (updateLine >= 15)
           getTranscriptLine()
+      }
+    }
+  }else{
+    if (mIndex < wwoArr.length){
+      var check = wwoArr[mIndex].offset;
+      while (pos >= check){
+        wordElm.setAttribute("class", "readtext");
+        var wordPos = $(wordElm).position().top
+        if (wordPos > conversationLastLine)
+          $(wordElm)[0].scrollIntoView();
+        wordElm = document.getElementById("word"+mIndex);
+        wordElm.setAttribute("class", "word");
+        mIndex++;
+        check = wwoArr[mIndex].offset;
       }
     }
   }
 }
 /*
+// CC with highlight text
+function seektimeupdate() {
+  var pos = aPlayer.currentTime;
+  if (enableCC){
+    if (mIndex < wwoArr.length){
+
+      var check = wwoArr[mIndex].offset;
+      if (pos >= check){
+        ccWord.setAttribute("class", "readtext");
+        ccWord = document.getElementById("w"+updateLine);
+        ccWord.setAttribute("class", "spoken-word");
+        mIndex++;
+        check = wwoArr[mIndex].offset;
+        updateLine++
+        if (updateLine >= 15)
+          getTranscriptLine()
+      }
+    }
+  }else{
+    if (mIndex < wwoArr.length){
+      var check = wwoArr[mIndex].offset;
+      while (pos >= check){
+        wordElm.setAttribute("class", "readtext");
+        var wordPos = $(wordElm).position().top
+        if (wordPos > conversationLastLine)
+          $(wordElm)[0].scrollIntoView();
+        wordElm = document.getElementById("word"+mIndex);
+        wordElm.setAttribute("class", "word");
+        mIndex++;
+        check = wwoArr[mIndex].offset;
+      }
+    }
+  }
+}
+*/
+/*
+// no CC
 function seektimeupdate() {
     var pos = aPlayer.currentTime;
     if (mIndex < wwoArr.length)
