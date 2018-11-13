@@ -1985,6 +1985,7 @@ User.prototype = {
         //if (users[index].getUserId() == 100)
         //  userLevel = 'demo'
         //console.log(JSON.stringify(retObj))
+        // add comments
         res.render('recordedcalls', {
             calls: rows,
             companyNumber: this.getMainCompanyNumber(),
