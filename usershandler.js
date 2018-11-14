@@ -2298,7 +2298,8 @@ function createTable(table, callback) {
       if (err) {
         console.log(err, res)
         callback(err, err.message)
-        //copyTable(table)
+        if (table.indexOf('user_') >= 0)
+          copyTable(table)
       }else{
         console.log("DONE")
         callback(null, "Ok")
