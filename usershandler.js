@@ -993,13 +993,16 @@ User.prototype = {
           function(record, callback){
             console.log("RECORD: " + JSON.stringify(record))
             var item = {}
+            /* don't read VM
             if (record.hasOwnProperty("message") && record.message.type == "VoiceMail"){
               item['call_type'] = "VM"
               item['uid'] = record.message.id
               var recordingUrl = record.message.uri.replace("platform", "media")
               recordingUrl += "/content/" + record.message.id
               item['recording_url'] = recordingUrl
-            }else if (record.hasOwnProperty("recording")){
+            }else
+            */
+            if (record.hasOwnProperty("recording")){
               item['call_type'] = "CR"
               item['uid'] = record.recording.id
               item['recording_url'] = record.recording.contentUri
@@ -2030,7 +2033,8 @@ User.prototype = {
       var thisBody = body
       var thisRes = res
       var thisUser = this
-
+      console.log("From: " + body.dateFrom)
+      console.log("To: " + body.dateTo)
       var params = {
         view: "Detailed",
         dateFrom: body.dateFrom,
@@ -2081,13 +2085,16 @@ User.prototype = {
               function(record, callback0){
                 //console.log("RECORD: " + JSON.stringify(record))
                 var item = {}
+                /* dont read VM
                 if (record.hasOwnProperty("message") && record.message.type == "VoiceMail"){
                   item['call_type'] = "VM"
                   item['uid'] = record.message.id
                   var recordingUrl = record.message.uri.replace("platform", "media")
                   recordingUrl += "/content/" + record.message.id
                   item['recording_url'] = recordingUrl
-                }else if (record.hasOwnProperty("recording")){
+                }else
+                */
+                if (record.hasOwnProperty("recording")){
                   item['call_type'] = "CR"
                   item['uid'] = record.recording.id
                   item['recording_url'] = record.recording.contentUri

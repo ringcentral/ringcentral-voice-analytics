@@ -209,6 +209,7 @@ function readCallLogs(){
     alert(response.statusText);
   });
 }
+
 function enableNotification(){
   if ($('#notification_btn').text() == "Disable Auto Processing"){
     var url = "disablenotification"
