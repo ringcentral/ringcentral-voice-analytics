@@ -299,7 +299,7 @@ var router = module.exports = {
         return console.error(err.message);
       }
       //console.log("RESULT: " + JSON.stringify(result))
-      console.log("PROCESS: " + result.rows[0].processed)
+      //console.log("PROCESS: " + result.rows[0].processed)
       res.send('{"status":"ok","state":' + result.rows[0].processed + ',"uid":' + req.query.uid + '}')
     });
   },

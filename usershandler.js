@@ -978,9 +978,9 @@ User.prototype = {
       params['dateTo'] = this.notificationUser.stopTime
       if (this.notificationUser.callRecording)
         params['recordingType'] = 'All' //withCallRecording
-      console.log(JSON.stringify(params))
+      //console.log(JSON.stringify(params))
       var p = this.getPlatform()
-      console.log(endpoint)
+      //console.log(endpoint)
       var thisUser = this
       p.get(endpoint, params)
       .then(function(resp){
@@ -991,7 +991,7 @@ User.prototype = {
         }
         async.each(json.records,
           function(record, callback){
-            console.log("RECORD: " + JSON.stringify(record))
+            //console.log("RECORD: " + JSON.stringify(record))
             var item = {}
             if (record.hasOwnProperty("message") && record.message.type == "VoiceMail"){
               item['call_type'] = "VM"
@@ -1285,16 +1285,18 @@ User.prototype = {
           var watson = new WatsonEngine()
           watson.transcribe(table, res, req.body, fs.createReadStream(audioSrc))
         }else if (process.env.TRANSCRIPT_ENGINE == "REV-AI"){
+          console.log("call REV-AI to transcribe PR")
           var revai = new RevAIEngine()
           revai.transcribe(table, res, body, audioSrc, this.getExtensionId())
         }
       }else {
+        console.log("call REV-AI to transcribe VM or CR")
         var p = this.getPlatform()
         //var obj = req.body
         var thisRes = res
         var thisUser = this
         var recordingUrl = p.createUrl(req.body.recordingUrl, {addToken: true});
-//
+        //console.log("callRecordingUrl: " + recordingUrl)
         if (process.env.TRANSCRIPT_ENGINE == "WATSON"){
           p.get(recordingUrl)
             .then(function(res) {
@@ -1377,7 +1379,7 @@ User.prototype = {
         row.sentiments = unescape(row.sentiments)
         row.profanities = unescape(row.profanities)
         row.wordsandoffsets = unescape(row.wordsandoffsets)
-
+        //console.log(row.sentiments)
         var page = 'recordedcall'
         if (row.call_type == 'VR')
           page = 'videocall'
@@ -2026,11 +2028,11 @@ User.prototype = {
       var ext = extList[this.extIndex]
 
       var endpoint = '/account/~/extension/'+ ext.id +'/call-log'
-      console.log("Ext Id: " + ext.id)
+      //console.log("Ext Id: " + ext.id)
       var thisBody = body
       var thisRes = res
       var thisUser = this
-
+      //console.log("DATE: " + body.dateFrom + "/" + body.dateTo)
       var params = {
         view: "Detailed",
         dateFrom: body.dateFrom,
