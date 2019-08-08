@@ -111,7 +111,7 @@ function displayAnalytics(option){
             }
           }
           for (var item of itemArr){
-            alert(JSON.stringify(item))
+            //alert(JSON.stringify(item))
             sentence = '' //item.sentence
             if (item.hasOwnProperty('positive')){
               //alert("item.positive")
